@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class DebugTest : MonoBehaviour
 {
-    [Header("²âÊÔ¶ÔÏó")]
+    [Header("æµ‹è¯•å¯¹è±¡")]
     public GameObject player;
     public GameObject enemy;
 
-    [Header("²âÊÔÉèÖÃ")]
+    [Header("æµ‹è¯•è®¾ç½®")]
     public bool autoTest = true;
     public float testInterval = 2f;
 
@@ -19,29 +19,29 @@ public class DebugTest : MonoBehaviour
 
     private void Start()
     {
-        // ÏÈÈ·±£¶ÔÏó´æÔÚ
+        // ç¡®ä¿å¯¹è±¡å­˜åœ¨
         if (player == null || enemy == null)
         {
-            Debug.LogError("Íæ¼Ò»òµĞÈË¶ÔÏóÎ´·ÖÅä£¡");
+            Debug.LogError("è¯·åˆ†é…Playerå’ŒEnemyå¯¹è±¡ï¼");
             return;
         }
 
-        // »ñÈ¡×é¼ş
+        // è·å–ç»„ä»¶
         playerAttr = player.GetComponent<Attribute>();
         enemyAttr = enemy.GetComponent<Attribute>();
         playerAttack = player.GetComponent<Attack>();
         enemyAttack = enemy.GetComponent<Attack>();
 
-        // ¼ì²é×é¼şÊÇ·ñ»ñÈ¡³É¹¦
-        if (playerAttr == null) Debug.LogError("Î´ÕÒµ½Íæ¼ÒµÄAttribute×é¼ş");
-        if (enemyAttr == null) Debug.LogError("Î´ÕÒµ½µĞÈËµÄAttribute×é¼ş");
-        if (playerAttack == null) Debug.LogError("Î´ÕÒµ½Íæ¼ÒµÄAttack×é¼ş");
+        // æ£€æŸ¥ç»„ä»¶æ˜¯å¦è·å–æˆåŠŸ
+        if (playerAttr == null) Debug.LogError("æœªæ‰¾åˆ°ç©å®¶çš„Attributeç»„ä»¶");
+        if (enemyAttr == null) Debug.LogError("æœªæ‰¾åˆ°æ•Œäººçš„Attributeç»„ä»¶");
+        if (playerAttack == null) Debug.LogError("æœªæ‰¾åˆ°ç©å®¶çš„Attackç»„ä»¶");
 
-        // Ö»ÓĞ×é¼ş¶¼´æÔÚÊ±²Å×¢²áÊÂ¼ş
+        // åªæœ‰åœ¨æ‰€æœ‰ç»„ä»¶éƒ½å­˜åœ¨æ—¶æ‰æ³¨å†Œäº‹ä»¶
         if (playerAttr != null && enemyAttr != null && playerAttack != null)
         {
             RegisterEvents();
-            Debug.Log("=== ¿ªÊ¼Debug²âÊÔ ===");
+            Debug.Log("=== å¼€å§‹Debugæµ‹è¯• ===");
 
             if (autoTest)
             {
@@ -54,85 +54,85 @@ public class DebugTest : MonoBehaviour
         }
         else
         {
-            Debug.LogError("È±ÉÙ±ØÒªµÄ×é¼ş£¬ÎŞ·¨Æô¶¯²âÊÔ");
+            Debug.LogError("ç¼ºå°‘å¿…è¦ç»„ä»¶ï¼Œæ— æ³•è¿›è¡Œæµ‹è¯•");
         }
     }
 
     private void RegisterEvents()
     {
-        // Íæ¼ÒÊôĞÔÊÂ¼ş
+        // æ³¨å†Œäº‹ä»¶
         playerAttr.OnHealthChanged += (health) =>
-            Debug.Log($"Íæ¼ÒÉúÃüÖµ±ä»¯: {health}/{playerAttr.MaxHealth}");
+            Debug.Log($"ç©å®¶ç”Ÿå‘½å€¼å˜åŒ–: {health}/{playerAttr.MaxHealth}");
         playerAttr.OnTakeDamage += (damage, attacker) =>
-            Debug.Log($"Íæ¼ÒÊÜµ½ÉËº¦: {damage}µã (À´×Ô: {attacker?.name})");
-        playerAttr.OnDeath += () => Debug.Log("Íæ¼ÒËÀÍö!");
+            Debug.Log($"ç©å®¶å—åˆ°ä¼¤å®³: {damage}ç‚¹ (æ¥æº: {attacker?.name})");
+        playerAttr.OnDeath += () => Debug.Log("ç©å®¶æ­»äº¡!");
 
-        // µĞÈËÊôĞÔÊÂ¼ş
+        // æ•Œäººäº‹ä»¶
         enemyAttr.OnHealthChanged += (health) =>
-            Debug.Log($"µĞÈËÉúÃüÖµ±ä»¯: {health}/{enemyAttr.MaxHealth}");
+            Debug.Log($"æ•Œäººç”Ÿå‘½å€¼å˜åŒ–: {health}/{enemyAttr.MaxHealth}");
         enemyAttr.OnTakeDamage += (damage, attacker) =>
-            Debug.Log($"µĞÈËÊÜµ½ÉËº¦: {damage}µã (À´×Ô: {attacker?.name})");
-        enemyAttr.OnDeath += () => Debug.Log("µĞÈËËÀÍö!");
+            Debug.Log($"æ•Œäººå—åˆ°ä¼¤å®³: {damage}ç‚¹ (æ¥æº: {attacker?.name})");
+        enemyAttr.OnDeath += () => Debug.Log("æ•Œäººæ­»äº¡!");
 
-        // ¹¥»÷ÊÂ¼ş
+        // æ”»å‡»äº‹ä»¶
         playerAttack.OnAttackPerformed += (type) =>
-            Debug.Log($"Íæ¼ÒÖ´ĞĞ{type}¹¥»÷");
+            Debug.Log($"ç©å®¶æ‰§è¡Œ{type}æ”»å‡»");
         playerAttack.OnAttackHit += (target, damage, type) =>
-            Debug.Log($"Íæ¼Ò{type}¹¥»÷ÃüÖĞ{target.name}, ÉËº¦: {damage}");
+            Debug.Log($"ç©å®¶{type}æ”»å‡»å‘½ä¸­{target.name}, ä¼¤å®³: {damage}");
         playerAttack.OnElementEffectApplied += (type, target) =>
-            Debug.Log($"Íæ¼Ò{type}ÔªËØĞ§¹ûÓ¦ÓÃµ½{target.name}");
+            Debug.Log($"ç©å®¶{type}å…ƒç´ æ•ˆæœåº”ç”¨åˆ°{target.name}");
     }
 
     private IEnumerator AutoTestCoroutine()
     {
-        Debug.Log("=== ¿ªÊ¼×Ô¶¯²âÊÔ ===");
+        Debug.Log("=== å¼€å§‹è‡ªåŠ¨æµ‹è¯• ===");
 
-        // ²âÊÔ1: »ù´¡ÊôĞÔ²âÊÔ
+        // æµ‹è¯•1: åŸºç¡€å±æ€§æµ‹è¯•
         yield return StartCoroutine(TestBasicAttributes());
 
-        // ²âÊÔ2: ÎïÀí¹¥»÷²âÊÔ
+        // æµ‹è¯•2: ç‰©ç†æ”»å‡»æµ‹è¯•
         yield return StartCoroutine(TestPhysicalAttack());
 
-        // ²âÊÔ3: ÔªËØ¹¥»÷²âÊÔ
+        // æµ‹è¯•3: å…ƒç´ æ”»å‡»æµ‹è¯•
         yield return StartCoroutine(TestElementalAttacks());
 
-        // ²âÊÔ4: ÖÎÁÆĞ§¹û²âÊÔ
+        // æµ‹è¯•4: æ²»ç–—æ•ˆæœæµ‹è¯•
         yield return StartCoroutine(TestHealing());
 
-        Debug.Log("=== ×Ô¶¯²âÊÔÍê³É ===");
+        Debug.Log("=== è‡ªåŠ¨æµ‹è¯•å®Œæˆ ===");
     }
 
     private IEnumerator TestBasicAttributes()
     {
-        Debug.Log("\n--- ²âÊÔ1: »ù´¡ÊôĞÔ ---");
+        Debug.Log("\n--- æµ‹è¯•1: åŸºç¡€å±æ€§ ---");
 
-        Debug.Log($"Íæ¼Ò³õÊ¼ÊôĞÔ: ÉúÃü{playerAttr.CurrentHealth}/{playerAttr.MaxHealth}, " +
-                 $"¹¥»÷{playerAttr.Attack}, ·ÀÓù{playerAttr.Defense}");
-        Debug.Log($"µĞÈË³õÊ¼ÊôĞÔ: ÉúÃü{enemyAttr.CurrentHealth}/{enemyAttr.MaxHealth}, " +
-                 $"¹¥»÷{enemyAttr.Attack}, ·ÀÓù{enemyAttr.Defense}");
+        Debug.Log($"ç©å®¶åˆå§‹å±æ€§: ç”Ÿå‘½{playerAttr.CurrentHealth}/{playerAttr.MaxHealth}, " +
+                 $"æ”»å‡»{playerAttr.Attack}, é˜²å¾¡{playerAttr.Defense}");
+        Debug.Log($"æ•Œäººåˆå§‹å±æ€§: ç”Ÿå‘½{enemyAttr.CurrentHealth}/{enemyAttr.MaxHealth}, " +
+                 $"æ”»å‡»{enemyAttr.Attack}, é˜²å¾¡{enemyAttr.Defense}");
 
-        // ²âÊÔÊôĞÔĞŞ¸Ä
+        // ä¿®æ”¹ç©å®¶å±æ€§
         playerAttr.SetAttack(20);
         playerAttr.SetDefense(5);
-        Debug.Log($"ĞŞ¸ÄºóÍæ¼ÒÊôĞÔ: ¹¥»÷{playerAttr.Attack}, ·ÀÓù{playerAttr.Defense}");
+        Debug.Log($"ä¿®æ”¹åç©å®¶å±æ€§: æ”»å‡»{playerAttr.Attack}, é˜²å¾¡{playerAttr.Defense}");
 
         yield return new WaitForSeconds(1f);
     }
 
     private IEnumerator TestPhysicalAttack()
     {
-        Debug.Log("\n--- ²âÊÔ2: ÎïÀí¹¥»÷ ---");
+        Debug.Log("\n--- æµ‹è¯•2: ç‰©ç†æ”»å‡» ---");
 
         playerAttack.SetAttackType(Attack.AttackType.Physical);
-        Debug.Log($"ÉèÖÃ¹¥»÷ÀàĞÍ: {playerAttack.Type}");
+        Debug.Log($"è®¾ç½®æ”»å‡»ç±»å‹: {playerAttack.Type}");
 
-        // Ö´ĞĞ¹¥»÷
+        // æ‰§è¡Œæ”»å‡»
         playerAttack.ForceAttack();
 
         yield return new WaitForSeconds(1f);
 
-        // ²âÊÔÎŞÊÓ·ÀÓùµÄÕæÊµÉËº¦
-        Debug.Log("²âÊÔÕæÊµÉËº¦...");
+        // æµ‹è¯•çœŸå®ä¼¤å®³ï¼ˆæ— è§†é˜²å¾¡ï¼‰
+        Debug.Log("æµ‹è¯•çœŸå®ä¼¤å®³...");
         enemyAttr.TakeTrueDamage(15, player);
 
         yield return new WaitForSeconds(1f);
@@ -140,28 +140,28 @@ public class DebugTest : MonoBehaviour
 
     private IEnumerator TestElementalAttacks()
     {
-        Debug.Log("\n--- ²âÊÔ3: ÔªËØ¹¥»÷ ---");
+        Debug.Log("\n--- æµ‹è¯•3: å…ƒç´ æ”»å‡» ---");
 
-        // ²âÊÔ»ğÔªËØ
-        Debug.Log("²âÊÔ»ğÔªËØ¹¥»÷...");
+        // æµ‹è¯•ç«å…ƒç´ 
+        Debug.Log("æµ‹è¯•ç«å…ƒç´ æ”»å‡»...");
         playerAttack.SetAttackType(Attack.AttackType.Fire);
         playerAttack.ForceAttack();
         yield return new WaitForSeconds(2f);
 
-        // ²âÊÔ±ùÔªËØ
-        Debug.Log("²âÊÔ±ùÔªËØ¹¥»÷...");
+        // æµ‹è¯•å†°å…ƒç´ 
+        Debug.Log("æµ‹è¯•å†°å…ƒç´ æ”»å‡»...");
         playerAttack.SetAttackType(Attack.AttackType.Ice);
         playerAttack.ForceAttack();
         yield return new WaitForSeconds(2f);
 
-        // ²âÊÔ·çÔªËØ
-        Debug.Log("²âÊÔ·çÔªËØ¹¥»÷...");
+        // æµ‹è¯•é£å…ƒç´ 
+        Debug.Log("æµ‹è¯•é£å…ƒç´ æ”»å‡»...");
         playerAttack.SetAttackType(Attack.AttackType.Wind);
         playerAttack.ForceAttack();
         yield return new WaitForSeconds(2f);
 
-        // ²âÊÔÀ×ÔªËØ
-        Debug.Log("²âÊÔÀ×ÔªËØ¹¥»÷...");
+        // æµ‹è¯•é›·å…ƒç´ 
+        Debug.Log("æµ‹è¯•é›·å…ƒç´ æ”»å‡»...");
         playerAttack.SetAttackType(Attack.AttackType.Thunder);
         playerAttack.ForceAttack();
         yield return new WaitForSeconds(2f);
@@ -169,33 +169,33 @@ public class DebugTest : MonoBehaviour
 
     private IEnumerator TestHealing()
     {
-        Debug.Log("\n--- ²âÊÔ4: ÖÎÁÆĞ§¹û ---");
+        Debug.Log("\n--- æµ‹è¯•4: æ²»ç–—æ•ˆæœ ---");
 
-        // ÏÈÔì³ÉÒ»Ğ©ÉËº¦
+        // å…ˆé€ æˆä¸€äº›ä¼¤å®³
         enemyAttr.TakeTrueDamage(30, player);
-        Debug.Log($"µĞÈËÊÜÉËºóÉúÃüÖµ: {enemyAttr.CurrentHealth}");
+        Debug.Log($"é€ æˆä¼¤å®³åæ•Œäººç”Ÿå‘½å€¼: {enemyAttr.CurrentHealth}");
 
         yield return new WaitForSeconds(1f);
 
-        // ½øĞĞÖÎÁÆ
+        // è¿›è¡Œæ²»ç–—
         enemyAttr.Heal(20);
-        Debug.Log($"ÖÎÁÆºóµĞÈËÉúÃüÖµ: {enemyAttr.CurrentHealth}");
+        Debug.Log($"æ²»ç–—åæ•Œäººç”Ÿå‘½å€¼: {enemyAttr.CurrentHealth}");
 
         yield return new WaitForSeconds(1f);
     }
 
     private void StartManualTest()
     {
-        Debug.Log("=== ÊÖ¶¯²âÊÔÄ£Ê½ ===");
-        Debug.Log("Ê¹ÓÃÒÔÏÂ°´¼ü½øĞĞ²âÊÔ:");
-        Debug.Log("1 - ÎïÀí¹¥»÷");
-        Debug.Log("2 - »ğÔªËØ¹¥»÷");
-        Debug.Log("3 - ±ùÔªËØ¹¥»÷");
-        Debug.Log("4 - ·çÔªËØ¹¥»÷");
-        Debug.Log("5 - À×ÔªËØ¹¥»÷");
-        Debug.Log("H - ÖÎÁÆµĞÈË");
-        Debug.Log("R - ÖØÖÃµĞÈËÉúÃüÖµ");
-        Debug.Log("D - ¶ÔµĞÈËÔì³ÉÖ±½ÓÉËº¦");
+        Debug.Log("=== æ‰‹åŠ¨æµ‹è¯•æ¨¡å¼ ===");
+        Debug.Log("ä½¿ç”¨ä»¥ä¸‹æŒ‰é”®è¿›è¡Œæ“ä½œ:");
+        Debug.Log("1 - ç‰©ç†æ”»å‡»");
+        Debug.Log("2 - ç«å…ƒç´ æ”»å‡»");
+        Debug.Log("3 - å†°å…ƒç´ æ”»å‡»");
+        Debug.Log("4 - é£å…ƒç´ æ”»å‡»");
+        Debug.Log("5 - é›·å…ƒç´ æ”»å‡»");
+        Debug.Log("H - æ²»ç–—æ•Œäºº");
+        Debug.Log("R - é‡ç½®æ•Œäººç”Ÿå‘½å€¼");
+        Debug.Log("D - å¯¹æ•Œäººé€ æˆç›´æ¥ä¼¤å®³");
     }
 
     private void Update()
@@ -236,59 +236,59 @@ public class DebugTest : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.H))
         {
             enemyAttr.Heal(25);
-            Debug.Log("ÖÎÁÆµĞÈË25µãÉúÃüÖµ");
+            Debug.Log("æ²»ç–—æ•Œäºº25ç‚¹ç”Ÿå‘½å€¼");
         }
         else if (Input.GetKeyDown(KeyCode.R))
         {
             enemyAttr.ResetHealth();
-            Debug.Log("ÖØÖÃµĞÈËÉúÃüÖµ");
+            Debug.Log("é‡ç½®æ•Œäººç”Ÿå‘½å€¼");
         }
         else if (Input.GetKeyDown(KeyCode.D))
         {
             enemyAttr.TakeDamage(15, player);
-            Debug.Log("¶ÔµĞÈËÔì³É15µãÉËº¦");
+            Debug.Log("å¯¹æ•Œäººé€ æˆ15ç‚¹ä¼¤å®³");
         }
     }
 
-    // ¸¨Öú·½·¨£º´´½¨²âÊÔ³¡¾°
-    [ContextMenu("´´½¨²âÊÔ³¡¾°")]
+    // åˆ›å»ºæµ‹è¯•åœºæ™¯çš„è¾…åŠ©æ–¹æ³•
+    [ContextMenu("åˆ›å»ºæµ‹è¯•åœºæ™¯")]
     public void CreateTestScene()
     {
-        Debug.Log("´´½¨²âÊÔ³¡¾°...");
+        Debug.Log("åˆ›å»ºæµ‹è¯•åœºæ™¯...");
 
-        // ´´½¨Íæ¼Ò
+        // åˆ›å»ºç©å®¶
         GameObject playerObj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         playerObj.name = "TestPlayer";
         playerObj.transform.position = Vector3.zero;
 
-        // Ìí¼Ó×é¼ş
+        // æ·»åŠ ç»„ä»¶
         Attribute playerAttr = playerObj.AddComponent<Attribute>();
         Attack playerAttack = playerObj.AddComponent<Attack>();
         Rigidbody playerRb = playerObj.AddComponent<Rigidbody>();
         playerRb.useGravity = false;
 
-        // ´´½¨µĞÈË
+        // åˆ›å»ºæ•Œäºº
         GameObject enemyObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
         enemyObj.name = "TestEnemy";
         enemyObj.transform.position = new Vector3(3, 0, 0);
 
-        // Ìí¼Ó×é¼ş
+        // æ·»åŠ ç»„ä»¶
         Attribute enemyAttr = enemyObj.AddComponent<Attribute>();
         Rigidbody enemyRb = enemyObj.AddComponent<Rigidbody>();
         enemyRb.useGravity = false;
 
-        // ÉèÖÃ²âÊÔ²ÎÊı
+        // è®¾ç½®æµ‹è¯•å‚æ•°
         playerAttr.SetMaxHealth(100, true);
         playerAttr.SetAttack(15);
         enemyAttr.SetMaxHealth(80, true);
         enemyAttr.SetDefense(10);
 
-        Debug.Log("²âÊÔ³¡¾°´´½¨Íê³É!");
+        Debug.Log("æµ‹è¯•åœºæ™¯åˆ›å»ºå®Œæˆ!");
     }
 
     private void OnDestroy()
     {
-        // ÇåÀíÊÂ¼ş×¢²á
+        // æ¸…ç†äº‹ä»¶æ³¨å†Œ
         if (playerAttr != null)
         {
             playerAttr.OnHealthChanged = null;

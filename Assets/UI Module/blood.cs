@@ -3,42 +3,42 @@ using TMPro;
 
 public class HealthBarController : MonoBehaviour
 {
-    [Header("ÑªÌõ×é¼ş")]
-    public UnityEngine.UI.Slider healthSlider;  // Èç¹ûÊ¹ÓÃ Slider ·½·¨
-    public UnityEngine.UI.Image healthFillImage; // Èç¹ûÊ¹ÓÃ Image ·½·¨
+    [Header("è¡€æ¡ç»„ä»¶")]
+    public UnityEngine.UI.Slider healthSlider;  // æ¨èä½¿ç”¨ Slider ç»„ä»¶
+    public UnityEngine.UI.Image healthFillImage; // æ¨èä½¿ç”¨ Image ç»„ä»¶
     public TextMeshProUGUI healthText;
 
-    [Header("ÑªÁ¿ÉèÖÃ")]
+    [Header("è¡€æ¡å±æ€§")]
     public float maxHealth = 100f;
     public float currentHealth = 100f;
 
     void Start()
     {
-        // ³õÊ¼»¯ÑªÌõ
+        // åˆå§‹åŒ–è¡€æ¡
         UpdateHealthBar();
     }
 
-    // ¸üĞÂÑªÁ¿ÏÔÊ¾
+    // æ›´æ–°è¡€æ¡æ˜¾ç¤º
     public void UpdateHealthBar()
     {
         float healthPercentage = currentHealth / maxHealth;
 
-        // ¸üĞÂ Slider »ò Image
+        // æ›´æ–° Slider å’Œ Image
         if (healthSlider != null)
             healthSlider.value = healthPercentage;
 
         if (healthFillImage != null)
             healthFillImage.fillAmount = healthPercentage;
 
-        // ¸üĞÂÎÄ×Ö
+        // æ›´æ–°æ–‡æœ¬
         if (healthText != null)
             healthText.text = $"{currentHealth}/{maxHealth}";
 
-        // ¿ÉÑ¡£º¸ù¾İÑªÁ¿¸Ä±äÑÕÉ«
+        // å¯é€‰ï¼šæ›´æ–°è¡€æ¡çš„é¢œè‰²
         UpdateHealthColor(healthPercentage);
     }
 
-    // ¸ù¾İÑªÁ¿¸Ä±äÑÕÉ«
+    // æ›´æ–°è¡€æ¡çš„é¢œè‰²
     void UpdateHealthColor(float percentage)
     {
         if (healthFillImage != null)
@@ -52,21 +52,21 @@ public class HealthBarController : MonoBehaviour
         }
     }
 
-    // ÊÜµ½ÉËº¦
+    // å—åˆ°ä¼¤å®³
     public void TakeDamage(float damage)
     {
         currentHealth = Mathf.Max(0, currentHealth - damage);
         UpdateHealthBar();
     }
 
-    // »Ö¸´ÑªÁ¿
+    // æ¢å¤è¡€é‡
     public void Heal(float healAmount)
     {
         currentHealth = Mathf.Min(maxHealth, currentHealth + healAmount);
         UpdateHealthBar();
     }
 
-    // ÉèÖÃÑªÁ¿
+    // è®¾ç½®è¡€é‡
     public void SetHealth(float health)
     {
         currentHealth = Mathf.Clamp(health, 0, maxHealth);

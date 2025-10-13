@@ -6,14 +6,15 @@ public class Attack : MonoBehaviour
 {
     [Header("攻击属性")]
     [SerializeField] private AttackType attackType = AttackType.Physical; // 攻击类型，默认物理攻击
-    [SerializeField] private KeyCode attackKey = KeyCode.Mouse0; // 攻击按键，默认为鼠标左键
-    [SerializeField] private float attackRange = 2f; // 攻击范围
-    [SerializeField] private float attackCooldown = 1f; // 攻击冷却时间
+    [SerializeField] private KeyCode attackKey = KeyCode.J; // 攻击按键，默认为J键
+    [SerializeField] private float attackRange = 100f; // 攻击范围
+    [SerializeField] private float attackCooldown = 0.5f; // 攻击冷却时间
     [SerializeField] private LayerMask enemyLayer; // 敌人层级
+    
 
     [Header("攻击判定")]
     [SerializeField] private Transform attackPoint; // 攻击判定点
-    [SerializeField] private float attackRadius = 0.5f; // 攻击判定半径
+    [SerializeField] private float attackRadius = 100f; // 攻击判定半径
 
     [Header("物理攻击属性")]
     [SerializeField] private float physicalCritRate = 0.1f; // 物理暴击率
@@ -68,26 +69,48 @@ public class Attack : MonoBehaviour
 
     private void Update()
     {
-        // 检测鼠标左键输入
-        if (Input.GetKeyDown(attackKey))
+        // 方案四：调试检查按键检测
+        if (Input.GetKeyDown(KeyCode.J))
         {
+            //Debug.Log("J键被按下");
             PerformAttack();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            Debug.Log("鼠标左键被按下");
+            //PerformAttack();
+        }
+
+        // 可以添加其他按键测试
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("空格键被按下");
+            //PerformAttack();
         }
     }
 
     // 执行攻击
     public void PerformAttack()
     {
-        if (!CanAttack) return;
+        if (!CanAttack)
+        {
+            Debug.Log($"攻击冷却中，剩余时间：{lastAttackTime + attackCooldown - Time.time}");
+            return;
+        }
 
         // 触发攻击执行事件
+        Debug.Log("执行攻击");
         OnAttackPerformed?.Invoke(attackType);
+        
 
         // 进行攻击判定
         Collider[] hitEnemies = GetHitEnemies();
+        Debug.Log($"检测到{hitEnemies.Length}个敌人");
 
         foreach (Collider enemy in hitEnemies)
         {
+            Debug.Log($"攻击目标：{enemy.gameObject.name}");
             if (enemy.gameObject != gameObject) // 不攻击自己
             {
                 ProcessAttackHit(enemy.gameObject);
@@ -112,6 +135,9 @@ public class Attack : MonoBehaviour
     // 获取命中的敌人
     private Collider[] GetHitEnemies()
     {
+        Vector3 detectionCenter;
+        float detectionRadius;
+
         if (attackPoint != null)
         {
             // 使用攻击点进行球形检测
@@ -122,6 +148,61 @@ public class Attack : MonoBehaviour
             // 使用角色位置进行球形检测
             return Physics.OverlapSphere(transform.position, attackRange, enemyLayer);
         }
+    }
+
+    [ContextMenu("强制设置测试层级")]
+    private void ForceTestLayers()
+    {
+        // 临时将enemyLayer设置为检测所有层级
+        enemyLayer = LayerMask.GetMask("Everything");
+        Debug.Log("已设置为检测所有层级，重新测试攻击");
+    }
+
+    [ContextMenu("测试物理系统")]
+    private void TestPhysicsSystem()
+    {
+        // 测试最基本的物理检测
+        Collider[] hits = Physics.OverlapSphere(transform.position, 5f);
+        Debug.Log($"5米范围内所有碰撞体: {hits.Length}");
+
+        if (hits.Length == 0)
+        {
+            Debug.LogError("物理检测完全无结果！检查：");
+            Debug.LogError("1. 碰撞体是否存在且未设置为Trigger");
+            Debug.LogError("2. 对象位置是否正确");
+            Debug.LogError("3. 物理系统是否正常工作");
+        }
+    }
+
+    [ContextMenu("测试层级配置")]
+    private void TestLayerConfiguration()
+    {
+        Debug.Log("=== 层级配置测试 ===");
+
+        // 检查当前enemyLayer设置
+        if (enemyLayer.value == 0)
+        {
+            Debug.LogError("enemyLayer为0（Nothing）！这是问题所在！");
+            Debug.Log("请在Inspector中设置Enemy Layer字段");
+            return;
+        }
+
+        // 显示当前检测的层级
+        string[] layerNames = GetLayerNamesFromMask(enemyLayer);
+        Debug.Log($"当前检测的层级: {string.Join(", ", layerNames)}");
+    }
+
+    private string[] GetLayerNamesFromMask(LayerMask mask)
+    {
+        List<string> layers = new List<string>();
+        for (int i = 0; i < 32; i++)
+        {
+            if ((mask.value & (1 << i)) != 0)
+            {
+                layers.Add(LayerMask.LayerToName(i));
+            }
+        }
+        return layers.ToArray();
     }
 
     // 处理攻击命中
@@ -429,4 +510,6 @@ public class FreezeEffect : MonoBehaviour
 
         Destroy(this);
     }
+
+
 }

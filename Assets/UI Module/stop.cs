@@ -4,85 +4,85 @@ using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
 {
-    [Header("UI ×é¼ş")]
-    public GameObject settingsPanel;    // ÉèÖÃÃæ°å
-    public Button settingsButton;       // ÉèÖÃ°´Å¥
-    public Button closeButton;          // ¹Ø±Õ°´Å¥
-    public Button confirmButton;        // È·ÈÏ°´Å¥
+    [Header("UI ç»„ä»¶")]
+    public GameObject settingsPanel;    // è®¾ç½®é¢æ¿
+    public Button settingsButton;       // è®¾ç½®æŒ‰é’®
+    public Button closeButton;          // å…³é—­æŒ‰é’®
+    public Button confirmButton;        // ç¡®è®¤æŒ‰é’®
 
-    [Header("ÉèÖÃ¿Ø¼ş")]
-    public Slider volumeSlider;         // ÒôÁ¿»¬¿é
-    public TMP_Dropdown graphicsDropdown; // »­ÖÊÏÂÀ­¿ò
-    public TMP_Text volumeValueText;    // ÒôÁ¿ÖµÏÔÊ¾ÎÄ±¾
+    [Header("è®¾ç½®æ§ä»¶")]
+    public Slider volumeSlider;         // éŸ³é‡æ»‘å—
+    public TMP_Dropdown graphicsDropdown; // å›¾å½¢è´¨é‡ä¸‹æ‹‰
+    public TMP_Text volumeValueText;    // éŸ³é‡å€¼æ˜¾ç¤ºæ–‡æœ¬
 
     void Start()
     {
-        // ³õÊ¼»¯½çÃæ
+        // åˆå§‹åŒ–è®¾ç½®
         settingsPanel.SetActive(false);
 
-        // °ó¶¨°´Å¥ÊÂ¼ş
+        // ç»‘å®šæŒ‰é’®äº‹ä»¶
         settingsButton.onClick.AddListener(OpenSettings);
         closeButton.onClick.AddListener(CloseSettings);
         confirmButton.onClick.AddListener(ConfirmSettings);
 
-        // °ó¶¨»¬¿éÊÂ¼ş
+        // ç»‘å®šæ»‘å—äº‹ä»¶
         volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
 
-        // ¼ÓÔØ±£´æµÄÉèÖÃ
+        // åŠ è½½ä¿å­˜çš„è®¾ç½®
         LoadSettings();
     }
 
-    // ´ò¿ªÉèÖÃÃæ°å
+    // æ‰“å¼€è®¾ç½®é¢æ¿
     public void OpenSettings()
     {
         settingsPanel.SetActive(true);
-        // ¿ÉÑ¡£ºÔİÍ£ÓÎÏ·
+        // å¯é€‰ï¼šæš‚åœæ¸¸æˆ
         // Time.timeScale = 0f;
     }
 
-    // ¹Ø±ÕÉèÖÃÃæ°å
+    // å…³é—­è®¾ç½®é¢æ¿
     public void CloseSettings()
     {
         settingsPanel.SetActive(false);
-        // »Ö¸´ÓÎÏ·
+        // æ¢å¤æ¸¸æˆ
         // Time.timeScale = 1f;
     }
 
-    // È·ÈÏÉèÖÃ
+    // ç¡®è®¤è®¾ç½®
     public void ConfirmSettings()
     {
         SaveSettings();
         CloseSettings();
-        Debug.Log("ÉèÖÃÒÑ±£´æ²¢Ó¦ÓÃ");
+        Debug.Log("è®¾ç½®å·²è¢«ä¿å­˜å¹¶åº”ç”¨");
     }
 
-    // ÒôÁ¿±ä»¯»Øµ÷
+    // éŸ³é‡å˜åŒ–å›è°ƒ
     void OnVolumeChanged(float value)
     {
         if (volumeValueText != null)
             volumeValueText.text = $"{value:F0}%";
 
-        // ÊµÊ±Ó¦ÓÃÒôÁ¿ÉèÖÃ
+        // å®æ—¶åº”ç”¨éŸ³é‡å˜åŒ–
         AudioListener.volume = value / 100f;
     }
 
-    // ¼ÓÔØÉèÖÃ
+    // åŠ è½½è®¾ç½®
     void LoadSettings()
     {
-        // ¼ÓÔØÒôÁ¿
+        // åŠ è½½éŸ³é‡
         float savedVolume = PlayerPrefs.GetFloat("Volume", 80f);
         volumeSlider.value = savedVolume;
 
-        // ¼ÓÔØ»­ÖÊÉèÖÃ
+        // åŠ è½½å›¾å½¢è´¨é‡
         int graphicsQuality = PlayerPrefs.GetInt("GraphicsQuality", 2);
         graphicsDropdown.value = graphicsQuality;
 
-        // Ó¦ÓÃÉèÖÃ
+        // åº”ç”¨è®¾ç½®
         OnVolumeChanged(savedVolume);
         QualitySettings.SetQualityLevel(graphicsQuality);
     }
 
-    // ±£´æÉèÖÃ
+    // ä¿å­˜è®¾ç½®
     void SaveSettings()
     {
         PlayerPrefs.SetFloat("Volume", volumeSlider.value);
@@ -90,7 +90,7 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // »­ÖÊ¸Ä±ä»Øµ÷
+    // å›¾å½¢è´¨é‡æ”¹å˜å›è°ƒ
     public void OnGraphicsQualityChanged(int qualityLevel)
     {
         QualitySettings.SetQualityLevel(qualityLevel);

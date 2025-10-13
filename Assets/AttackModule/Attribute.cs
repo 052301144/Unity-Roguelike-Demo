@@ -1,62 +1,87 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Attribute : MonoBehaviour
 {
-    [Header("»ù´¡ÊôĞÔ")]
-    [SerializeField] private int maxHealth = 100; // ×î´óÉúÃüÖµ
-    [SerializeField] private int currentHealth;   // µ±Ç°ÉúÃüÖµ
-    [SerializeField] private int attack = 10;     // ¹¥»÷Á¦
-    [SerializeField] private int defense = 0;     // ·ÀÓùÁ¦
+    [Header("åŸºç¡€å±æ€§")]
+    [SerializeField] private int maxHealth = 100; // æœ€å¤§ç”Ÿå‘½å€¼
+    [SerializeField] private int currentHealth;   // å½“å‰ç”Ÿå‘½å€¼
+    [SerializeField] private int attack = 10;     // æ”»å‡»åŠ›
+    [SerializeField] private int defense = 0;     // é˜²å¾¡åŠ›
 
-    // ÊôĞÔ·ÃÎÊÆ÷
+    [Header("æ˜¾ç¤ºè®¾ç½®")]
+    [SerializeField] private bool showHealthBar = true; // æ˜¯å¦æ˜¾ç¤ºè¡€æ¡
+    [SerializeField] private bool logDamageEvents = true; // æ˜¯å¦åœ¨æ§åˆ¶å°è¾“å‡ºä¼¤å®³äº‹ä»¶
+
+    // å±æ€§è®¿é—®å™¨
     public int MaxHealth => maxHealth;
     public int CurrentHealth => currentHealth;
     public int Attack => attack;
     public int Defense => defense;
     public bool IsAlive => currentHealth > 0;
 
-    // ÊÂ¼ş
-    public System.Action<int> OnHealthChanged;           // ÉúÃüÖµ±ä»¯ÊÂ¼ş
-    public System.Action<int, GameObject> OnTakeDamage;  // ÊÜµ½ÉËº¦ÊÂ¼ş
-    public System.Action<int> OnAttackChanged;           // ¹¥»÷Á¦±ä»¯ÊÂ¼ş
-    public System.Action<int> OnDefenseChanged;          // ·ÀÓùÁ¦±ä»¯ÊÂ¼ş
-    public System.Action OnDeath;                        // ËÀÍöÊÂ¼ş
+    // äº‹ä»¶
+    public System.Action<int> OnHealthChanged;           // ç”Ÿå‘½å€¼å˜åŒ–äº‹ä»¶
+    public System.Action<int, GameObject> OnTakeDamage;  // å—åˆ°ä¼¤å®³äº‹ä»¶
+    public System.Action<int> OnAttackChanged;           // æ”»å‡»åŠ›å˜åŒ–äº‹ä»¶
+    public System.Action<int> OnDefenseChanged;          // é˜²å¾¡åŠ›å˜åŒ–äº‹ä»¶
+    public System.Action OnDeath;                        // æ­»äº¡äº‹ä»¶
 
     private void Awake()
     {
-        // ³õÊ¼»¯µ±Ç°ÉúÃüÖµÎª×î´óÉúÃüÖµ
+        // åˆå§‹åŒ–å½“å‰ç”Ÿå‘½å€¼ä¸ºæœ€å¤§ç”Ÿå‘½å€¼
         currentHealth = maxHealth;
+
+        // åˆå§‹è¡€æ¡æ˜¾ç¤º
+        if (showHealthBar)
+        {
+            Debug.Log($"{gameObject.name} åˆå§‹è¡€é‡: {currentHealth}/{maxHealth}");
+        }
     }
 
-    
-    // ÊÜµ½ÉËº¦
+    // å—åˆ°ä¼¤å®³
     public void TakeDamage(int rawDamage, GameObject attacker = null)
     {
         if (!IsAlive) return;
 
-        // ¼ÆËã×îÖÕÉËº¦£¨¿¼ÂÇ·ÀÓù£©
+        // è®¡ç®—æœ€ç»ˆä¼¤å®³ï¼ˆè€ƒè™‘é˜²å¾¡ï¼‰
         int finalDamage = CalculateFinalDamage(rawDamage);
         int previousHealth = currentHealth;
         currentHealth = Mathf.Clamp(currentHealth - finalDamage, 0, maxHealth);
 
-        // ´¥·¢ÊÜµ½ÉËº¦ÊÂ¼ş
+        // æ§åˆ¶å°è¾“å‡ºä¼¤å®³ä¿¡æ¯
+        if (logDamageEvents)
+        {
+            string attackerName = attacker != null ? attacker.name : "æœªçŸ¥æ¥æº";
+            Debug.Log($"{gameObject.name} å—åˆ° {finalDamage} ç‚¹ä¼¤å®³ (åŸå§‹ä¼¤å®³: {rawDamage}, é˜²å¾¡å‡ä¼¤: {defense}) | æ”»å‡»è€…: {attackerName}");
+            Debug.Log($"{gameObject.name} è¡€é‡å˜åŒ–: {previousHealth} -> {currentHealth}");
+        }
+
+        // æ˜¾ç¤ºè¡€æ¡å˜åŒ–
+        if (showHealthBar)
+        {
+            UpdateHealthBar();
+        }
+
+        // è§¦å‘å—åˆ°ä¼¤å®³äº‹ä»¶
         OnTakeDamage?.Invoke(finalDamage, attacker);
 
-        // ´¥·¢ÉúÃüÖµ±ä»¯ÊÂ¼ş
+        // è§¦å‘ç”Ÿå‘½å€¼å˜åŒ–äº‹ä»¶
         OnHealthChanged?.Invoke(currentHealth);
 
-        // ¼ì²éÊÇ·ñËÀÍö
+        // æ£€æŸ¥æ˜¯å¦æ­»äº¡
         if (currentHealth <= 0 && previousHealth > 0)
         {
             OnDeath?.Invoke();
+            if (logDamageEvents)
+            {
+                Debug.Log($"{gameObject.name} æ­»äº¡!");
+            }
         }
     }
 
-    
-    // ÊÜµ½ÎŞÊÓ·ÀÓùµÄÉËº¦
-    
+    // å—åˆ°æ— è§†é˜²å¾¡çš„ä¼¤å®³
     public void TakeTrueDamage(int rawDamage, GameObject attacker = null)
     {
         if (!IsAlive) return;
@@ -64,30 +89,47 @@ public class Attribute : MonoBehaviour
         int previousHealth = currentHealth;
         currentHealth = Mathf.Clamp(currentHealth - rawDamage, 0, maxHealth);
 
-        // ´¥·¢ÊÜµ½ÉËº¦ÊÂ¼ş
+        // æ§åˆ¶å°è¾“å‡ºçœŸå®ä¼¤å®³ä¿¡æ¯
+        if (logDamageEvents)
+        {
+            string attackerName = attacker != null ? attacker.name : "æœªçŸ¥æ¥æº";
+            Debug.Log($"{gameObject.name} å—åˆ°çœŸå®ä¼¤å®³: {rawDamage} ç‚¹ | æ”»å‡»è€…: {attackerName}");
+            Debug.Log($"{gameObject.name} è¡€é‡å˜åŒ–: {previousHealth} -> {currentHealth}");
+        }
+
+        // æ˜¾ç¤ºè¡€æ¡å˜åŒ–
+        if (showHealthBar)
+        {
+            UpdateHealthBar();
+        }
+
+        // è§¦å‘å—åˆ°ä¼¤å®³äº‹ä»¶
         OnTakeDamage?.Invoke(rawDamage, attacker);
 
-        // ´¥·¢ÉúÃüÖµ±ä»¯ÊÂ¼ş
+        // è§¦å‘ç”Ÿå‘½å€¼å˜åŒ–äº‹ä»¶
         OnHealthChanged?.Invoke(currentHealth);
 
-        // ¼ì²éÊÇ·ñËÀÍö
+        // æ£€æŸ¥æ˜¯å¦æ­»äº¡
         if (currentHealth <= 0 && previousHealth > 0)
         {
             OnDeath?.Invoke();
+            if (logDamageEvents)
+            {
+                Debug.Log($"{gameObject.name} æ­»äº¡!");
+            }
         }
     }
 
-    // ¼ÆËã×îÖÕÉËº¦
+    // è®¡ç®—æœ€ç»ˆä¼¤å®³
     private int CalculateFinalDamage(int rawDamage)
     {
-        // ·ÀÓùÁ¦¼õÉÙÉËº¦¹«Ê½£ºÃ¿µã·ÀÓù¼õÉÙ1%ÉËº¦
+        // é˜²å¾¡åŠ›å‡å°‘ä¼¤å®³å…¬å¼ï¼šæ¯ç‚¹é˜²å¾¡å‡å°‘1%ä¼¤å®³
         float defenseMultiplier = Mathf.Clamp(1f - (defense * 0.01f), 0.1f, 1f);
         int finalDamage = Mathf.RoundToInt(rawDamage * defenseMultiplier);
         return Mathf.Max(0, finalDamage);
     }
 
-   
-    // ÖÎÁÆ
+    // æ²»ç–—
     public void Heal(int healAmount)
     {
         if (!IsAlive) return;
@@ -95,22 +137,71 @@ public class Attribute : MonoBehaviour
         int previousHealth = currentHealth;
         currentHealth = Mathf.Clamp(currentHealth + healAmount, 0, maxHealth);
 
-        // ´¥·¢ÉúÃüÖµ±ä»¯ÊÂ¼ş
+        // æ§åˆ¶å°è¾“å‡ºæ²»ç–—ä¿¡æ¯
+        if (logDamageEvents)
+        {
+            Debug.Log($"{gameObject.name} æ¢å¤ {healAmount} ç‚¹ç”Ÿå‘½å€¼");
+            Debug.Log($"{gameObject.name} è¡€é‡å˜åŒ–: {previousHealth} -> {currentHealth}");
+        }
+
+        // æ˜¾ç¤ºè¡€æ¡å˜åŒ–
+        if (showHealthBar)
+        {
+            UpdateHealthBar();
+        }
+
+        // è§¦å‘ç”Ÿå‘½å€¼å˜åŒ–äº‹ä»¶
         if (currentHealth != previousHealth)
         {
             OnHealthChanged?.Invoke(currentHealth);
         }
     }
 
-   
+    // æ›´æ–°è¡€æ¡æ˜¾ç¤º
+    private void UpdateHealthBar()
+    {
+        float healthPercentage = GetHealthPercentage();
+        string healthBar = CreateHealthBar(healthPercentage);
+
+        Debug.Log($"{gameObject.name} ç”Ÿå‘½å€¼: {currentHealth}/{maxHealth}");
+        Debug.Log(healthBar);
+        Debug.Log($"è¡€é‡ç™¾åˆ†æ¯”: {healthPercentage:P0}");
+    }
+
+    // åˆ›å»ºè¡€æ¡å¯è§†åŒ–
+    private string CreateHealthBar(float percentage)
+    {
+        int barLength = 20; // è¡€æ¡é•¿åº¦
+        int filledLength = Mathf.RoundToInt(barLength * percentage);
+        int emptyLength = barLength - filledLength;
+
+        string bar = "[";
+        bar += new string('â–ˆ', filledLength);
+        bar += new string('â–‘', emptyLength);
+        bar += "]";
+
+        return bar;
+    }
+
     public void SetMaxHealth(int newMaxHealth, bool fillHealth = false)
     {
+        int oldMaxHealth = maxHealth;
         maxHealth = Mathf.Max(0, newMaxHealth);
 
-        //ÊÇ·ñ½«µ±Ç°ÉúÃüÖµÌî³äµ½ĞÂµÄ×î´óÖµ
+        // æ§åˆ¶å°è¾“å‡ºæœ€å¤§ç”Ÿå‘½å€¼å˜åŒ–
+        if (logDamageEvents && oldMaxHealth != maxHealth)
+        {
+            Debug.Log($"{gameObject.name} æœ€å¤§ç”Ÿå‘½å€¼å˜åŒ–: {oldMaxHealth} -> {maxHealth}");
+        }
+
+        //æ˜¯å¦å°†å½“å‰ç”Ÿå‘½å€¼å¡«å……åˆ°æ–°çš„æœ€å¤§å€¼
         if (fillHealth)
         {
             currentHealth = maxHealth;
+            if (showHealthBar)
+            {
+                UpdateHealthBar();
+            }
             OnHealthChanged?.Invoke(currentHealth);
         }
         else
@@ -119,55 +210,118 @@ public class Attribute : MonoBehaviour
         }
     }
 
-    
-    // ÉèÖÃ¹¥»÷Á¦
+    // è®¾ç½®æ”»å‡»åŠ›
     public void SetAttack(int newAttack)
     {
+        int oldAttack = attack;
         attack = Mathf.Max(0, newAttack);
+
+        if (logDamageEvents && oldAttack != attack)
+        {
+            Debug.Log($"{gameObject.name} æ”»å‡»åŠ›å˜åŒ–: {oldAttack} -> {attack}");
+        }
+
         OnAttackChanged?.Invoke(attack);
     }
 
-   
-    // Ôö¼Ó¹¥»÷Á¦
+    // å¢åŠ æ”»å‡»åŠ›
     public void AddAttack(int bonusAttack)
     {
+        int oldAttack = attack;
         attack += bonusAttack;
+
+        if (logDamageEvents)
+        {
+            Debug.Log($"{gameObject.name} æ”»å‡»åŠ›å¢åŠ : {oldAttack} -> {attack} (+{bonusAttack})");
+        }
+
         OnAttackChanged?.Invoke(attack);
     }
 
-    // ÉèÖÃ·ÀÓùÁ¦
+    // è®¾ç½®é˜²å¾¡åŠ›
     public void SetDefense(int newDefense)
     {
+        int oldDefense = defense;
         defense = Mathf.Max(0, newDefense);
+
+        if (logDamageEvents && oldDefense != defense)
+        {
+            Debug.Log($"{gameObject.name} é˜²å¾¡åŠ›å˜åŒ–: {oldDefense} -> {defense}");
+            Debug.Log($"ä¼¤å®³å‡å…: {GetDamageReductionPercentage():P0}");
+        }
+
         OnDefenseChanged?.Invoke(defense);
     }
 
-  
-    // Ôö¼Ó·ÀÓùÁ¦
+    // å¢åŠ é˜²å¾¡åŠ›
     public void AddDefense(int bonusDefense)
     {
+        int oldDefense = defense;
         defense += bonusDefense;
+
+        if (logDamageEvents)
+        {
+            Debug.Log($"{gameObject.name} é˜²å¾¡åŠ›å¢åŠ : {oldDefense} -> {defense} (+{bonusDefense})");
+            Debug.Log($"ä¼¤å®³å‡å…: {GetDamageReductionPercentage():P0}");
+        }
+
         OnDefenseChanged?.Invoke(defense);
     }
 
-    
-    // ÖØÖÃÉúÃüÖµµ½×î´óÖµ
+    // é‡ç½®ç”Ÿå‘½å€¼åˆ°æœ€å¤§å€¼
     public void ResetHealth()
     {
+        int oldHealth = currentHealth;
         currentHealth = maxHealth;
+
+        if (logDamageEvents)
+        {
+            Debug.Log($"{gameObject.name} ç”Ÿå‘½å€¼é‡ç½®: {oldHealth} -> {currentHealth}");
+        }
+
+        if (showHealthBar)
+        {
+            UpdateHealthBar();
+        }
+
         OnHealthChanged?.Invoke(currentHealth);
     }
 
-    // »ñÈ¡ÉúÃüÖµ°Ù·Ö±È
+    // è·å–ç”Ÿå‘½å€¼ç™¾åˆ†æ¯”
     public float GetHealthPercentage()
     {
         return maxHealth > 0 ? (float)currentHealth / maxHealth : 0f;
     }
 
-   
-    // »ñÈ¡ÉËº¦¼õÃâ°Ù·Ö±È
+    // è·å–ä¼¤å®³å‡å…ç™¾åˆ†æ¯”
     public float GetDamageReductionPercentage()
     {
-        return Mathf.Clamp(defense * 0.01f, 0f, 0.9f); // ×î¸ß90%ÉËº¦¼õÃâ
+        return Mathf.Clamp(defense * 0.01f, 0f, 0.9f); // æœ€é«˜90%ä¼¤å®³å‡å…
+    }
+
+    // ä¸Šä¸‹æ–‡èœå•ï¼šæµ‹è¯•ä¼¤å®³
+    [ContextMenu("æµ‹è¯•å—åˆ°10ç‚¹ä¼¤å®³")]
+    private void TestTakeDamage()
+    {
+        TakeDamage(10, gameObject);
+    }
+
+    [ContextMenu("æµ‹è¯•æ²»ç–—20ç‚¹ç”Ÿå‘½")]
+    private void TestHeal()
+    {
+        Heal(20);
+    }
+
+    [ContextMenu("æ˜¾ç¤ºå½“å‰çŠ¶æ€")]
+    private void ShowCurrentStatus()
+    {
+        Debug.Log("=== å½“å‰çŠ¶æ€ ===");
+        Debug.Log($"{gameObject.name} çŠ¶æ€:");
+        Debug.Log($"ç”Ÿå‘½å€¼: {currentHealth}/{maxHealth}");
+        Debug.Log($"æ”»å‡»åŠ›: {attack}");
+        Debug.Log($"é˜²å¾¡åŠ›: {defense}");
+        Debug.Log($"å­˜æ´»çŠ¶æ€: {(IsAlive ? "å­˜æ´»" : "æ­»äº¡")}");
+        Debug.Log($"ä¼¤å®³å‡å…: {GetDamageReductionPercentage():P0}");
+        UpdateHealthBar();
     }
 }
