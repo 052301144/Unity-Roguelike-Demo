@@ -4649,23 +4649,7 @@ MonoBehaviour:
   wallCheckRays: 3
   collisionPredictionTime: 0.1
   maxSafeSpeed: 8
-  maxSpeed: 1000
-  accel: 1000
-  decel: 1000
-  groundMoveSpeed: 500
-  useAcceleration: 1
-  fastDecel: 120
-  stopThreshold: 0.1
-  useFastDeceleration: 1
-  decelMultiplier: 2
-  clearHorizontalSpeedOnJump: 1
-  clearHorizontalSpeedOnLanding: 1
-  landingSpeedClearThreshold: 0.5
-  inheritGroundSpeedOnJump: 1
-  preserveAirSpeed: 1
-  airSpeedDecay: 0.95
-  landingSpeedThreshold: 0.5
-  landingTransitionTime: 0.2
+  moveSpeed: 600
   jumpForce: 1200
   allowDoubleJump: 0
   highJumpMultiplier: 1

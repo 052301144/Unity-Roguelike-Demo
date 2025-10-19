@@ -18,30 +18,10 @@ public class PlayerController : MonoBehaviour
 
     // 移动功能的参数
     [Header("Movement")]
-    public float maxSpeed = 6f;           // 最大速度
-    public float accel = 40f;             // 加速度，按下按键时速度增加
-    public float decel = 80f;             // 减速度，松开按键时减速停止
-    public float groundMoveSpeed = 6f;    // 固定移动速度，用于空中移动
-    [Tooltip("占位符: 如果启用 will use accel/decel to reach maxSpeed")]
-    public bool useAcceleration = true;
+    public float moveSpeed = 6f;          // 固定移动速度
 
-    [Header("Advanced Movement Control")]
-    [SerializeField] private float fastDecel = 120f; // 快速减速度，用于快速停止
-    [SerializeField] private float stopThreshold = 0.1f; // 停止阈值，低于此速度直接设为0
-    [SerializeField] private bool useFastDeceleration = true; // 使用快速减速
-    [SerializeField] private float decelMultiplier = 2f; // 减速度倍数，相对于加速度
     
-    [Header("Jump Movement Control")]
-    [SerializeField] private bool clearHorizontalSpeedOnJump = false; // 跳跃时清除水平速度（改为false，让跳跃继承地面速度）
-    [SerializeField] private bool clearHorizontalSpeedOnLanding = true; // 落地时清除水平速度
-    [SerializeField] private float landingSpeedClearThreshold = 0.5f; // 落地速度清除阈值
-    [SerializeField] private bool inheritGroundSpeedOnJump = true; // 跳跃时继承地面速度
     
-    [Header("Movement State Settings")]
-    [SerializeField] private bool preserveAirSpeed = true; // 保持空中速度
-    [SerializeField] private float airSpeedDecay = 0.95f; // 空中速度衰减系数
-    [SerializeField] private float landingSpeedThreshold = 0.5f; // 落地速度阈值
-    [SerializeField] private float landingTransitionTime = 0.2f; // 落地过渡时间
 
     // 跳跃功能的参数
     [Header("Jump")]
@@ -90,61 +70,6 @@ public class PlayerController : MonoBehaviour
     private bool wasGroundedLastFrame = false; // 上一帧是否在地面
     private float jumpStartY = 0f; // 跳跃开始时的Y位置
     private bool isJumping = false; // 是否正在跳跃
-    
-    // 移动状态管理
-    private float preservedAirSpeed = 0f; // 保持的空中速度
-    private float landingTransitionTimer = 0f; // 落地过渡计时器
-    private bool isLandingTransition = false; // 是否在落地过渡中
-    private bool wasInAirLastFrame = false; // 上一帧是否在空中
-    
-    // 移动控制状态
-    private bool hasInput = false; // 是否有输入
-    private float noInputTimer = 0f; // 无输入计时器
-    private bool isStopping = false; // 是否正在停止
-    
-    // 输入状态跟踪
-    private bool wasMovingLastFrame = false; // 上一帧是否在移动
-    private float lastInputX = 0f; // 上一帧的输入值
-    private bool inputChanged = false; // 输入是否发生变化
-    
-    // 精确按键状态跟踪
-    private bool wasPressingA = false; // 上一帧是否按下A
-    private bool wasPressingD = false; // 上一帧是否按下D
-    private bool keyReleased = false; // 是否有按键被释放
-    
-    // 按键优先级系统状态
-    private bool aWasPressedLast = false; // A是否最后被按下
-    private bool dWasPressedLast = false; // D是否最后被按下
-    
-    // 跳跃移动控制状态
-    private float jumpStartHorizontalSpeed = 0f; // 跳跃开始时的水平速度
-    private bool wasJumpingLastFrame = false; // 上一帧是否在跳跃
-    
-    // 空中速度控制
-    private float airSpeedPreservation = 0.98f; // 空中速度保持系数
-    private float airAccelerationMultiplier = 0.7f; // 空中加速度倍数
-    
-    // 跳跃方向锁定
-    private bool lockJumpDirection = true; // 是否锁定跳跃方向
-    private float lockedJumpDirection = 0f; // 锁定的跳跃方向
-    private float jumpDirectionLockTime = 0.3f; // 跳跃方向锁定时间
-    private float jumpDirectionLockTimer = 0f; // 跳跃方向锁定计时器
-    
-    // 速度平滑控制
-    private float lastTargetVelocity = 0f; // 上一帧的目标速度
-    private float velocityChangeThreshold = 5f; // 速度变化阈值
-    
-    // 变向控制
-    private bool enableInstantDirectionChange = true; // 是否启用立即变向
-    private float directionChangeThreshold = 0.1f; // 变向检测阈值（降低阈值，更容易触发）
-    private float directionChangeCooldown = 0.03f; // 变向冷却时间，防止颤动（进一步缩短冷却时间）
-    private float lastDirectionChangeTime = 0f; // 上次变向时间
-    
-    // 角落卡住检测和处理
-    private float stuckTimer = 0f; // 卡住计时器
-    private float stuckThreshold = 0.5f; // 卡住阈值（秒）
-    private Vector2 lastPosition = Vector2.zero; // 上一帧位置
-    private float stuckCheckDistance = 0.1f; // 卡住检测距离
 
     void Reset()
     {
@@ -228,29 +153,24 @@ public class PlayerController : MonoBehaviour
             }
         }
         
-        // 更新移动状态
-        UpdateMovementState();
-        
         // 更新跳跃移动状态
         UpdateJumpMovementState();
         
         // 记录上一帧的地面状态
         wasGroundedLastFrame = isGrounded;
-        wasInAirLastFrame = !isGrounded;
-        wasJumpingLastFrame = isJumping;
     }
     
-    // 更新跳跃移动状态 - 改进版本
+    // 更新跳跃移动状态
     void UpdateJumpMovementState()
     {
         // 检测开始跳跃
-        if (isJumping && !wasJumpingLastFrame)
+        if (isJumping && !wasGroundedLastFrame && isGrounded)
         {
             OnJumpStart();
         }
         
-        // 检测结束跳跃（落地或高度限制）
-        if (isJumping && wasJumpingLastFrame && (isGrounded || !isJumping))
+        // 检测结束跳跃（落地）
+        if (isJumping && !isGrounded && wasGroundedLastFrame)
         {
             OnJumpEnd();
         }
@@ -259,17 +179,6 @@ public class PlayerController : MonoBehaviour
         if (isGrounded && isJumping)
         {
             isJumping = false;
-            Debug.Log("地面检测 - 清除跳跃状态");
-        }
-        
-        // 更新跳跃方向锁定计时器
-        if (jumpDirectionLockTimer > 0)
-        {
-            jumpDirectionLockTimer -= Time.fixedDeltaTime;
-            if (jumpDirectionLockTimer <= 0)
-            {
-                Debug.Log("跳跃方向锁定结束");
-            }
         }
     }
     
@@ -277,37 +186,8 @@ public class PlayerController : MonoBehaviour
     // 跳跃结束时的处理
     void OnJumpEnd()
     {
-        float currentHorizontalSpeed = rb.velocity.x;
-        
-        // 如果启用落地时清除水平速度
-        if (clearHorizontalSpeedOnLanding)
-        {
-            // 检查是否需要清除速度
-            // 1. 没有输入
-            // 2. 输入发生变化（从有输入变为无输入）
-            // 3. 有按键被释放
-            // 4. 速度低于阈值
-            bool shouldClearSpeed = !hasInput || inputChanged || keyReleased || Mathf.Abs(currentHorizontalSpeed) < landingSpeedClearThreshold;
-            
-            if (shouldClearSpeed)
-            {
-                Vector2 velocity = rb.velocity;
-                velocity.x = 0f;
-                rb.velocity = velocity;
-                Debug.Log($"跳跃结束 - 清除水平速度: {currentHorizontalSpeed:F2} -> 0 (无输入: {!hasInput}, 输入变化: {inputChanged}, 按键释放: {keyReleased})");
-            }
-            else
-            {
-                Debug.Log($"跳跃结束 - 保持水平速度: {currentHorizontalSpeed:F2}");
-            }
-        }
-        else
-        {
-            Debug.Log($"跳跃结束 - 保持水平速度: {currentHorizontalSpeed:F2}");
-        }
-        
         // 重置跳跃相关状态
-        jumpStartHorizontalSpeed = 0f;
+        jumpStartY = 0f;
     }
     
     // 检查是否可以跳跃
@@ -380,6 +260,55 @@ public class PlayerController : MonoBehaviour
         return wallHits > wallCheckRays * 0.6f;
     }
     
+    // 根据移动方向检测墙壁
+    bool IsWallAhead(int direction)
+    {
+        // 使用多射线检测防止边缘穿模
+        float colliderHeight = bodyCollider.bounds.size.y;
+        float colliderCenterY = bodyCollider.bounds.center.y;
+        float colliderWidth = bodyCollider.bounds.size.x;
+        
+        int wallHits = 0; // 计算墙壁命中次数
+        string directionName = direction > 0 ? "右" : "左";
+        
+        Debug.Log($"[墙体检测] 开始检测{directionName}侧墙壁 - 角色位置: {transform.position}, 碰撞器边界: min={bodyCollider.bounds.min}, max={bodyCollider.bounds.max}");
+        
+        for (int i = 0; i < wallCheckRays; i++)
+        {
+            float yOffset = (i / (float)(wallCheckRays - 1) - 0.5f) * colliderHeight * 0.8f;
+            
+            // 修正射线起点：从角色碰撞器边缘开始，而不是从中心偏移
+            float colliderEdge = direction > 0 ? 
+                bodyCollider.bounds.max.x : bodyCollider.bounds.min.x;
+            
+            Vector2 origin = new Vector2(
+                colliderEdge,
+                colliderCenterY + yOffset
+            );
+            
+            RaycastHit2D hit = Physics2D.Raycast(origin, new Vector2(direction, 0f), wallCheckDistance, groundLayer);
+            
+            if (hit.collider != null)
+            {
+                wallHits++;
+                Debug.Log($"[墙体检测] 射线{i+1}命中墙壁 - 起点: {origin}, 距离: {hit.distance:F3}, 碰撞对象: {hit.collider.name}, 位置: {hit.point}");
+                Debug.DrawRay(origin, new Vector2(direction, 0f) * wallCheckDistance, Color.red, 0.02f);
+            }
+            else
+            {
+                Debug.Log($"[墙体检测] 射线{i+1}未命中 - 起点: {origin}, 检测距离: {wallCheckDistance}");
+                Debug.DrawRay(origin, new Vector2(direction, 0f) * wallCheckDistance, Color.green, 0.02f);
+            }
+        }
+        
+        // 如果大部分射线都命中墙壁，认为是真正的墙壁
+        // 如果只有少数射线命中，可能是角落，允许通过
+        bool hasWall = wallHits > wallCheckRays * 0.6f;
+        Debug.Log($"[墙体检测] {directionName}侧检测结果 - 命中数: {wallHits}/{wallCheckRays}, 阈值: {wallCheckRays * 0.6f}, 有墙壁: {hasWall}");
+        
+        return hasWall;
+    }
+    
     // 预测性碰撞检测
     bool PredictWallCollision()
     {
@@ -423,396 +352,74 @@ public class PlayerController : MonoBehaviour
         return velocity;
     }
 
-    // 检测是否卡在角落 - 改进版本
-    bool IsStuckInCorner()
-    {
-        Vector2 currentPosition = transform.position;
-        float distanceMoved = Vector2.Distance(currentPosition, lastPosition);
-        
-        // 检查是否满足卡住条件
-        bool isMovingSlowly = distanceMoved < stuckCheckDistance;
-        bool isOnGround = isGrounded;
-        bool hasInputButNotMoving = hasInput && isMovingSlowly;
-        
-        if ((isMovingSlowly && isOnGround) || hasInputButNotMoving)
-        {
-            stuckTimer += Time.fixedDeltaTime;
-            
-            // 如果卡住时间超过阈值
-            if (stuckTimer > stuckThreshold)
-            {
-                Debug.Log($"检测到卡在角落: 移动距离 {distanceMoved:F3}, 卡住时间 {stuckTimer:F2}s, 有输入: {hasInput}");
-                return true;
-            }
-        }
-        else
-        {
-            // 重置卡住计时器
-            stuckTimer = 0f;
-        }
-        
-        lastPosition = currentPosition;
-        return false;
-    }
-    
-    // 尝试脱离角落 - 改进版本
-    void TryUnstuckFromCorner()
-    {
-        Debug.Log("尝试脱离角落...");
-        
-        // 检查当前输入状态
-        bool hasMovementInput = Mathf.Abs(inputX) > 0.01f;
-        
-        if (hasMovementInput)
-        {
-            // 如果有输入，尝试向相反方向移动
-            Vector2 velocity = rb.velocity;
-            velocity.x = -facing * 3f; // 向相反方向移动
-            velocity.y = Mathf.Max(velocity.y, 2f); // 稍微向上
-            rb.velocity = velocity;
-            Debug.Log($"有输入 - 向相反方向移动: {-facing}");
-        }
-        else
-        {
-            // 如果没有输入，尝试向上推
-            Vector2 velocity = rb.velocity;
-            velocity.y = Mathf.Max(velocity.y, 5f); // 给一个向上的力
-            rb.velocity = velocity;
-            
-            // 稍微向后移动
-            Vector2 position = transform.position;
-            position.x -= facing * 0.15f; // 向后移动一点
-            transform.position = position;
-            Debug.Log("无输入 - 向上推并向后移动");
-        }
-        
-        // 重置卡住计时器
-        stuckTimer = 0f;
-        
-        Debug.Log("已尝试脱离角落");
-    }
 
     void HandleMovement()
     {
-        // 暴力A/D按键检测机制 - 只在加速度模式下生效
-        if (useAcceleration)
-        {
-            bool pressingA = Input.GetKey(KeyCode.A);
-            bool pressingD = Input.GetKey(KeyCode.D);
-            float currentVelocityX = rb.velocity.x;
-            
-            // 情况1：没有检测到A或D - 立即强制重置水平速度为0
-            if (!pressingA && !pressingD)
-            {
-                Vector2 velocity = rb.velocity;
-                velocity.x = 0f;
-                rb.velocity = velocity;
-                Debug.Log("暴力检测 - 无A/D输入，强制停止");
-                return;
-            }
-            
-            // 情况2：只按A - 立即向左移动
-            if (pressingA && !pressingD)
-            {
-                if (currentVelocityX > 0)
-                {
-                    // 如果当前向右移动，立即反向（继承速度）
-                    float reversedSpeed = -currentVelocityX;
-                    Vector2 velocity = rb.velocity;
-                    velocity.x = reversedSpeed;
-                    rb.velocity = velocity;
-                    Debug.Log($"暴力检测 - A键反向移动: {currentVelocityX:F2} -> {reversedSpeed:F2}");
-                }
-                else
-                {
-                    // 如果当前向左或停止，正常向左移动
-                    Vector2 velocity = rb.velocity;
-                    velocity.x = -groundMoveSpeed;
-                    rb.velocity = velocity;
-                    Debug.Log($"暴力检测 - A键正常移动: {currentVelocityX:F2} -> {-groundMoveSpeed:F2}");
-                }
-                return;
-            }
-            
-            // 情况3：只按D - 立即向右移动
-            if (pressingD && !pressingA)
-            {
-                if (currentVelocityX < 0)
-                {
-                    // 如果当前向左移动，立即反向（继承速度）
-                    float reversedSpeed = -currentVelocityX;
-                    Vector2 velocity = rb.velocity;
-                    velocity.x = reversedSpeed;
-                    rb.velocity = velocity;
-                    Debug.Log($"暴力检测 - D键反向移动: {currentVelocityX:F2} -> {reversedSpeed:F2}");
-                }
-                else
-                {
-                    // 如果当前向右或停止，正常向右移动
-                    Vector2 velocity = rb.velocity;
-                    velocity.x = groundMoveSpeed;
-                    rb.velocity = velocity;
-                    Debug.Log($"暴力检测 - D键正常移动: {currentVelocityX:F2} -> {groundMoveSpeed:F2}");
-                }
-                return;
-            }
-            
-            // 情况4：同时按A和D - 立即停止
-            if (pressingA && pressingD)
-            {
-                Vector2 velocity = rb.velocity;
-                velocity.x = 0f;
-                rb.velocity = velocity;
-                Debug.Log("暴力检测 - 同时按A/D，立即停止");
-                return;
-            }
-        }
+        // 检测A/D按键输入
+        bool pressingA = Input.GetKey(KeyCode.A);
+        bool pressingD = Input.GetKey(KeyCode.D);
         
-        // 非加速度模式或加速度模式下的备用逻辑
-        // 如果没有输入，直接停止移动
-        if (!hasInput)
-        {
-            Vector2 velocity = rb.velocity;
-            velocity.x = 0f;
-            rb.velocity = velocity;
-            Debug.Log("HandleMovement - 无输入，直接停止");
-            return;
-        }
-        
-        // 检查是否卡在角落
-        if (IsStuckInCorner())
-        {
-            TryUnstuckFromCorner();
-            return; // 跳过正常移动处理
-        }
-        
-        // 检查当前和预测的墙壁碰撞
-        bool wallAhead = IsWallAhead();
-        bool predictedWallAhead = PredictWallCollision();
-
-        float targetVelX = 0f;
-        
-        // 计算目标速度
-        if (!wallAhead && !predictedWallAhead)
-        {
-            // 根据输入和状态计算目标速度
-            targetVelX = CalculateTargetVelocity();
-        }
-        else
-        {
-            // 如果检测到墙壁，根据输入方向决定是否停止
-            if (inputX * facing > 0)
-            {
-                // 朝向墙壁移动，停止
-                targetVelX = 0f;
-            }
-            else if (inputX * facing < 0)
-            {
-                // 远离墙壁移动，允许移动
-                targetVelX = CalculateTargetVelocity();
-            }
-            else
-            {
-                // 无输入或朝向墙壁，停止
-                targetVelX = 0f;
-            }
-        }
-
-        float currentVX = rb.velocity.x;
-        float newVX = currentVX;
-
-        if (!useAcceleration)
-        {
-            // 直接设定速度，固定移动模式
-            newVX = targetVelX;
-        }
-        else
-        {
-            // 使用加速度/减速度平滑过渡到目标速度
-            newVX = CalculateNewVelocity(currentVX, targetVelX);
-        }
-
-        // 应用速度限制防止穿模
-        Vector2 newVelocity = new Vector2(newVX, rb.velocity.y);
-        newVelocity = LimitVelocity(newVelocity);
-        
-        rb.velocity = newVelocity;
-    }
-    
-    // 计算按键优先级输入 - 真正的优先级系统
-    float CalculatePriorityInput(bool pressingA, bool pressingD)
-    {
-        // 如果在跳跃且启用了方向锁定，使用锁定的方向
-        if (isJumping && lockJumpDirection && jumpDirectionLockTimer > 0)
-        {
-            Debug.Log($"跳跃方向锁定中: {lockedJumpDirection}");
-            return lockedJumpDirection;
-        }
-        
-        // 情况1：只按A
+        // 计算移动方向
+        float moveDirection = 0f;
+        int moveDirectionInt = 0;
         if (pressingA && !pressingD)
         {
-            return -1f; // 向左
+            moveDirection = -1f; // 向左
+            moveDirectionInt = -1;
         }
-        
-        // 情况2：只按D
-        if (pressingD && !pressingA)
+        else if (pressingD && !pressingA)
         {
-            return 1f; // 向右
+            moveDirection = 1f; // 向右
+            moveDirectionInt = 1;
         }
+        // 如果同时按下A和D，或者都没按，则停止移动
         
-        // 情况3：同时按A和D - 使用优先级系统
-        if (pressingA && pressingD)
+        // 记录输入状态
+        if (moveDirectionInt != 0)
         {
-            // 如果A最后被按下，优先A
-            if (aWasPressedLast)
-            {
-                Debug.Log("同时按下A和D，A优先");
-                return -1f;
-            }
-            // 如果D最后被按下，优先D
-            else if (dWasPressedLast)
-            {
-                Debug.Log("同时按下A和D，D优先");
-                return 1f;
-            }
-            // 如果都没有记录，默认停止
-            else
-            {
-                Debug.Log("同时按下A和D，无优先级记录，停止");
-                return 0f;
-            }
+            string directionName = moveDirectionInt > 0 ? "右" : "左";
+            Debug.Log($"[移动处理] 检测到{directionName}移动输入 - A:{pressingA}, D:{pressingD}, 当前朝向:{facing}");
         }
         
-        // 情况4：都没按
-        return 0f;
-    }
-
-    // 计算目标速度 - 重写版本，彻底修复停止问题
-    float CalculateTargetVelocity()
-    {
-        // 如果没有输入，直接返回0
-        if (!hasInput)
+        // 检查墙壁碰撞 - 使用移动方向而不是朝向
+        bool wallAhead = false;
+        if (moveDirectionInt != 0)
         {
-            return 0f;
+            wallAhead = IsWallAhead(moveDirectionInt);
         }
         
-        // 如果有输入，计算目标速度
-        float targetVel = inputX * groundMoveSpeed;
-        
-        // 速度平滑处理，防止突变（只在有输入时进行）
-        if (useAcceleration && hasInput)
+        // 计算目标速度
+        float targetVelX = 0f;
+        if (moveDirection != 0f && !wallAhead)
         {
-            float velocityChange = Mathf.Abs(targetVel - lastTargetVelocity);
-            if (velocityChange > velocityChangeThreshold)
-            {
-                // 如果速度变化过大，进行平滑过渡
-                float smoothFactor = velocityChangeThreshold / velocityChange;
-                targetVel = Mathf.Lerp(lastTargetVelocity, targetVel, smoothFactor);
-                Debug.Log($"速度变化过大，平滑处理: {lastTargetVelocity:F2} -> {targetVel:F2}");
-            }
+            targetVelX = moveDirection * moveSpeed;
+            Debug.Log($"[移动处理] 允许移动 - 目标速度: {targetVelX}, 移动速度: {moveSpeed}");
+        }
+        else if (moveDirection != 0f && wallAhead)
+        {
+            Debug.Log($"[移动处理] 被墙壁阻挡 - 无法移动");
+        }
+        else if (moveDirection == 0f)
+        {
+            Debug.Log($"[移动处理] 无移动输入 - 停止移动");
         }
         
-        lastTargetVelocity = targetVel;
-        return targetVel;
+        // 直接设置速度（固定速度移动）
+        Vector2 velocity = rb.velocity;
+        velocity.x = targetVelX;
+        rb.velocity = velocity;
+        
+        // 更新朝向
+        if (moveDirection > 0) facing = 1;
+        else if (moveDirection < 0) facing = -1;
+        
+        // 记录最终状态
+        if (moveDirectionInt != 0)
+        {
+            Debug.Log($"[移动处理] 最终状态 - 目标速度: {targetVelX}, 实际速度: {rb.velocity.x}, 朝向: {facing}, 有墙壁: {wallAhead}");
+        }
     }
     
-    // 计算新的速度 - 重写版本，实现立即继承速度反向移动
-    float CalculateNewVelocity(float currentVX, float targetVelX)
-    {
-        // 如果没有输入，直接返回0
-        if (!hasInput)
-        {
-            return 0f;
-        }
-        
-        // 如果目标速度为0且当前速度很小，直接设为0
-        if (Mathf.Abs(targetVelX) < 0.01f && Mathf.Abs(currentVX) < stopThreshold)
-        {
-            return 0f;
-        }
-        
-        // 计算速度差值
-        float velocityDiff = targetVelX - currentVX;
-        
-        // 如果速度差值很小，直接返回目标速度
-        if (Mathf.Abs(velocityDiff) < 0.01f)
-        {
-            return targetVelX;
-        }
-        
-        // 检查是否变向（目标速度与当前速度方向相反）
-        bool isDirectionChange = (targetVelX > 0 && currentVX < 0) || (targetVelX < 0 && currentVX > 0);
-        
-        // 立即反向移动机制 - 直接反转当前速度
-        if (isDirectionChange && hasInput && isGrounded)
-        {
-            // 检查变向冷却时间
-            bool canChangeDirection = Time.time - lastDirectionChangeTime > directionChangeCooldown;
-            
-            if (canChangeDirection && Mathf.Abs(currentVX) > directionChangeThreshold)
-            {
-                // 立即反向：直接反转当前速度，保持速度大小
-                float reversedSpeed = -currentVX;
-                lastDirectionChangeTime = Time.time;
-                Debug.Log($"立即反向移动 - 反转当前速度: {currentVX:F2} -> {reversedSpeed:F2}");
-                return reversedSpeed;
-            }
-        }
-        
-        // 确定加速度
-        float acceleration = accel;
-        
-        // 在空中时减少加速度
-        if (!isGrounded)
-        {
-            acceleration *= airAccelerationMultiplier;
-        }
-        
-        // 变向时使用更高的加速度
-        if (isDirectionChange && hasInput)
-        {
-            acceleration *= 4f; // 变向时4倍加速度
-            Debug.Log($"变向加速 - 使用高加速度: {acceleration:F2}");
-        }
-        
-        // 计算新速度
-        float sign = Mathf.Sign(velocityDiff);
-        float accelerationAmount = acceleration * Time.fixedDeltaTime;
-        
-        // 确保不会超过目标速度
-        float maxChange = Mathf.Abs(velocityDiff);
-        accelerationAmount = Mathf.Min(accelerationAmount, maxChange);
-        
-        float newVX = currentVX + sign * accelerationAmount;
-        
-        // 限制最大速度
-            newVX = Mathf.Clamp(newVX, -maxSpeed, maxSpeed);
-        
-        return newVX;
-    }
-    
-    // 获取减速度
-    float GetDeceleration()
-    {
-        if (!useFastDeceleration)
-        {
-            return decel;
-        }
-        
-        // 使用快速减速度
-        float baseDecel = decel;
-        
-        // 如果无输入时间较长，使用更快的减速度
-        if (noInputTimer > 0.1f)
-        {
-            baseDecel = fastDecel;
-        }
-        
-        // 确保减速度至少是加速度的倍数
-        float minDecel = accel * decelMultiplier;
-        return Mathf.Max(baseDecel, minDecel);
-    }
     
     void HandleJump()
     {
@@ -941,16 +548,13 @@ public class PlayerController : MonoBehaviour
         }
 
         // 验证参数值，防止异常行为
-        maxSpeed = Mathf.Max(0.01f, maxSpeed);
-        accel = Mathf.Max(0f, accel);
-        decel = Mathf.Max(0f, decel);
-        groundMoveSpeed = Mathf.Clamp(groundMoveSpeed, 0f, maxSpeed);
+        moveSpeed = Mathf.Max(0.01f, moveSpeed);
 
         // 验证碰撞检测参数
         groundCheckRays = Mathf.Max(1, groundCheckRays);
         wallCheckRays = Mathf.Max(1, wallCheckRays);
         collisionPredictionTime = Mathf.Max(0.01f, collisionPredictionTime);
-        maxSafeSpeed = Mathf.Max(maxSpeed, maxSafeSpeed);
+        maxSafeSpeed = Mathf.Max(moveSpeed, maxSafeSpeed);
         
         // 验证跳跃参数
         jumpBufferTime = Mathf.Max(0f, jumpBufferTime);
@@ -958,93 +562,14 @@ public class PlayerController : MonoBehaviour
         jumpCooldown = Mathf.Max(0f, jumpCooldown);
         minJumpHeight = Mathf.Max(0f, minJumpHeight);
         
-        // 验证移动参数
-        airSpeedDecay = Mathf.Clamp(airSpeedDecay, 0.1f, 1f);
-        landingSpeedThreshold = Mathf.Max(0f, landingSpeedThreshold);
-        landingTransitionTime = Mathf.Max(0f, landingTransitionTime);
-        
-        // 验证高级移动控制参数
-        fastDecel = Mathf.Max(accel, fastDecel);
-        stopThreshold = Mathf.Max(0.01f, stopThreshold);
-        decelMultiplier = Mathf.Max(1f, decelMultiplier);
-        
-        // 验证跳跃移动控制参数
-        landingSpeedClearThreshold = Mathf.Max(0f, landingSpeedClearThreshold);
-
-        Debug.Log($"[PlayerController] 初始化完成 - CCD: {useContinuousCollisionDetection}, 地面射线: {groundCheckRays}, 墙壁射线: {wallCheckRays}, 最大安全速度: {maxSafeSpeed}");
+        Debug.Log($"[PlayerController] 初始化完成 - CCD: {useContinuousCollisionDetection}, 地面射线: {groundCheckRays}, 墙壁射线: {wallCheckRays}, 移动速度: {moveSpeed}");
         Debug.Log($"[PlayerController] 跳跃设置 - 缓冲时间: {jumpBufferTime}, 土狼时间: {coyoteTime}, 冷却: {jumpCooldown}, 最小高度: {minJumpHeight}");
-        Debug.Log($"[PlayerController] 移动设置 - 保持空中速度: {preserveAirSpeed}, 空中衰减: {airSpeedDecay}, 落地阈值: {landingSpeedThreshold}, 过渡时间: {landingTransitionTime}");
-        Debug.Log($"[PlayerController] 高级移动 - 快速减速: {useFastDeceleration}, 快速减速度: {fastDecel}, 停止阈值: {stopThreshold}, 减速度倍数: {decelMultiplier}");
-        Debug.Log($"[PlayerController] 跳跃移动 - 跳跃清除: {clearHorizontalSpeedOnJump}, 落地清除: {clearHorizontalSpeedOnLanding}, 清除阈值: {landingSpeedClearThreshold}, 继承地面速度: {inheritGroundSpeedOnJump}");
     }
 
     // Update is called once per frame
     void Update()
     {
-        // 检测A、D按键的精确状态
-        bool pressingA = Input.GetKey(KeyCode.A);
-        bool pressingD = Input.GetKey(KeyCode.D);
-        
-        // 检测按键按下和释放
-        bool aPressed = !wasPressingA && pressingA;
-        bool dPressed = !wasPressingD && pressingD;
-        bool aReleased = wasPressingA && !pressingA;
-        bool dReleased = wasPressingD && !pressingD;
-        keyReleased = aReleased || dReleased;
-        
-        // 更新按键优先级状态（跳跃时暂停更新）
-        if (!isJumping || !lockJumpDirection || jumpDirectionLockTimer <= 0)
-        {
-            if (aPressed)
-            {
-                aWasPressedLast = true;
-                dWasPressedLast = false;
-                Debug.Log("A键按下，设置为优先");
-            }
-            if (dPressed)
-            {
-                dWasPressedLast = true;
-                aWasPressedLast = false;
-                Debug.Log("D键按下，设置为优先");
-            }
-        }
-        else
-        {
-            Debug.Log("跳跃中，暂停按键优先级更新");
-        }
-        
-        // 更新按键状态
-        wasPressingA = pressingA;
-        wasPressingD = pressingD;
-        
-        // 按键优先级系统 - 实现您要求的移动逻辑
-        float newInputX = CalculatePriorityInput(pressingA, pressingD);
-
-        // 检测输入变化（使用更宽松的阈值避免误判）
-        inputChanged = Mathf.Abs(newInputX - lastInputX) > 0.1f;
-        inputX = newInputX;
-        lastInputX = newInputX;
-
-        // 检测输入状态
-        hasInput = Mathf.Abs(inputX) > 0.01f;
-        wasMovingLastFrame = hasInput;
-        
-        // 更新无输入计时器
-        if (!hasInput)
-        {
-            noInputTimer += Time.deltaTime;
-        }
-        else
-        {
-            noInputTimer = 0f;
-            isStopping = false;
-        }
-
-        // 更新朝向（只在有明确输入时更新，避免快速切换时卡住）
-        if (inputX > 0) facing = 1;
-        else if (inputX < 0) facing = -1;
-        // 注意：当inputX为0时，不改变facing，保持当前朝向
-
+        // 检测跳跃输入
         if (Input.GetKeyDown(KeyCode.K))
         {
             wantJump = true;
@@ -1067,8 +592,6 @@ public class PlayerController : MonoBehaviour
         {
             OnSkill3();
         }
-        if (Input.GetKeyDown(KeyCode.K)) Debug.Log("[Input] K pressed");
-
     }
 
     void FixedUpdate()
@@ -1077,9 +600,6 @@ public class PlayerController : MonoBehaviour
         
         // 更新跳跃状态
         UpdateJumpMovementState();
-        
-        // 更新移动状态
-        UpdateMovementState();
         
         // 处理移动
         HandleMovement();
@@ -1092,9 +612,6 @@ public class PlayerController : MonoBehaviour
         
         // 更新计时器
         UpdateTimers();
-        
-        // 更新位置记录（用于卡住检测）
-        lastPosition = transform.position;
         
         // 重置跳跃输入
         wantJump = false;
@@ -1179,128 +696,20 @@ public class PlayerController : MonoBehaviour
             Gizmos.DrawWireCube(bufferPos, Vector3.one * 0.08f);
         }
         
-        // 绘制移动状态
-        if (preserveAirSpeed && Mathf.Abs(preservedAirSpeed) > 0.1f)
+        // 绘制移动状态（简化版本）
+        if (isGrounded)
         {
-            Gizmos.color = new Color(1f, 0.5f, 0f); // 橙色
-            Vector3 speedPos = transform.position + Vector3.up * 2.5f;
-            Gizmos.DrawWireCube(speedPos, Vector3.one * 0.12f);
-        }
-        
-        // 绘制落地过渡状态
-        if (isLandingTransition)
-        {
-            Gizmos.color = Color.white;
-            Vector3 transitionPos = transform.position + Vector3.up * 3f;
-            float scale = landingTransitionTimer / landingTransitionTime;
-            Gizmos.DrawWireCube(transitionPos, Vector3.one * 0.1f * scale);
-        }
-        
-        // 绘制停止状态
-        if (isStopping)
-        {
-            Gizmos.color = new Color(1f, 0f, 0f); // 红色
-            Vector3 stopPos = transform.position + Vector3.up * 3.5f;
-            Gizmos.DrawWireCube(stopPos, Vector3.one * 0.08f);
-        }
-        
-        // 绘制无输入状态
-        if (!hasInput && noInputTimer > 0.1f)
-        {
-            Gizmos.color = new Color(0.5f, 0.5f, 0.5f); // 灰色
-            Vector3 noInputPos = transform.position + Vector3.up * 4f;
-            Gizmos.DrawWireCube(noInputPos, Vector3.one * 0.06f);
-        }
-        
-        // 绘制跳跃移动状态
-        if (isJumping && clearHorizontalSpeedOnJump)
-        {
-            Gizmos.color = new Color(0f, 1f, 1f); // 青色
-            Vector3 jumpClearPos = transform.position + Vector3.up * 4.5f;
-            Gizmos.DrawWireCube(jumpClearPos, Vector3.one * 0.05f);
-        }
-        
-        // 绘制落地清除状态
-        if (clearHorizontalSpeedOnLanding && isGrounded && !hasInput)
-        {
-            Gizmos.color = new Color(1f, 0f, 1f); // 洋红色
-            Vector3 landingClearPos = transform.position + Vector3.up * 5f;
-            Gizmos.DrawWireCube(landingClearPos, Vector3.one * 0.04f);
-        }
-        
-        // 绘制输入变化状态
-        if (inputChanged)
-        {
-            Gizmos.color = new Color(1f, 1f, 0f); // 黄色
-            Vector3 inputChangePos = transform.position + Vector3.up * 5.5f;
-            Gizmos.DrawWireCube(inputChangePos, Vector3.one * 0.03f);
-        }
-        
-        // 绘制继承地面速度状态
-        if (inheritGroundSpeedOnJump && isJumping)
-        {
-            Gizmos.color = new Color(0f, 1f, 0f); // 绿色
-            Vector3 inheritPos = transform.position + Vector3.up * 6f;
-            Gizmos.DrawWireCube(inheritPos, Vector3.one * 0.02f);
-        }
-        
-        // 绘制按键释放状态
-        if (keyReleased)
-        {
-            Gizmos.color = new Color(1f, 0.5f, 0f); // 橙色
-            Vector3 keyReleasePos = transform.position + Vector3.up * 6.5f;
-            Gizmos.DrawWireCube(keyReleasePos, Vector3.one * 0.015f);
-        }
-        
-        // 绘制按键优先级系统状态（简化版本）
-        if (hasInput)
-        {
-            // 输入状态 - 蓝色
-            Gizmos.color = Color.blue;
-            Vector3 inputPos = transform.position + Vector3.up * 7f;
-            Gizmos.DrawWireCube(inputPos, Vector3.one * 0.02f);
-            
-            // 方向指示 - 箭头
-            Gizmos.color = inputX > 0 ? Color.green : Color.yellow;
-            Vector3 arrowPos = transform.position + Vector3.up * 7.5f;
-            Vector3 arrowDir = Vector3.right * inputX * 0.1f;
-            Gizmos.DrawLine(arrowPos, arrowPos + arrowDir);
+            Gizmos.color = Color.green;
+            Vector3 groundPos = transform.position + Vector3.up * 2.5f;
+            Gizmos.DrawWireCube(groundPos, Vector3.one * 0.1f);
         }
     }
     
-    // 更新移动状态
-    void UpdateMovementState()
-    {
-        // 更新落地过渡状态
-        if (isLandingTransition)
-        {
-            landingTransitionTimer -= Time.fixedDeltaTime;
-            if (landingTransitionTimer <= 0)
-            {
-                isLandingTransition = false;
-                Debug.Log("落地过渡结束");
-            }
-        }
-        
-        // 检测落地
-        if (!wasInAirLastFrame && !isGrounded)
-        {
-            OnTakeOff();
-        }
-        else if (wasInAirLastFrame && isGrounded)
-        {
-            OnLanding();
-        }
-        
-        wasInAirLastFrame = !isGrounded;
-    }
     
     // 更新状态
     void UpdateStates()
     {
-        // 更新朝向
-        if (inputX > 0) facing = 1;
-        else if (inputX < 0) facing = -1;
+        // 朝向在HandleMovement中已经更新，这里不需要额外处理
     }
     
     // 更新计时器
@@ -1318,15 +727,7 @@ public class PlayerController : MonoBehaviour
             coyoteTimer -= Time.fixedDeltaTime;
         }
         
-        // 更新无输入计时器
-        if (!hasInput)
-        {
-            noInputTimer += Time.fixedDeltaTime;
-        }
-        else
-        {
-            noInputTimer = 0f;
-        }
+        // 无输入计时器已移除，简化移动逻辑不需要
     }
     
     // 跳跃开始事件
@@ -1334,34 +735,11 @@ public class PlayerController : MonoBehaviour
     {
         isJumping = true;
         jumpStartY = transform.position.y;
-        jumpStartHorizontalSpeed = rb.velocity.x;
-        
-        // 锁定跳跃方向
-        if (lockJumpDirection)
-        {
-            lockedJumpDirection = inputX;
-            jumpDirectionLockTimer = jumpDirectionLockTime;
-            Debug.Log($"跳跃开始，锁定方向: {lockedJumpDirection}");
-        }
-        
-        Debug.Log($"跳跃开始 - Y位置: {jumpStartY:F2}, 水平速度: {jumpStartHorizontalSpeed:F2}");
     }
     
     // 落地事件
     void OnLanding()
     {
-        Debug.Log("检测到落地");
-        
-        // 清除保持的空中速度
-        preservedAirSpeed = 0f;
-        
-        // 开始落地过渡
-        if (landingTransitionTime > 0)
-        {
-            isLandingTransition = true;
-            landingTransitionTimer = landingTransitionTime;
-        }
-        
         // 重置双跳状态
         doubleJumpUsed = false;
     }
@@ -1369,14 +747,7 @@ public class PlayerController : MonoBehaviour
     // 起飞事件
     void OnTakeOff()
     {
-        Debug.Log("检测到起飞");
-        
-        // 保存当前水平速度
-        if (preserveAirSpeed)
-        {
-            preservedAirSpeed = rb.velocity.x;
-            Debug.Log($"保存空中速度: {preservedAirSpeed:F2}");
-        }
+        // 起飞时不需要特殊处理
     }
     
     // 检查跳跃高度
