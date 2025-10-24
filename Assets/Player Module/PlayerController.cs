@@ -2,12 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamageable
 {
 
     [Header("Components")]
     public Rigidbody2D rb;
     public Collider2D bodyCollider;
+    
+    [Header("Skill System")]
+    public SM_SkillSystem skillSystem;  // 技能系统组件
+    public Transform aimOrigin;         // 瞄准起点（通常是角色中心或武器位置）
 
     [Header("Collision Detection Settings")]
     [SerializeField] private bool useContinuousCollisionDetection = true;
@@ -62,6 +66,13 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     private bool doubleJumpUsed;
     private int facing = 1; // 1 右, -1 左，用于表示角色的朝向
+    
+    // 角色状态
+    [Header("Character Stats")]
+    public float maxHealth = 100f;
+    [SerializeField] private float currentHealth = 100f;
+    public float healthRegenPerSec = 1f;
+    public float defense = 10f;  // 防御力
     
     // 跳跃状态管理
     private float jumpBufferTimer = 0f; // 跳跃缓冲计时器
@@ -493,29 +504,70 @@ public class PlayerController : MonoBehaviour
     }
     */
 
-    // 技能占位，目前只记录按键，后续扩展
-    void OnDashSkill()
-    {
-        // 位移技能占位，直接向 facing 方向位移，距离短，瞬间移动
-        float dashDistance = 2f;
-        Vector3 target = transform.position + Vector3.right * facing * dashDistance;
+    // 注意：技能现在由SM_SkillSystem处理
+    // 如果需要自定义技能逻辑，可以在这里添加
 
-        // 简单的位移实现，不考虑墙壁（实际项目应该考虑碰撞/冷却/无敌）
-        transform.position = target;
-        Debug.Log("Dash used (placeholder)");
-    }
-
-    void OnSkill1()
+    // ========== SM_ICharacterProvider 接口实现 ==========
+    public Transform AimOrigin => aimOrigin != null ? aimOrigin : transform;
+    public Vector2 AimDirection => new Vector2(facing, 0f); // 基于朝向的瞄准方向
+    public float CurrentMP => skillSystem != null ? skillSystem.CurrentMP : 0f;
+    public float MaxMP => skillSystem != null ? skillSystem.MaxMP : 0f;
+    public bool ConsumeMP(float amount) => skillSystem != null ? skillSystem.ConsumeMP(amount) : false;
+    
+    // ========== SM_IDamageable 接口实现 ==========
+    public void ApplyDamage(SM_DamageInfo info)
     {
-        Debug.Log("Skill U used (placeholder)");
+        float finalDamage = info.Amount;
+        
+        // 计算防御减免（物理伤害受防御影响）
+        if (!info.IgnoreDefense && info.Element == SM_Element.Physical)
+        {
+            finalDamage = Mathf.Max(1f, finalDamage - defense);
+        }
+        
+        // 计算暴击
+        if (Random.value < info.CritChance)
+        {
+            finalDamage *= info.CritMultiplier;
+            Debug.Log($"[伤害] 暴击！造成 {finalDamage} 点伤害");
+        }
+        
+        currentHealth = Mathf.Max(0f, currentHealth - finalDamage);
+        Debug.Log($"[伤害] 受到 {finalDamage} 点 {info.Element} 伤害，剩余生命值: {currentHealth}/{maxHealth}");
+        
+        if (currentHealth <= 0f)
+        {
+            OnDeath();
+        }
     }
-    void OnSkill2()
+    
+    public Transform GetTransform() => transform;
+    
+    // ========== 角色状态管理 ==========
+    private void OnDeath()
     {
-        Debug.Log("Skill I used (placeholder)");
+        Debug.Log("[角色] 角色死亡！");
+        // 这里可以添加死亡逻辑，比如播放动画、禁用控制等
+        enabled = false;
     }
-    void OnSkill3()
+    
+    private void UpdateHealth()
     {
-        Debug.Log("Skill O used (placeholder)");
+        // 生命值回复
+        if (currentHealth < maxHealth)
+        {
+            currentHealth = Mathf.Min(maxHealth, currentHealth + healthRegenPerSec * Time.deltaTime);
+        }
+    }
+    
+    // ========== 技能系统集成 ==========
+    private void UpdateSkillAim()
+    {
+        // 更新技能系统的瞄准方向
+        if (skillSystem != null)
+        {
+            skillSystem.SetAim(new Vector2(facing, 0f));
+        }
     }
 
     void Start()
@@ -523,6 +575,10 @@ public class PlayerController : MonoBehaviour
         // 确保组件存在
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
+        if (skillSystem == null) skillSystem = GetComponent<SM_SkillSystem>();
+        
+        // 初始化生命值
+        currentHealth = maxHealth;
 
         if (rb == null)
         {
@@ -575,23 +631,14 @@ public class PlayerController : MonoBehaviour
             wantJump = true;
         }
 
-        // 技能按键检测（只占位）
-        if (Input.GetKeyDown(dashKey))
-        {
-            OnDashSkill();
-        }
-        if (Input.GetKeyDown(skill1Key))
-        {
-            OnSkill1();
-        }
-        if (Input.GetKeyDown(skill2Key))
-        {
-            OnSkill2();
-        }
-        if (Input.GetKeyDown(skill3Key))
-        {
-            OnSkill3();
-        }
+        // 更新技能瞄准方向
+        UpdateSkillAim();
+        
+        // 更新生命值
+        UpdateHealth();
+        
+        // 注意：技能按键检测现在由SM_SkillSystem自动处理
+        // 如果需要自定义技能逻辑，可以在这里添加
     }
 
     void FixedUpdate()
