@@ -294,6 +294,16 @@ public class SimplePauseMenu : MonoBehaviour
         }
     }
 
+    public bool IsMenuOpen()
+    {
+        return menuPanel != null && menuPanel.activeInHierarchy;
+    }
+
+    public bool IssettingsOpen()
+    {
+        return settingsPanel != null && settingsPanel.activeInHierarchy;
+    }
+
     // ÔÚ±à¼­Æ÷ÖÐ²âÊÔ
     [ContextMenu("²âÊÔÔÝÍ£")]
     void TestPause() => PauseGame();
