@@ -1,67 +1,67 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Attack : MonoBehaviour
 {
-    [Header("¹¥»÷ÊôĞÔ")]
-    [SerializeField] private AttackType attackType = AttackType.Physical; // ¹¥»÷ÀàĞÍ£¬Ä¬ÈÏÎïÀí¹¥»÷
-    [SerializeField] private KeyCode attackKey = KeyCode.J; // ¹¥»÷°´¼ü£¬Ä¬ÈÏÎªJ¼ü
-    [SerializeField] private float attackCooldown = 0.5f; // ¹¥»÷ÀäÈ´Ê±¼ä
-    [SerializeField] private LayerMask enemyLayer; // µĞÈË²ã¼¶
+    [Header("æ”»å‡»å±æ€§")]
+    [SerializeField] private AttackType attackType = AttackType.Physical; // æ”»å‡»ç±»å‹ï¼Œé»˜è®¤ç‰©ç†æ”»å‡»
+    [SerializeField] private KeyCode attackKey = KeyCode.J; // æ”»å‡»æŒ‰é”®ï¼Œé»˜è®¤ä¸ºJé”®
+    [SerializeField] private float attackCooldown = 0.5f; // æ”»å‡»å†·å´æ—¶é—´
+    [SerializeField] private LayerMask enemyLayer; // æ•Œäººå±‚çº§
 
-    [Header("³¤·½ĞÎ¹¥»÷·¶Î§")]
-    [SerializeField] private Transform attackPoint; // ¹¥»÷ÅĞ¶¨µã
-    [SerializeField] private Vector2 boxSize = new Vector2(2f, 1f); // ³¤·½ĞÎ¹¥»÷ÇøÓò´óĞ¡
-    [SerializeField] private Vector2 attackOffset = Vector2.zero; // ¹¥»÷µãÆ«ÒÆÁ¿
-    [SerializeField] private float attackAngle = 0f; // ¹¥»÷ÇøÓòĞı×ª½Ç¶È
+    [Header("é•¿æ–¹å½¢æ”»å‡»èŒƒå›´")]
+    [SerializeField] private Transform attackPoint; // æ”»å‡»åˆ¤å®šç‚¹
+    [SerializeField] private Vector2 boxSize = new Vector2(2f, 1f); // é•¿æ–¹å½¢æ”»å‡»åŒºåŸŸå¤§å°
+    [SerializeField] private Vector2 attackOffset = Vector2.zero; // æ”»å‡»ç‚¹åç§»é‡
+    [SerializeField] private float attackAngle = 0f; // æ”»å‡»åŒºåŸŸæ—‹è½¬è§’åº¦
 
-    [Header("µ÷ÊÔÉèÖÃ")]
-    [SerializeField] private bool showAttackRangeInGame = true; // ÔËĞĞÊ±ÏÔÊ¾¹¥»÷·¶Î§
-    [SerializeField] private Color debugBoxColor =Color.red; // µ÷ÊÔ¿òÑÕÉ«
-    [SerializeField] private bool showDebugInfo = true; // ÏÔÊ¾µ÷ÊÔĞÅÏ¢
+    [Header("è°ƒè¯•è®¾ç½®")]
+    [SerializeField] private bool showAttackRangeInGame = true; // è¿è¡Œæ—¶æ˜¾ç¤ºæ”»å‡»èŒƒå›´
+    [SerializeField] private Color debugBoxColor = Color.red; // è°ƒè¯•æ¡†é¢œè‰²
+    [SerializeField] private bool showDebugInfo = true; // æ˜¾ç¤ºè°ƒè¯•ä¿¡æ¯
 
-    [Header("ÎïÀí¹¥»÷ÊôĞÔ")]
-    [SerializeField] private float physicalCritRate = 0.1f; // ÎïÀí±©»÷ÂÊ
-    [SerializeField] private float physicalCritDamage = 1.5f; // ÎïÀí±©»÷ÉËº¦±¶Êı
+    [Header("ç‰©ç†æ”»å‡»å±æ€§")]
+    [SerializeField] private float physicalCritRate = 0.1f; // ç‰©ç†æš´å‡»ç‡
+    [SerializeField] private float physicalCritDamage = 1.5f; // ç‰©ç†æš´å‡»ä¼¤å®³å€æ•°
 
-    [Header("ÔªËØ¹¥»÷ÊôĞÔ")]
-    [SerializeField] private float elementalEffectChance = 0.7f; // ÔªËØĞ§¹û´¥·¢¸ÅÂÊ
-    [SerializeField] private float fireDamageDuration = 3f; // »ğÔªËØ³ÖĞøÉËº¦Ê±¼ä
-    [SerializeField] private float iceFreezeDuration = 2f; // ±ùÔªËØ¶³½áÊ±¼ä
-    [SerializeField] private float windKnockbackForce = 5f; // ·çÔªËØ»÷ÍËÁ¦¶È
-    [SerializeField] private float thunderChainRange = 3f; // À×ÔªËØÁ¬Ëø·¶Î§
+    [Header("å…ƒç´ æ”»å‡»å±æ€§")]
+    [SerializeField] private float elementalEffectChance = 0.7f; // å…ƒç´ æ•ˆæœè§¦å‘æ¦‚ç‡
+    [SerializeField] private float fireDamageDuration = 3f; // ç«å…ƒç´ æŒç»­ä¼¤å®³æ—¶é—´
+    [SerializeField] private float iceFreezeDuration = 2f; // å†°å…ƒç´ å†»ç»“æ—¶é—´
+    [SerializeField] private float windKnockbackForce = 5f; // é£å…ƒç´ å‡»é€€åŠ›åº¦
+    [SerializeField] private float thunderChainRange = 3f; // é›·å…ƒç´ è¿é”èŒƒå›´
 
-    // ¹¥»÷ÀàĞÍÃ¶¾Ù
+    // æ”»å‡»ç±»å‹æšä¸¾
     public enum AttackType
     {
-        Physical, // ÎïÀí¹¥»÷£ºÎŞÊÓ·ÀÓù£¬µÍ±©»÷
-        Fire,     // »ğÔªËØ£º³ÖĞøÉËº¦
-        Wind,     // ·çÔªËØ£º»÷ÍËĞ§¹û
-        Ice,      // ±ùÔªËØ£º¶³½á¿ØÖÆ
-        Thunder   // À×ÔªËØ£º·¶Î§Á¬Ëø
+        Physical, // ç‰©ç†æ”»å‡»ï¼šæ— è§†é˜²å¾¡ï¼Œä½æš´å‡»
+        Fire,     // ç«å…ƒç´ ï¼šæŒç»­ä¼¤å®³
+        Wind,     // é£å…ƒç´ ï¼šå‡»é€€æ•ˆæœ
+        Ice,      // å†°å…ƒç´ ï¼šå†»ç»“æ§åˆ¶
+        Thunder   // é›·å…ƒç´ ï¼šèŒƒå›´è¿é”
     }
 
-    private float lastAttackTime; // ÉÏ´Î¹¥»÷Ê±¼ä
-    private Attribute attackerAttribute; // ¹¥»÷ÕßÊôĞÔ
-    private int facingDirection = 1; // ÈËÎï³¯Ïò£¬1ÎªÓÒ£¬-1Îª×ó
-    private Material debugMaterial; // µ÷ÊÔ²ÄÖÊ
-    private Mesh debugMesh; // µ÷ÊÔÍø¸ñ
+    private float lastAttackTime; // ä¸Šæ¬¡æ”»å‡»æ—¶é—´
+    private Attribute attackerAttribute; // æ”»å‡»è€…å±æ€§
+    private int facingDirection = 1; // äººç‰©æœå‘ï¼Œ1ä¸ºå³ï¼Œ-1ä¸ºå·¦
+    private Material debugMaterial; // è°ƒè¯•æè´¨
+    private Mesh debugMesh; // è°ƒè¯•ç½‘æ ¼
 
-    // ÊôĞÔ·ÃÎÊÆ÷
+    // å±æ€§è®¿é—®å™¨
     public Vector2 AttackBoxSize => boxSize;
     public bool CanAttack => Time.time >= lastAttackTime + attackCooldown;
     public int CurrentAttack => attackerAttribute != null ? attackerAttribute.Attack : 0;
     public AttackType Type => attackType;
     public float AttackRange => boxSize.x;
-    public int FacingDirection => facingDirection; 
+    public int FacingDirection => facingDirection;
 
-    // ÊÂ¼ş
-    public System.Action<GameObject, int, AttackType> OnAttackHit; // ¹¥»÷ÃüÖĞÊÂ¼ş
-    public System.Action<AttackType> OnAttackPerformed; // ¹¥»÷Ö´ĞĞÊÂ¼ş
-    public System.Action<AttackType, GameObject> OnElementEffectApplied; // ÔªËØĞ§¹ûÓ¦ÓÃÊÂ¼ş
+    // äº‹ä»¶
+    public System.Action<GameObject, int, AttackType> OnAttackHit; // æ”»å‡»å‘½ä¸­äº‹ä»¶
+    public System.Action<AttackType> OnAttackPerformed; // æ”»å‡»æ‰§è¡Œäº‹ä»¶
+    public System.Action<AttackType, GameObject> OnElementEffectApplied; // å…ƒç´ æ•ˆæœåº”ç”¨äº‹ä»¶
 
-    // ¹¥»÷ĞÅÏ¢½á¹¹Ìå
+    // æ”»å‡»ä¿¡æ¯ç»“æ„ä½“
     public struct AttackInfo
     {
         public GameObject target;
@@ -75,27 +75,27 @@ public class Attack : MonoBehaviour
     {
         attackerAttribute = GetComponent<Attribute>();
 
-        // »ñÈ¡³õÊ¼³¯Ïò
+        // è·å–åˆå§‹æœå‘
         UpdateFacingDirection();
 
-        // Èç¹û¹¥»÷µãÎ´ÉèÖÃ£¬Ê¹ÓÃ½ÇÉ«×ÔÉíÎ»ÖÃ
+        // å¦‚æœæ”»å‡»ç‚¹æœªè®¾ç½®ï¼Œä½¿ç”¨è§’è‰²è‡ªèº«ä½ç½®
         if (attackPoint == null)
         {
             attackPoint = transform;
-            Debug.LogWarning("¹¥»÷µãÎ´ÉèÖÃ£¬Ê¹ÓÃ½ÇÉ«×ÔÉíÎ»ÖÃ×÷Îª¹¥»÷µã");
+            Debug.LogWarning("æ”»å‡»ç‚¹æœªè®¾ç½®ï¼Œä½¿ç”¨è§’è‰²è‡ªèº«ä½ç½®ä½œä¸ºæ”»å‡»ç‚¹");
         }
 
-        // ³õÊ¼»¯µ÷ÊÔ×ÊÔ´
+        // åˆå§‹åŒ–è°ƒè¯•èµ„æº
         InitializeDebugResources();
     }
 
     private void InitializeDebugResources()
     {
-        // ´´½¨µ÷ÊÔ²ÄÖÊ
+        // åˆ›å»ºè°ƒè¯•æè´¨
         debugMaterial = new Material(Shader.Find("Sprites/Default"));
         debugMaterial.color = debugBoxColor;
 
-        // ´´½¨µ÷ÊÔÍø¸ñ
+        // åˆ›å»ºè°ƒè¯•ç½‘æ ¼
         debugMesh = CreateBoxMesh();
     }
 
@@ -109,19 +109,19 @@ public class Attack : MonoBehaviour
         float halfWidth = boxSize.x * 0.5f;
         float halfHeight = boxSize.y * 0.5f;
 
-        // ÉèÖÃ¶¥µã
+        // è®¾ç½®é¡¶ç‚¹
         vertices[0] = new Vector3(-halfWidth, -halfHeight, 0);
         vertices[1] = new Vector3(halfWidth, -halfHeight, 0);
         vertices[2] = new Vector3(halfWidth, halfHeight, 0);
         vertices[3] = new Vector3(-halfWidth, halfHeight, 0);
 
-        // ÉèÖÃUV
+        // è®¾ç½®UV
         uv[0] = new Vector2(0, 0);
         uv[1] = new Vector2(1, 0);
         uv[2] = new Vector2(1, 1);
         uv[3] = new Vector2(0, 1);
 
-        // ÉèÖÃÈı½ÇĞÎ
+        // è®¾ç½®ä¸‰è§’å½¢
         triangles[0] = 0;
         triangles[1] = 1;
         triangles[2] = 2;
@@ -138,7 +138,7 @@ public class Attack : MonoBehaviour
 
     private void Update()
     {
-        // ¸üĞÂÈËÎï³¯Ïò
+        // æ›´æ–°äººç‰©æœå‘
         UpdateFacingDirection();
 
         if (Input.GetKeyDown(attackKey))
@@ -146,52 +146,52 @@ public class Attack : MonoBehaviour
             PerformAttack();
         }
 
-        
+
     }
 
-    // ¸üĞÂÈËÎï³¯Ïò 
+    // æ›´æ–°äººç‰©æœå‘ 
     private void UpdateFacingDirection()
     {
-        int newDirection = facingDirection; // Ä¬ÈÏ±£³Öµ±Ç°³¯Ïò
+        int newDirection = facingDirection; // é»˜è®¤ä¿æŒå½“å‰æœå‘
 
-        // ¸ù¾İlocalScale.xÅĞ¶Ï³¯Ïò£¨Ö÷Òª·½·¨£©
+        // æ ¹æ®localScale.xåˆ¤æ–­æœå‘ï¼ˆä¸»è¦æ–¹æ³•ï¼‰
         if (transform.localScale.x != 0)
         {
             newDirection = transform.localScale.x > 0 ? 1 : -1;
         }
 
-        // Èç¹ûÓĞRigidbody2D£¬¸ù¾İËÙ¶ÈÅĞ¶Ï³¯Ïò£¨¸¨Öú·½·¨£©
+        // å¦‚æœæœ‰Rigidbody2Dï¼Œæ ¹æ®é€Ÿåº¦åˆ¤æ–­æœå‘ï¼ˆè¾…åŠ©æ–¹æ³•ï¼‰
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null && Mathf.Abs(rb.velocity.x) > 0.1f)
         {
             newDirection = rb.velocity.x > 0 ? 1 : -1;
         }
-        
-        // Ö»ÓĞµ±³¯ÏòÈ·Êµ¸Ä±äÊ±²Å¸üĞÂ
+
+        // åªæœ‰å½“æœå‘ç¡®å®æ”¹å˜æ—¶æ‰æ›´æ–°
         if (newDirection != facingDirection)
         {
             facingDirection = newDirection;
             if (showDebugInfo)
             {
-                Debug.Log($"³¯Ïò¸üĞÂ: {(facingDirection > 0 ? "ÓÒ" : "×ó")}");
+                Debug.Log($"æœå‘æ›´æ–°: {(facingDirection > 0 ? "å³" : "å·¦")}");
             }
         }
     }
 
-    
 
-    // »ñÈ¡Êµ¼Ê¹¥»÷µãÎ»ÖÃ£¨¿¼ÂÇÆ«ÒÆºÍ³¯Ïò£©
+
+    // è·å–å®é™…æ”»å‡»ç‚¹ä½ç½®ï¼ˆè€ƒè™‘åç§»å’Œæœå‘ï¼‰
     private Vector2 GetActualAttackPosition()
     {
         Vector2 basePosition = attackPoint != null ? (Vector2)attackPoint.position : (Vector2)transform.position;
 
-        // Ó¦ÓÃÆ«ÒÆÁ¿£¬XÆ«ÒÆ»á¸ù¾İ³¯Ïòµ÷Õû
+        // åº”ç”¨åç§»é‡ï¼ŒXåç§»ä¼šæ ¹æ®æœå‘è°ƒæ•´
         Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
 
         return basePosition + adjustedOffset;
     }
 
-    // »ñÈ¡¹¥»÷ÇøÓòµÄĞı×ª½Ç¶È£¨¿¼ÂÇ³¯Ïò£©
+    // è·å–æ”»å‡»åŒºåŸŸçš„æ—‹è½¬è§’åº¦ï¼ˆè€ƒè™‘æœå‘ï¼‰
     private float GetActualAttackAngle()
     {
         return attackAngle * facingDirection;
@@ -203,15 +203,15 @@ public class Attack : MonoBehaviour
         {
             if (showDebugInfo)
             {
-                Debug.Log($"¹¥»÷ÀäÈ´ÖĞ£¬Ê£ÓàÊ±¼ä£º{lastAttackTime + attackCooldown - Time.time:F2}Ãë");
+                Debug.Log($"æ”»å‡»å†·å´ä¸­ï¼Œå‰©ä½™æ—¶é—´ï¼š{lastAttackTime + attackCooldown - Time.time:F2}ç§’");
             }
             return;
         }
 
         if (showDebugInfo)
         {
-            Debug.Log($"Ö´ĞĞ¹¥»÷£¬³¯Ïò£º{(facingDirection > 0 ? "ÓÒ" : "×ó")}");
-            Debug.Log($"¹¥»÷ÇøÓò£ºÎ»ÖÃ{GetActualAttackPosition()}£¬´óĞ¡{boxSize}£¬½Ç¶È{GetActualAttackAngle()}¶È");
+            Debug.Log($"æ‰§è¡Œæ”»å‡»ï¼Œæœå‘ï¼š{(facingDirection > 0 ? "å³" : "å·¦")}");
+            Debug.Log($"æ”»å‡»åŒºåŸŸï¼šä½ç½®{GetActualAttackPosition()}ï¼Œå¤§å°{boxSize}ï¼Œè§’åº¦{GetActualAttackAngle()}åº¦");
         }
 
         OnAttackPerformed?.Invoke(attackType);
@@ -220,7 +220,7 @@ public class Attack : MonoBehaviour
 
         if (showDebugInfo)
         {
-            Debug.Log($"¼ì²âµ½{hitEnemies.Length}¸öµĞÈË");
+            Debug.Log($"æ£€æµ‹åˆ°{hitEnemies.Length}ä¸ªæ•Œäºº");
         }
 
         foreach (Collider2D enemy in hitEnemies)
@@ -234,74 +234,74 @@ public class Attack : MonoBehaviour
         lastAttackTime = Time.time;
     }
 
-    // ÔÚÓÎÏ·ÔËĞĞÊ±»æÖÆ¹¥»÷·¶Î§
+    // åœ¨æ¸¸æˆè¿è¡Œæ—¶ç»˜åˆ¶æ”»å‡»èŒƒå›´
     private void OnRenderObject()
     {
         if (!showAttackRangeInGame || debugMaterial == null || debugMesh == null)
             return;
 
-        // ÉèÖÃ²ÄÖÊ
+        // è®¾ç½®æè´¨
         debugMaterial.SetPass(0);
 
-        // ¼ÆËã¹¥»÷ÇøÓòµÄÎ»ÖÃºÍĞı×ª
+        // è®¡ç®—æ”»å‡»åŒºåŸŸçš„ä½ç½®å’Œæ—‹è½¬
         Vector3 attackPos = GetActualAttackPosition();
         Quaternion rotation = Quaternion.Euler(0, 0, GetActualAttackAngle());
 
-        // »æÖÆÍø¸ñ
+        // ç»˜åˆ¶ç½‘æ ¼
         Graphics.DrawMeshNow(debugMesh, attackPos, rotation);
     }
 
-    [ContextMenu("ÇĞ»»¹¥»÷·¶Î§ÏÔÊ¾")]
+    [ContextMenu("åˆ‡æ¢æ”»å‡»èŒƒå›´æ˜¾ç¤º")]
     public void ToggleAttackRangeDisplay()
     {
         showAttackRangeInGame = !showAttackRangeInGame;
-        Debug.Log($"¹¥»÷·¶Î§ÏÔÊ¾: {showAttackRangeInGame}");
+        Debug.Log($"æ”»å‡»èŒƒå›´æ˜¾ç¤º: {showAttackRangeInGame}");
     }
 
-    [ContextMenu("ÇĞ»»µ÷ÊÔĞÅÏ¢")]
+    [ContextMenu("åˆ‡æ¢è°ƒè¯•ä¿¡æ¯")]
     public void ToggleDebugInfo()
     {
         showDebugInfo = !showDebugInfo;
-        Debug.Log($"µ÷ÊÔĞÅÏ¢ÏÔÊ¾: {showDebugInfo}");
+        Debug.Log($"è°ƒè¯•ä¿¡æ¯æ˜¾ç¤º: {showDebugInfo}");
     }
 
-    [ContextMenu("²âÊÔ¹¥»÷·½Ïò")]
+    [ContextMenu("æµ‹è¯•æ”»å‡»æ–¹å‘")]
     private void TestAttackDirection()
     {
-        Debug.Log($"µ±Ç°³¯Ïò: {(facingDirection > 0 ? "ÓÒ" : "×ó")}");
-        Debug.Log($"¹¥»÷µãÎ»ÖÃ: {GetActualAttackPosition()}");
-        Debug.Log($"¹¥»÷ÇøÓò½Ç¶È: {GetActualAttackAngle()}¶È");
+        Debug.Log($"å½“å‰æœå‘: {(facingDirection > 0 ? "å³" : "å·¦")}");
+        Debug.Log($"æ”»å‡»ç‚¹ä½ç½®: {GetActualAttackPosition()}");
+        Debug.Log($"æ”»å‡»åŒºåŸŸè§’åº¦: {GetActualAttackAngle()}åº¦");
         Debug.Log($"LocalScale: {transform.localScale}");
     }
 
-    [ContextMenu("Ç¿ÖÆÏòÓÒ")]
+    [ContextMenu("å¼ºåˆ¶å‘å³")]
     private void ForceRight()
     {
         facingDirection = 1;
         Vector3 scale = transform.localScale;
         scale.x = Mathf.Abs(scale.x);
         transform.localScale = scale;
-        Debug.Log($"Ç¿ÖÆÉèÖÃÎªÏòÓÒ£¬facingDirection: {facingDirection}");
+        Debug.Log($"å¼ºåˆ¶è®¾ç½®ä¸ºå‘å³ï¼ŒfacingDirection: {facingDirection}");
     }
 
-    [ContextMenu("Ç¿ÖÆÏò×ó")]
+    [ContextMenu("å¼ºåˆ¶å‘å·¦")]
     private void ForceLeft()
     {
         facingDirection = -1;
         Vector3 scale = transform.localScale;
         scale.x = -Mathf.Abs(scale.x);
         transform.localScale = scale;
-        Debug.Log($"Ç¿ÖÆÉèÖÃÎªÏò×ó£¬facingDirection: {facingDirection}");
+        Debug.Log($"å¼ºåˆ¶è®¾ç½®ä¸ºå‘å·¦ï¼ŒfacingDirection: {facingDirection}");
     }
 
-    [ContextMenu("Ä£ÄâÏòÓÒ¹¥»÷")]
+    [ContextMenu("æ¨¡æ‹Ÿå‘å³æ”»å‡»")]
     private void SimulateRightAttack()
     {
         ForceRight();
         PerformAttack();
     }
 
-    [ContextMenu("Ä£ÄâÏò×ó¹¥»÷")]
+    [ContextMenu("æ¨¡æ‹Ÿå‘å·¦æ”»å‡»")]
     private void SimulateLeftAttack()
     {
         ForceLeft();
@@ -317,13 +317,13 @@ public class Attack : MonoBehaviour
         lastAttackTime = Time.time;
     }
 
-    // »ñÈ¡ÃüÖĞµÄµĞÈË£¨Ê¹ÓÃ³¤·½ĞÎÇøÓò¼ì²â£©
+    // è·å–å‘½ä¸­çš„æ•Œäººï¼ˆä½¿ç”¨é•¿æ–¹å½¢åŒºåŸŸæ£€æµ‹ï¼‰
     private Collider2D[] GetHitEnemies()
     {
         Vector2 actualAttackPosition = GetActualAttackPosition();
         float actualAttackAngle = GetActualAttackAngle();
 
-        // Ê¹ÓÃ2D Box¼ì²â³¤·½ĞÎÇøÓò
+        // ä½¿ç”¨2D Boxæ£€æµ‹é•¿æ–¹å½¢åŒºåŸŸ
         Collider2D[] hitColliders = Physics2D.OverlapBoxAll(
             actualAttackPosition,
             boxSize,
@@ -331,7 +331,7 @@ public class Attack : MonoBehaviour
             enemyLayer
         );
 
-        // ¹ıÂËµô×ÔÉí
+        // è¿‡æ»¤æ‰è‡ªèº«
         List<Collider2D> validEnemies = new List<Collider2D>();
         foreach (Collider2D collider in hitColliders)
         {
@@ -344,26 +344,26 @@ public class Attack : MonoBehaviour
         return validEnemies.ToArray();
     }
 
-    [ContextMenu("²âÊÔ¹¥»÷ÇøÓò")]
+    [ContextMenu("æµ‹è¯•æ”»å‡»åŒºåŸŸ")]
     private void TestAttackArea()
     {
         Vector2 actualAttackPosition = GetActualAttackPosition();
         float actualAttackAngle = GetActualAttackAngle();
 
         Collider2D[] hits = Physics2D.OverlapBoxAll(actualAttackPosition, boxSize, actualAttackAngle, Physics2D.AllLayers);
-        Debug.Log($"¹¥»÷ÇøÓòÄÚËùÓĞÅö×²Ìå: {hits.Length}");
+        Debug.Log($"æ”»å‡»åŒºåŸŸå†…æ‰€æœ‰ç¢°æ’ä½“: {hits.Length}");
 
         foreach (Collider2D hit in hits)
         {
-            Debug.Log($"¼ì²âµ½: {hit.gameObject.name} (²ã¼¶: {LayerMask.LayerToName(hit.gameObject.layer)})");
+            Debug.Log($"æ£€æµ‹åˆ°: {hit.gameObject.name} (å±‚çº§: {LayerMask.LayerToName(hit.gameObject.layer)})");
         }
     }
 
-    [ContextMenu("Ç¿ÖÆÉèÖÃ²âÊÔ²ã¼¶")]
+    [ContextMenu("å¼ºåˆ¶è®¾ç½®æµ‹è¯•å±‚çº§")]
     private void ForceTestLayers()
     {
         enemyLayer = LayerMask.GetMask("Default", "Enemy");
-        Debug.Log("ÒÑÉèÖÃÎª¼ì²âDefaultºÍEnemy²ã¼¶");
+        Debug.Log("å·²è®¾ç½®ä¸ºæ£€æµ‹Defaultå’ŒEnemyå±‚çº§");
     }
 
     private void ProcessAttackHit(GameObject target)
@@ -403,7 +403,7 @@ public class Attack : MonoBehaviour
                 int physicalDamage = Mathf.RoundToInt(baseDamage * (isCrit ? physicalCritDamage : 1f));
                 if (showDebugInfo)
                 {
-                    Debug.Log($"ÎïÀí¹¥»÷: »ù´¡{baseDamage}, ±©»÷{isCrit}, ×îÖÕ{physicalDamage}");
+                    Debug.Log($"ç‰©ç†æ”»å‡»: åŸºç¡€{baseDamage}, æš´å‡»{isCrit}, æœ€ç»ˆ{physicalDamage}");
                 }
                 return physicalDamage;
 
@@ -415,7 +415,7 @@ public class Attack : MonoBehaviour
                     int elementalDamage = Mathf.RoundToInt(baseDamage * defenseMultiplier);
                     if (showDebugInfo)
                     {
-                        Debug.Log($"ÔªËØ¹¥»÷: »ù´¡{baseDamage}, ·ÀÓù¼õÉË{defenseMultiplier:P0}, ×îÖÕ{elementalDamage}");
+                        Debug.Log($"å…ƒç´ æ”»å‡»: åŸºç¡€{baseDamage}, é˜²å¾¡å‡ä¼¤{defenseMultiplier:P0}, æœ€ç»ˆ{elementalDamage}");
                     }
                     return elementalDamage;
                 }
@@ -433,7 +433,7 @@ public class Attack : MonoBehaviour
                 targetAttribute.TakeTrueDamage(damage, gameObject);
                 if (showDebugInfo)
                 {
-                    Debug.Log($"ÎïÀí¹¥»÷ÎŞÊÓ·ÀÓù£¬Ôì³É {damage} µãÕæÊµÉËº¦");
+                    Debug.Log($"ç‰©ç†æ”»å‡»æ— è§†é˜²å¾¡ï¼Œé€ æˆ {damage} ç‚¹çœŸå®ä¼¤å®³");
                 }
             }
             else
@@ -441,7 +441,7 @@ public class Attack : MonoBehaviour
                 targetAttribute.TakeDamage(damage, gameObject);
                 if (showDebugInfo)
                 {
-                    Debug.Log($"ÔªËØ¹¥»÷¾­¹ı·ÀÓù¼õÉË£¬Ôì³É {damage} µãÉËº¦");
+                    Debug.Log($"å…ƒç´ æ”»å‡»ç»è¿‡é˜²å¾¡å‡ä¼¤ï¼Œé€ æˆ {damage} ç‚¹ä¼¤å®³");
                 }
             }
         }
@@ -479,25 +479,43 @@ public class Attack : MonoBehaviour
         burnEffect.StartBurning(burnDamage, fireDamageDuration, gameObject);
         if (showDebugInfo)
         {
-            Debug.Log($"»ğÔªËØ: {target.name} ¿ªÊ¼È¼ÉÕ£¬³ÖĞø{fireDamageDuration}Ãë");
+            Debug.Log($"ç«å…ƒç´ : {target.name} å¼€å§‹ç‡ƒçƒ§ï¼ŒæŒç»­{fireDamageDuration}ç§’");
         }
     }
 
+    // ---------- å·²ä¿®æ”¹ï¼šé£å…ƒç´ æ•ˆæœï¼ˆä¼˜å…ˆè°ƒç”¨ EnemyAI.ApplyWindKnockbackï¼‰ ----------
     private void ApplyWindEffect(GameObject target, AttackInfo attackInfo)
     {
+        if (target == null) return;
+
+        // é¦–å…ˆå°è¯•é€šè¿‡ EnemyAI çš„å‡»é€€æ–¹æ³•ï¼ˆæ¨èï¼‰
+        EnemyAI enemyAI = target.GetComponent<EnemyAI>();
+        if (enemyAI != null)
+        {
+            // è®¡ç®—å‡»é€€æ–¹å‘ï¼šå¦‚æœæ”»å‡»è€…åœ¨ç›®æ ‡å·¦ä¾§ï¼Œåˆ™å‡»é€€æœå³ï¼ˆfromRight = trueï¼‰
+            bool fromRight = transform.position.x < target.transform.position.x;
+            enemyAI.ApplyWindKnockback(windKnockbackForce, fromRight);
+
+            if (showDebugInfo)
+                Debug.Log($"é£å…ƒç´  -> é€šè¿‡ EnemyAI å¯¹ {target.name} è§¦å‘å‡»é€€ (force={windKnockbackForce}, fromRight={fromRight})");
+
+            return;
+        }
+
+        // å¦‚æœç›®æ ‡æ²¡æœ‰ EnemyAIï¼Œå°±å°½é‡åªæ°´å¹³ä¿®æ”¹é€Ÿåº¦ï¼ˆä¸æ”¹å˜ Yï¼‰ï¼Œä»¥é˜²é£èµ·
         Rigidbody2D targetRb = target.GetComponent<Rigidbody2D>();
         if (targetRb != null)
         {
-            // »÷ÍË·½Ïò»ùÓÚ¹¥»÷·½Ïò
-            Vector2 direction = new Vector2(facingDirection, 0.3f).normalized;
-            targetRb.AddForce(direction * windKnockbackForce, ForceMode2D.Impulse);
-        }
+            // ä½¿ç”¨é¢å‘æ–¹å‘å†³å®šæ°´å¹³é€Ÿåº¦ï¼ˆfacingDirection ä¸ºæ”»å‡»è€…æœå‘ï¼‰
+            float horizontal = facingDirection * windKnockbackForce;
+            Vector2 newVel = new Vector2(horizontal, targetRb.velocity.y); // ä¿ç•™åŸ Y é€Ÿåº¦
+            targetRb.velocity = newVel;
 
-        if (showDebugInfo)
-        {
-            Debug.Log($"·çÔªËØ: {target.name} ±»»÷ÍË");
+            if (showDebugInfo)
+                Debug.Log($"é£å…ƒç´  -> å¯¹ {target.name} ç›´æ¥è®¾ç½®æ°´å¹³é€Ÿåº¦ (vx={horizontal})");
         }
     }
+    // ------------------------------------------------------------------------
 
     private void ApplyIceEffect(GameObject target, AttackInfo attackInfo)
     {
@@ -507,7 +525,7 @@ public class Attack : MonoBehaviour
         freezeEffect.StartFreeze(iceFreezeDuration);
         if (showDebugInfo)
         {
-            Debug.Log($"±ùÔªËØ: {target.name} ±»¶³½á{iceFreezeDuration}Ãë");
+            Debug.Log($"å†°å…ƒç´ : {target.name} è¢«å†»ç»“{iceFreezeDuration}ç§’");
         }
     }
 
@@ -526,7 +544,7 @@ public class Attack : MonoBehaviour
                     enemyAttribute.TakeDamage(chainDamage, gameObject);
                     if (showDebugInfo)
                     {
-                        Debug.Log($"À×ÔªËØÁ¬Ëø: {enemy.name} ÊÜµ½{chainDamage}ÉËº¦");
+                        Debug.Log($"é›·å…ƒç´ è¿é”: {enemy.name} å—åˆ°{chainDamage}ä¼¤å®³");
                     }
                 }
             }
@@ -534,26 +552,26 @@ public class Attack : MonoBehaviour
 
         if (showDebugInfo)
         {
-            Debug.Log($"À×ÔªËØ: Á¬Ëø¹¥»÷{nearbyEnemies.Length - 1}¸öÄ¿±ê");
+            Debug.Log($"é›·å…ƒç´ : è¿é”æ”»å‡»{nearbyEnemies.Length - 1}ä¸ªç›®æ ‡");
         }
     }
 
-    // Íâ²¿ÉèÖÃ³¯ÏòµÄ·½·¨
+    // å¤–éƒ¨è®¾ç½®æœå‘çš„æ–¹æ³•
     public void SetFacingDirection(int direction)
     {
         facingDirection = Mathf.Clamp(direction, -1, 1);
-        // Í¬²½¸üĞÂlocalScale
+        // åŒæ­¥æ›´æ–°localScale
         Vector3 scale = transform.localScale;
         scale.x = Mathf.Abs(scale.x) * facingDirection;
         transform.localScale = scale;
-        Debug.Log($"ÉèÖÃ³¯Ïò: {(facingDirection > 0 ? "ÓÒ" : "×ó")}");
+        Debug.Log($"è®¾ç½®æœå‘: {(facingDirection > 0 ? "å³" : "å·¦")}");
     }
 
     public void SetAttackType(AttackType newType) => attackType = newType;
     public void SetBoxSize(Vector2 newSize)
     {
         boxSize = new Vector2(Mathf.Max(0.1f, newSize.x), Mathf.Max(0.1f, newSize.y));
-        // ¸üĞÂµ÷ÊÔÍø¸ñ
+        // æ›´æ–°è°ƒè¯•ç½‘æ ¼
         if (debugMesh != null)
         {
             debugMesh = CreateBoxMesh();
@@ -570,19 +588,19 @@ public class Attack : MonoBehaviour
         PerformAttack();
     }
 
-    // ÔÚ³¡¾°ÊÓÍ¼ÖĞ»æÖÆ¹¥»÷·¶Î§
+    // åœ¨åœºæ™¯è§†å›¾ä¸­ç»˜åˆ¶æ”»å‡»èŒƒå›´
     private void OnDrawGizmosSelected()
     {
-        // »æÖÆ¹¥»÷·¶Î§
+        // ç»˜åˆ¶æ”»å‡»èŒƒå›´
         Gizmos.color = attackType == AttackType.Physical ? Color.red : GetElementColor(attackType);
 
         Vector2 actualAttackPosition = GetActualAttackPosition();
         float actualAttackAngle = GetActualAttackAngle();
 
-        // »æÖÆ³¤·½ĞÎ¹¥»÷ÇøÓò
+        // ç»˜åˆ¶é•¿æ–¹å½¢æ”»å‡»åŒºåŸŸ
         DrawGizmosBox(actualAttackPosition, boxSize, actualAttackAngle);
 
-        // »æÖÆ¹¥»÷µãÎ»ÖÃÖ¸Ê¾Æ÷
+        // ç»˜åˆ¶æ”»å‡»ç‚¹ä½ç½®æŒ‡ç¤ºå™¨
         Gizmos.color = Color.white;
         Gizmos.DrawWireSphere(actualAttackPosition, 0.1f);
 
@@ -593,14 +611,14 @@ public class Attack : MonoBehaviour
         }
     }
 
-    // »æÖÆ³¤·½ĞÎ¹¥»÷ÇøÓò
+    // ç»˜åˆ¶é•¿æ–¹å½¢æ”»å‡»åŒºåŸŸ
     private void DrawGizmosBox(Vector3 center, Vector2 size, float angle)
     {
         Vector3[] corners = new Vector3[4];
         float halfWidth = size.x * 0.5f;
         float halfHeight = size.y * 0.5f;
 
-        // ¼ÆËãĞı×ªºóµÄËÄ¸ö½Çµã
+        // è®¡ç®—æ—‹è½¬åçš„å››ä¸ªè§’ç‚¹
         Quaternion rotation = Quaternion.Euler(0, 0, angle);
 
         corners[0] = center + rotation * new Vector3(-halfWidth, -halfHeight, 0);
@@ -608,14 +626,14 @@ public class Attack : MonoBehaviour
         corners[2] = center + rotation * new Vector3(halfWidth, halfHeight, 0);
         corners[3] = center + rotation * new Vector3(-halfWidth, halfHeight, 0);
 
-        // »æÖÆËÄÌõ±ß
+        // ç»˜åˆ¶å››æ¡è¾¹
         Gizmos.DrawLine(corners[0], corners[1]);
         Gizmos.DrawLine(corners[1], corners[2]);
         Gizmos.DrawLine(corners[2], corners[3]);
         Gizmos.DrawLine(corners[3], corners[0]);
     }
 
-    // »æÖÆ2DÔ²ĞÎµÄ¸¨Öú·½·¨
+    // ç»˜åˆ¶2Dåœ†å½¢çš„è¾…åŠ©æ–¹æ³•
     private void DrawGizmosCircle(Vector3 center, float radius)
     {
         int segments = 32;
@@ -636,9 +654,9 @@ public class Attack : MonoBehaviour
     {
         switch (type)
         {
-            case AttackType.Fire: return  Color.red; 
+            case AttackType.Fire: return Color.red;
             case AttackType.Wind: return Color.green;
-            case AttackType.Ice: return  Color.blue; 
+            case AttackType.Ice: return Color.blue;
             case AttackType.Thunder: return Color.yellow;
             default: return Color.white;
         }
@@ -646,7 +664,7 @@ public class Attack : MonoBehaviour
 
     private void OnDestroy()
     {
-        // ÇåÀí×ÊÔ´
+        // æ¸…ç†èµ„æº
         if (debugMaterial != null)
             Destroy(debugMaterial);
         if (debugMesh != null)
@@ -655,7 +673,7 @@ public class Attack : MonoBehaviour
 }
 
 
-// ĞŞ¸ÄĞ§¹ûÀàÒÔÊ¹ÓÃ2DÎïÀí
+// ä¿®æ”¹æ•ˆæœç±»ä»¥ä½¿ç”¨2Dç‰©ç†
 public class BurnEffect : MonoBehaviour
 {
     private float burnTimer;
@@ -681,7 +699,7 @@ public class BurnEffect : MonoBehaviour
             if (attribute != null && attribute.IsAlive)
             {
                 attribute.TakeDamage(burnDamage, damageSource);
-                Debug.Log($"È¼ÉÕÉËº¦: {burnDamage}");
+                Debug.Log($"ç‡ƒçƒ§ä¼¤å®³: {burnDamage}");
             }
 
             burnTimer -= interval;

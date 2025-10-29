@@ -4645,6 +4645,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 0}
   bodyCollider: {fileID: 0}
+  zeroFrictionMaterial: {fileID: 0}
   skillSystem: {fileID: 0}
   aimOrigin: {fileID: 0}
   useContinuousCollisionDetection: 1
