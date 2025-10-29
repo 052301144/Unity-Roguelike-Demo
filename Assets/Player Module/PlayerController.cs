@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     [Header("Components")]
     public Rigidbody2D rb;
     public Collider2D bodyCollider;
+    public PhysicsMaterial2D zeroFrictionMaterial;  // 零摩擦材质，解决移动迟滞问题
     
     [Header("Skill System")]
     public SM_SkillSystem skillSystem;  // 技能系统组件
@@ -277,12 +278,8 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         // 使用多射线检测防止边缘穿模
         float colliderHeight = bodyCollider.bounds.size.y;
         float colliderCenterY = bodyCollider.bounds.center.y;
-        float colliderWidth = bodyCollider.bounds.size.x;
         
         int wallHits = 0; // 计算墙壁命中次数
-        string directionName = direction > 0 ? "右" : "左";
-        
-        Debug.Log($"[墙体检测] 开始检测{directionName}侧墙壁 - 角色位置: {transform.position}, 碰撞器边界: min={bodyCollider.bounds.min}, max={bodyCollider.bounds.max}");
         
         for (int i = 0; i < wallCheckRays; i++)
         {
@@ -302,22 +299,17 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
             if (hit.collider != null)
             {
                 wallHits++;
-                Debug.Log($"[墙体检测] 射线{i+1}命中墙壁 - 起点: {origin}, 距离: {hit.distance:F3}, 碰撞对象: {hit.collider.name}, 位置: {hit.point}");
                 Debug.DrawRay(origin, new Vector2(direction, 0f) * wallCheckDistance, Color.red, 0.02f);
             }
             else
             {
-                Debug.Log($"[墙体检测] 射线{i+1}未命中 - 起点: {origin}, 检测距离: {wallCheckDistance}");
                 Debug.DrawRay(origin, new Vector2(direction, 0f) * wallCheckDistance, Color.green, 0.02f);
             }
         }
         
         // 如果大部分射线都命中墙壁，认为是真正的墙壁
         // 如果只有少数射线命中，可能是角落，允许通过
-        bool hasWall = wallHits > wallCheckRays * 0.6f;
-        Debug.Log($"[墙体检测] {directionName}侧检测结果 - 命中数: {wallHits}/{wallCheckRays}, 阈值: {wallCheckRays * 0.6f}, 有墙壁: {hasWall}");
-        
-        return hasWall;
+        return wallHits > wallCheckRays * 0.6f;
     }
     
     // 预测性碰撞检测
@@ -385,13 +377,6 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         }
         // 如果同时按下A和D，或者都没按，则停止移动
         
-        // 记录输入状态
-        if (moveDirectionInt != 0)
-        {
-            string directionName = moveDirectionInt > 0 ? "右" : "左";
-            Debug.Log($"[移动处理] 检测到{directionName}移动输入 - A:{pressingA}, D:{pressingD}, 当前朝向:{facing}");
-        }
-        
         // 检查墙壁碰撞 - 使用移动方向而不是朝向
         bool wallAhead = false;
         if (moveDirectionInt != 0)
@@ -404,18 +389,11 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         if (moveDirection != 0f && !wallAhead)
         {
             targetVelX = moveDirection * moveSpeed;
-            Debug.Log($"[移动处理] 允许移动 - 目标速度: {targetVelX}, 移动速度: {moveSpeed}");
-        }
-        else if (moveDirection != 0f && wallAhead)
-        {
-            Debug.Log($"[移动处理] 被墙壁阻挡 - 无法移动");
-        }
-        else if (moveDirection == 0f)
-        {
-            Debug.Log($"[移动处理] 无移动输入 - 停止移动");
         }
         
-        // 直接设置速度（固定速度移动）
+        // ========== 优化的速度设置方式 ==========
+        // 使用零摩擦材质后，直接设置velocity即可获得即时响应
+        // 这样可以实现完美的方向切换，无迟滞
         Vector2 velocity = rb.velocity;
         velocity.x = targetVelX;
         rb.velocity = velocity;
@@ -423,12 +401,6 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         // 更新朝向
         if (moveDirection > 0) facing = 1;
         else if (moveDirection < 0) facing = -1;
-        
-        // 记录最终状态
-        if (moveDirectionInt != 0)
-        {
-            Debug.Log($"[移动处理] 最终状态 - 目标速度: {targetVelX}, 实际速度: {rb.velocity.x}, 朝向: {facing}, 有墙壁: {wallAhead}");
-        }
     }
     
     
@@ -601,6 +573,37 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         else
         {
             rb.collisionDetectionMode = CollisionDetectionMode2D.Discrete;
+        }
+        
+        // ========== 解决移动迟滞问题的关键设置 ==========
+        
+        // 1. 设置插值模式，使移动更平滑
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        
+        // 2. 冻结Z轴旋转，防止碰撞时旋转导致的移动异常
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        
+        // 3. 创建并应用零摩擦物理材质（这是解决迟滞的关键）
+        if (zeroFrictionMaterial == null)
+        {
+            // 如果未手动指定，自动创建零摩擦材质
+            zeroFrictionMaterial = new PhysicsMaterial2D("ZeroFriction");
+            zeroFrictionMaterial.friction = 0f;      // 摩擦力设为0
+            zeroFrictionMaterial.bounciness = 0f;    // 弹性设为0
+        }
+        
+        // 应用物理材质到角色的碰撞体
+        if (bodyCollider != null)
+        {
+            bodyCollider.sharedMaterial = zeroFrictionMaterial;
+            Debug.Log("[PlayerController] 已应用零摩擦材质，解决移动迟滞问题");
+        }
+        
+        // 4. 确保重力缩放合适（使用Unity的物理2D重力）
+        if (rb.gravityScale == 0)
+        {
+            rb.gravityScale = 3f; // 推荐值，可根据手感调整
+            Debug.Log("[PlayerController] 设置重力缩放为 3.0");
         }
 
         // 验证参数值，防止异常行为
