@@ -252,7 +252,7 @@ GameObject:
   m_Component:
   - component: {fileID: 38263491}
   m_Layer: 7
-  m_Name: Walcheck
+  m_Name: WallcheckR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -267,7 +267,7 @@ Transform:
   m_GameObject: {fileID: 38263490}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20, y: -550, z: 0}
+  m_LocalPosition: {x: 0, y: -550, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3863,6 +3863,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 468577125}
   m_CullTransparentMesh: 1
+--- !u!1 &471954499
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 471954500}
+  m_Layer: 7
+  m_Name: WallcheckL
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &471954500
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471954499}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -550, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 551935775}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &489199762
 GameObject:
   m_ObjectHideFlags: 0
@@ -4434,6 +4465,7 @@ Transform:
   m_Children:
   - {fileID: 383146281}
   - {fileID: 38263491}
+  - {fileID: 471954500}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &551935776
@@ -4450,21 +4482,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 213.34
   chaseSpeed: 274.29
-  wallCheckDistance: 10
+  wallCheckDistance: 30
   wallLayer:
     serializedVersion: 2
     m_Bits: 256
-  detectionRange: 252.9
   attackRange: 45.68
-  attackLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  attackDelay: 1
+  attackDelay: 0.1
   attackDamage: 10
   detectionPoint: {fileID: 383146281}
   attackPoint: {fileID: 383146281}
-  wallCheck: {fileID: 38263491}
+  wallCheckLeft: {fileID: 471954500}
+  wallCheckRight: {fileID: 38263491}
   player: {fileID: 2061715048}
+  detectionWidth: 221.6
+  detectionHeight: 95.9
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  windKnockbackDuration: 1
+  windKnockbackForce: 200
 --- !u!61 &551935777
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4549,9 +4585,9 @@ GameObject:
   - component: {fileID: 574374875}
   - component: {fileID: 574374874}
   - component: {fileID: 574374873}
-  - component: {fileID: 574374878}
   - component: {fileID: 574374877}
   - component: {fileID: 574374879}
+  - component: {fileID: 574374880}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -4713,18 +4749,6 @@ MonoBehaviour:
   defense: 0
   showHealthBar: 1
   logDamageEvents: 1
---- !u!114 &574374878
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 574374872}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 823f6f88d1258324886e9567d192bf9b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &574374879
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4746,6 +4770,38 @@ MonoBehaviour:
   slotI: {fileID: 0}
   slotO: {fileID: 0}
   slotL: {fileID: 0}
+--- !u!114 &574374880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 574374872}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c22cfedd2185c4046aad05f39267d598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackType: 2
+  attackKey: 106
+  attackCooldown: 0.5
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  attackPoint: {fileID: 2061715048}
+  boxSize: {x: 29.6, y: 53.76}
+  attackOffset: {x: 32.9, y: 0}
+  attackAngle: 0
+  showAttackRangeInGame: 0
+  debugBoxColor: {r: 1, g: 0, b: 0, a: 1}
+  showDebugInfo: 1
+  physicalCritRate: 0.1
+  physicalCritDamage: 1.5
+  elementalEffectChance: 0.7
+  fireDamageDuration: 3
+  iceFreezeDuration: 2
+  windKnockbackForce: 200
+  thunderChainRange: 3
 --- !u!1 &582763779
 GameObject:
   m_ObjectHideFlags: 0
