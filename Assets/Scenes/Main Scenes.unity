@@ -868,8 +868,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 701e7ed4dde1bf949b30e33741547ac9, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -5355,7 +5355,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71e0c740e19aee344ae062e71d0238c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1000
+  maxHealth: 100000
   currentHealth: 0
   attack: 10
   defense: 0
@@ -11346,7 +11346,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1573750520}
-  - component: {fileID: 1573750521}
   m_Layer: 5
   m_Name: HP
   m_TagString: Untagged
@@ -11375,24 +11374,6 @@ RectTransform:
   m_AnchoredPosition: {x: 300, y: -130}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1573750521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1573750519}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81e6b5c605460264f9a742d12a46909e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetAttribute: {fileID: 574374877}
-  healthSlider: {fileID: 448652969}
-  showText: 0
-  healthText: {fileID: 0}
-  smoothChange: 1
-  smoothSpeed: 5
 --- !u!1 &1575871582
 GameObject:
   m_ObjectHideFlags: 0
@@ -14373,8 +14354,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 701e7ed4dde1bf949b30e33741547ac9, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
