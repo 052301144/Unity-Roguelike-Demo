@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     public Rigidbody2D rb;
     public Collider2D bodyCollider;
     public PhysicsMaterial2D zeroFrictionMaterial;  // 零摩擦材质，解决移动迟滞问题
+    public Attribute attributeComponent;  // 属性组件（统一管理生命值、攻防等）
     
     [Header("Skill System")]
     public SM_SkillSystem skillSystem;  // 技能系统组件
@@ -60,6 +61,9 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     public KeyCode skill1Key = KeyCode.U;
     public KeyCode skill2Key = KeyCode.I;
     public KeyCode skill3Key = KeyCode.O;
+    
+    [Header("Attack Settings")]
+    public bool allowAttackInAir = true;  // 是否允许在空中攻击
 
     // 内部状态
     private float inputX;
@@ -68,12 +72,9 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     private bool doubleJumpUsed;
     private int facing = 1; // 1 右, -1 左，用于表示角色的朝向
     
-    // 角色状态
-    [Header("Character Stats")]
-    public float maxHealth = 100f;
-    [SerializeField] private float currentHealth = 100f;
-    public float healthRegenPerSec = 1f;
-    public float defense = 10f;  // 防御力
+    // 角色回复设置
+    [Header("Regeneration")]
+    public float healthRegenPerSec = 1f;  // 生命值回复速度（保留用于后续在Attribute中实现）
     
     // 跳跃状态管理
     private float jumpBufferTimer = 0f; // 跳跃缓冲计时器
@@ -82,6 +83,15 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     private bool wasGroundedLastFrame = false; // 上一帧是否在地面
     private float jumpStartY = 0f; // 跳跃开始时的Y位置
     private bool isJumping = false; // 是否正在跳跃
+
+    // 动画相关
+    [Header("Animation")]
+    public Animator animator; // Animator挂载在子节点上，用于控制角色动画
+    public Attack attackComponent; // 应该在Inspector拖拽赋值或者Awake中自动查找
+    // 可视部分的根节点（用于动画，不直接翻转变换）
+    public Transform visualRoot;
+    // SpriteRenderer引用，用于翻转朝向
+    private SpriteRenderer spriteRenderer;
 
     void Reset()
     {
@@ -93,6 +103,43 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     {
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
+        
+        // 查找 Attribute 组件
+        if (attributeComponent == null)
+            attributeComponent = GetComponent<Attribute>();
+        
+        // 查找 Attack 组件
+        if (attackComponent == null)
+            attackComponent = GetComponent<Attack>();
+        
+        // Animator应该挂载在视觉子节点上
+        if (animator == null && visualRoot != null) 
+            animator = visualRoot.GetComponent<Animator>();
+        // 如果还是没找到，尝试从子节点获取
+        if (animator == null && transform.childCount > 0)
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                animator = transform.GetChild(i).GetComponent<Animator>();
+                if (animator != null) break;
+            }
+        }
+        
+        // 获取或查找SpriteRenderer用于翻转
+        if (spriteRenderer == null && visualRoot != null)
+            spriteRenderer = visualRoot.GetComponent<SpriteRenderer>();
+        // 如果在视觉根节点没找到，尝试从子节点获取
+        if (spriteRenderer == null && transform.childCount > 0)
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                spriteRenderer = transform.GetChild(i).GetComponent<SpriteRenderer>();
+                if (spriteRenderer != null) break;
+            }
+        }
+        // 如果还是没找到，尝试从自己获取
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void CheckGround()
@@ -398,7 +445,7 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         velocity.x = targetVelX;
         rb.velocity = velocity;
         
-        // 更新朝向
+        // 更新朝向（仅在有移动输入时更新）
         if (moveDirection > 0) facing = 1;
         else if (moveDirection < 0) facing = -1;
     }
@@ -487,48 +534,51 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     public bool ConsumeMP(float amount) => skillSystem != null ? skillSystem.ConsumeMP(amount) : false;
     
     // ========== SM_IDamageable 接口实现 ==========
+    /// <summary>
+    /// 技能系统伤害接口 - 转发到Attribute组件
+    /// </summary>
     public void ApplyDamage(SM_DamageInfo info)
     {
-        float finalDamage = info.Amount;
-        
-        // 计算防御减免（物理伤害受防御影响）
-        if (!info.IgnoreDefense && info.Element == SM_Element.Physical)
+        // 如果有Attribute组件，使用它处理伤害
+        if (attributeComponent != null)
         {
-            finalDamage = Mathf.Max(1f, finalDamage - defense);
+            attributeComponent.ApplyDamage(info);
         }
-        
-        // 计算暴击
-        if (Random.value < info.CritChance)
+        else
         {
-            finalDamage *= info.CritMultiplier;
-            Debug.Log($"[伤害] 暴击！造成 {finalDamage} 点伤害");
-        }
-        
-        currentHealth = Mathf.Max(0f, currentHealth - finalDamage);
-        Debug.Log($"[伤害] 受到 {finalDamage} 点 {info.Element} 伤害，剩余生命值: {currentHealth}/{maxHealth}");
-        
-        if (currentHealth <= 0f)
-        {
-            OnDeath();
+            Debug.LogWarning("[PlayerController] 未找到Attribute组件，无法处理伤害");
         }
     }
     
     public Transform GetTransform() => transform;
     
     // ========== 角色状态管理 ==========
+    /// <summary>
+    /// 角色死亡处理 - 由Attribute组件触发
+    /// </summary>
     private void OnDeath()
     {
         Debug.Log("[角色] 角色死亡！");
-        // 这里可以添加死亡逻辑，比如播放动画、禁用控制等
+        // 禁用玩家控制
         enabled = false;
     }
     
+    /// <summary>
+    /// 生命值回复更新 - 使用Attribute组件
+    /// </summary>
     private void UpdateHealth()
     {
-        // 生命值回复
-        if (currentHealth < maxHealth)
+        // 如果有Attribute组件且已配置回复速度
+        if (attributeComponent != null && healthRegenPerSec > 0f)
         {
-            currentHealth = Mathf.Min(maxHealth, currentHealth + healthRegenPerSec * Time.deltaTime);
+            float regenAmount = healthRegenPerSec * Time.deltaTime;
+            // 累计回复量，当达到1点以上时才调用Heal
+            // 这里简化处理：每帧检查回复是否大于0.1（避免过于频繁的日志输出）
+            if (regenAmount >= 0.1f)
+            {
+                int healAmount = Mathf.RoundToInt(regenAmount);
+                attributeComponent.Heal(healAmount);
+            }
         }
     }
     
@@ -542,15 +592,24 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         }
     }
 
+
     void Start()
     {
         // 确保组件存在
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
         if (skillSystem == null) skillSystem = GetComponent<SM_SkillSystem>();
+        // Animator在Awake中已初始化，这里不再重复获取
         
-        // 初始化生命值
-        currentHealth = maxHealth;
+        // 注册Attribute组件的事件
+        if (attributeComponent != null)
+        {
+            attributeComponent.OnDeath += OnDeath;
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerController] 未找到Attribute组件，请添加Attribute组件到玩家对象");
+        }
 
         if (rb == null)
         {
@@ -623,6 +682,7 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         
         Debug.Log($"[PlayerController] 初始化完成 - CCD: {useContinuousCollisionDetection}, 地面射线: {groundCheckRays}, 墙壁射线: {wallCheckRays}, 移动速度: {moveSpeed}");
         Debug.Log($"[PlayerController] 跳跃设置 - 缓冲时间: {jumpBufferTime}, 土狼时间: {coyoteTime}, 冷却: {jumpCooldown}, 最小高度: {minJumpHeight}");
+        Debug.Log($"[PlayerController] Animator状态 - {(animator != null ? "已找到" : "未找到")}");
     }
 
     // Update is called once per frame
@@ -633,7 +693,14 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         {
             wantJump = true;
         }
-
+        // 攻击输入检测（示例用J键，可根据技能系统调整）
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            TriggerAttackAnim();
+        }
+        // 动画参数同步，每帧更新
+        UpdateAnimationParameters();
+        
         // 更新技能瞄准方向
         UpdateSkillAim();
         
@@ -665,6 +732,7 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         
         // 重置跳跃输入
         wantJump = false;
+        // 可以根据物理状态同步动画参数（如需实时，建议用UpdateAnimationParameters()）
     }
 
     // 绘制检测范围（调试用）
@@ -812,6 +880,68 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
             {
                 OnJumpEnd();
             }
+        }
+    }
+
+    /// <summary>
+    /// 动画参数同步：速度、跳跃、落地、攻击等状态推送到Animator
+    /// </summary>
+    private void UpdateAnimationParameters()
+    {
+        if (animator == null) return;
+        // Speed 横向绝对速度，用于区分Idle/Walk
+        animator.SetFloat("Speed", Mathf.Abs(rb != null ? rb.velocity.x : 0f));
+        // 跳跃中（可拆出上升/悬空/落地等动画）
+        animator.SetBool("IsJumping", isJumping && !isGrounded);
+        // 落地Idle（可配合IsJumping做blend tree）
+        animator.SetBool("IsGrounded", isGrounded);
+        // 朝向（通过动画参数控制翻转，不再手动翻转transform）
+        animator.SetBool("FacingRight", facing >= 0);
+        animator.SetFloat("Facing", facing);
+        
+        // 使用SpriteRenderer翻转来控制朝向（Animator的Mirror对2D Sprite无效）
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.flipX = facing < 0; // 向左时翻转
+        }
+        
+        // 核心：攻击动画trigger由输入接口专门触发（避免状态机错乱）
+    }
+    /// <summary>
+    /// 触发攻击动画，可由技能系统/按键调用。后续可扩展为带武器动画参数。
+    /// </summary>
+    public void TriggerAttackAnim()
+    {
+        // 检查是否允许在空中攻击
+        if (!allowAttackInAir && !isGrounded)
+        {
+            // Debug.Log("[攻击] 空中攻击已禁用");
+            return;
+        }
+        
+        // 检查攻击冷却（通过 Attack 组件）
+        if (attackComponent != null && !attackComponent.CanAttack)
+        {
+            // Debug.Log("[攻击] 攻击冷却中");
+            return;
+        }
+        
+        if (attackComponent != null)
+        {
+            attackComponent.SetFacingDirection(facing); // 同步Attack朝向
+            // 触发攻击动画触发器
+            attackComponent.PerformAttack(); // 执行实际攻击
+        }
+        if (animator != null)
+            animator.SetTrigger("Attack"); // 触发动画
+    }
+    
+    // 清理事件订阅
+    private void OnDestroy()
+    {
+        if (attributeComponent != null)
+        {
+            attributeComponent.OnDeath -= OnDeath;
         }
     }
 }

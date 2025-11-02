@@ -12,9 +12,17 @@ public class EnemyDamageable : MonoBehaviour, SM_IDamageable, SM_IKnockbackable
     public float defense = 5f;
     public float knockbackResistance = 1f; // 击退抗性
     
+    [Header("无敌帧设置")]
+    [SerializeField] private bool useInvincibilityFrames = true; // 是否使用无敌帧
+    [SerializeField] private float invincibilityDuration = 0.3f; // 无敌帧持续时间（秒）
+    private float invincibilityEndTime = 0f; // 无敌帧结束时间
+    
     [Header("组件")]
     public Rigidbody2D rb;
     public Collider2D enemyCollider;
+    
+    // 属性访问器
+    public bool IsInvincible => useInvincibilityFrames && Time.time < invincibilityEndTime;
     
     private void Awake()
     {
@@ -27,6 +35,13 @@ public class EnemyDamageable : MonoBehaviour, SM_IDamageable, SM_IKnockbackable
     // ========== SM_IDamageable 接口实现 ==========
     public void ApplyDamage(SM_DamageInfo info)
     {
+        // 检查无敌帧
+        if (IsInvincible)
+        {
+            Debug.Log($"[敌人伤害] {gameObject.name} 处于无敌状态，伤害被免疫");
+            return;
+        }
+        
         float finalDamage = info.Amount;
         
         // 计算防御减免
@@ -44,6 +59,13 @@ public class EnemyDamageable : MonoBehaviour, SM_IDamageable, SM_IKnockbackable
         
         currentHealth = Mathf.Max(0f, currentHealth - finalDamage);
         Debug.Log($"[敌人伤害] 受到 {finalDamage} 点 {info.Element} 伤害，剩余生命值: {currentHealth}/{maxHealth}");
+        
+        // 启动无敌帧
+        if (useInvincibilityFrames && finalDamage > 0)
+        {
+            invincibilityEndTime = Time.time + invincibilityDuration;
+            Debug.Log($"[敌人伤害] {gameObject.name} 进入无敌状态，持续 {invincibilityDuration} 秒");
+        }
         
         // 播放受伤效果
         OnTakeDamage(finalDamage, info.Element);

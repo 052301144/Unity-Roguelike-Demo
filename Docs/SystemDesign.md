@@ -44,7 +44,7 @@
 ## 5. 模块设计详解
 
 ### 5.1 Player Module（`Assets/Player Module/PlayerController.cs`）
-- 组件与字段：`Rigidbody2D rb`、`Collider2D bodyCollider`、移动 `moveSpeed`、跳跃 `jumpForce/allowDoubleJump/highJumpMultiplier`、落地检测参数（`groundCheckRays/groundLayer/groundCheckDistance`）、墙体检测（多射线、`wallCheckRays`、`wallCheckOffset`）、
+- 组件与字段：`Rigidbody2D rb`、`Collider2D bodyCollider`、`Attribute attributeComponent`、移动 `moveSpeed`、跳跃 `jumpForce/allowDoubleJump/highJumpMultiplier`、落地检测参数（`groundCheckRays/groundLayer/groundCheckDistance`）、墙体检测（多射线、`wallCheckRays`、`wallCheckOffset`）、
   碰撞预测与速度上限（`collisionPredictionTime/maxSafeSpeed`）。
 - 跳跃鲁棒性：
   - 跳跃缓冲 `jumpBufferTime` 与土狼时间 `coyoteTime`；
@@ -53,8 +53,8 @@
 - 移动与墙体：
   - A/D 离散输入，计算 `targetVelX` 并直接设置 `rb.velocity.x`；
   - 多射线墙检，允许角落通过，阈值判定（>60% 命中视为墙）；
-  - 可选“预测性碰撞检测”。
-- 生命与受击：内置基础生命/防御值与回复；实现 `SM_IDamageable.ApplyDamage(SM_DamageInfo)`，支持暴击与防御减免，死亡禁用控制。
+  - 可选"预测性碰撞检测"。
+- 生命与受击：属性统一由 `Attribute` 管理，`PlayerController` 转发伤害到 `Attribute`；实现 `SM_IDamageable.ApplyDamage(SM_DamageInfo)` 委托给 `Attribute`；死亡事件通过 `Attribute.OnDeath` 触发。
 - 技能集成：
   - `SM_SkillSystem skillSystem`，`AimOrigin` 与朝向向量 `AimDirection` 暴露；
   - MP 读写通过 `SM_SkillSystem`（`CurrentMP/MaxMP/ConsumeMP`）。
@@ -77,10 +77,13 @@
   - Ice：`FreezeEffect` 暂停刚体运动；
   - Thunder：雷链扩散周围敌人。
 - 属性系统（`Attribute`）：
-  - 基础属性：MaxHealth/CurrentHealth/Attack/Defense；
+  - 基础属性：MaxHealth/CurrentHealth/Attack/Defense（int 类型）；
   - 事件：`OnHealthChanged/OnTakeDamage/OnDeath` 等；
-  - 伤害：`TakeDamage`（随防御降低伤害）与 `TakeTrueDamage`（无视防御）；
-  - 可视化：控制台血条与百分比输出（可替换为 UI 绑定）。
+  - 伤害接口：
+    - 旧系统：`TakeDamage`（随防御降低伤害）与 `TakeTrueDamage`（无视防御）；
+    - 新系统：实现 `SM_IDamageable` 接口，支持技能系统的 `ApplyDamage(SM_DamageInfo)`；
+  - 可视化：控制台血条与百分比输出（可替换为 UI 绑定）；
+  - 兼容性：同时支持新旧两套伤害系统，通过事件机制保持向后兼容。
 
 ### 5.4 Skills Module（`Assets/Skills Module/`）
 - 关键脚本：
@@ -160,15 +163,19 @@
 - 存档：完整的 Save/Load 管线、版本迁移工具。
 
 ## 14. 附录（类与接口概览）
-- Player：`PlayerController`（输入/移动/跳跃/受击、与 `SM_SkillSystem` 对接）。
-- Enemy：`EnemyAI`（巡逻/追击/攻击、墙检与翻转）。
-- Combat：`Attack`（命中体与元素）、`Attribute`（属性与事件）、`BurnEffect`/`FreezeEffect`。
-- Skills：`SM_SkillSystem`、`Projectile`、各系技能脚本与 Prefab。
+- Player：`PlayerController`（输入/移动/跳跃、与 `Attribute` 和 `SM_SkillSystem` 对接）。
+- Enemy：`EnemyAI`（巡逻/追击/攻击、墙检与翻转）、`EnemyDamageable`（技能系统伤害接口）。
+- Combat：
+  - `Attack`（命中体与元素）；
+  - `Attribute`（统一属性管理，支持 `SM_IDamageable` 接口，兼容新旧系统）；
+  - `BurnEffect`/`FreezeEffect`（元素效果）。
+- Skills：`SM_SkillSystem`、`Projectile`、各系技能脚本与 Prefab、`CommonInterfaces.cs`（`SM_IDamageable` 等接口）。
 - UI：`blood`、`InventorySystem`、`SimplePauseMenu`、`SimpleSceneLoader`。
 
 ---
 
 变更记录
 - v0.1（2025-10-20）：创建初稿，基于现有代码提炼模块与流程，补齐非功能章节建议。
+- v0.2（2025-01-XX）：统一属性系统架构，移除 `PlayerController` 中的重复属性定义，`Attribute` 组件实现 `SM_IDamageable` 接口以兼容技能系统。
 
 

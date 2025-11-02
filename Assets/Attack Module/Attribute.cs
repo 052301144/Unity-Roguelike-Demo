@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Attribute : MonoBehaviour
+/// <summary>
+/// 通用属性系统组件
+/// 支持新旧两套伤害系统：TakeDamage/TakeTrueDamage 和 SM_IDamageable接口
+/// </summary>
+public class Attribute : MonoBehaviour, SM_IDamageable
 {
     [Header("基础属性")]
     [SerializeField] private int maxHealth = 100; // 最大生命值
@@ -13,6 +17,11 @@ public class Attribute : MonoBehaviour
     [Header("显示设置")]
     [SerializeField] private bool showHealthBar = true; // 是否显示血条
     [SerializeField] private bool logDamageEvents = true; // 是否在控制台输出伤害事件
+    
+    [Header("无敌帧设置")]
+    [SerializeField] private bool useInvincibilityFrames = true; // 是否使用无敌帧
+    [SerializeField] private float invincibilityDuration = 0.3f; // 无敌帧持续时间（秒）
+    private float invincibilityEndTime = 0f; // 无敌帧结束时间
 
     // 属性访问器
     public int MaxHealth => maxHealth;
@@ -20,6 +29,7 @@ public class Attribute : MonoBehaviour
     public int Attack => attack;
     public int Defense => defense;
     public bool IsAlive => currentHealth > 0;
+    public bool IsInvincible => useInvincibilityFrames && Time.time < invincibilityEndTime; // 是否处于无敌状态
 
     // 事件
     public System.Action<int> OnHealthChanged;           // 生命值变化事件
@@ -44,11 +54,31 @@ public class Attribute : MonoBehaviour
     public void TakeDamage(int rawDamage, GameObject attacker = null)
     {
         if (!IsAlive) return;
+        
+        // 检查无敌帧
+        if (IsInvincible)
+        {
+            if (logDamageEvents)
+            {
+                Debug.Log($"{gameObject.name} 处于无敌状态，伤害被免疫");
+            }
+            return;
+        }
 
         // 计算最终伤害（考虑防御）
         int finalDamage = CalculateFinalDamage(rawDamage);
         int previousHealth = currentHealth;
         currentHealth = Mathf.Clamp(currentHealth - finalDamage, 0, maxHealth);
+        
+        // 启动无敌帧
+        if (useInvincibilityFrames && finalDamage > 0)
+        {
+            invincibilityEndTime = Time.time + invincibilityDuration;
+            if (logDamageEvents)
+            {
+                Debug.Log($"{gameObject.name} 进入无敌状态，持续 {invincibilityDuration} 秒");
+            }
+        }
 
         // 控制台输出伤害信息
         if (logDamageEvents)
@@ -85,9 +115,29 @@ public class Attribute : MonoBehaviour
     public void TakeTrueDamage(int rawDamage, GameObject attacker = null)
     {
         if (!IsAlive) return;
+        
+        // 检查无敌帧（真实伤害也可以被无敌帧免疫）
+        if (IsInvincible)
+        {
+            if (logDamageEvents)
+            {
+                Debug.Log($"{gameObject.name} 处于无敌状态，真实伤害被免疫");
+            }
+            return;
+        }
 
         int previousHealth = currentHealth;
         currentHealth = Mathf.Clamp(currentHealth - rawDamage, 0, maxHealth);
+        
+        // 启动无敌帧
+        if (useInvincibilityFrames && rawDamage > 0)
+        {
+            invincibilityEndTime = Time.time + invincibilityDuration;
+            if (logDamageEvents)
+            {
+                Debug.Log($"{gameObject.name} 进入无敌状态，持续 {invincibilityDuration} 秒");
+            }
+        }
 
         // 控制台输出真实伤害信息
         if (logDamageEvents)
@@ -324,4 +374,113 @@ public class Attribute : MonoBehaviour
         Debug.Log($"伤害减免: {GetDamageReductionPercentage():P0}");
         UpdateHealthBar();
     }
+    
+    // ========== SM_IDamageable 接口实现（兼容技能系统）==========
+    /// <summary>
+    /// 技能系统伤害接口：支持更丰富的伤害信息
+    /// </summary>
+    public void ApplyDamage(SM_DamageInfo info)
+    {
+        if (!IsAlive) return;
+        
+        // 检查无敌帧
+        if (IsInvincible)
+        {
+            if (logDamageEvents)
+            {
+                Debug.Log($"{gameObject.name} 处于无敌状态，伤害被免疫");
+            }
+            return;
+        }
+        
+        // 计算最终伤害
+        float finalDamage = info.Amount;
+        
+        // 计算防御减免
+        if (!info.IgnoreDefense)
+        {
+            // 使用百分比减伤公式（与TakeDamage一致）
+            float defenseMultiplier = Mathf.Clamp(1f - (defense * 0.01f), 0.1f, 1f);
+            finalDamage = finalDamage * defenseMultiplier;
+        }
+        
+        // 计算暴击
+        if (Random.value < info.CritChance)
+        {
+            finalDamage *= info.CritMultiplier;
+            if (logDamageEvents)
+            {
+                Debug.Log($"{gameObject.name} 暴击！受到 {finalDamage} 点伤害");
+            }
+        }
+        
+        // 转换为整数伤害（保持与旧系统的兼容性）
+        int intDamage = Mathf.RoundToInt(finalDamage);
+        int previousHealth = currentHealth;
+        currentHealth = Mathf.Max(0, currentHealth - intDamage);
+        
+        // 启动无敌帧
+        if (useInvincibilityFrames && intDamage > 0)
+        {
+            invincibilityEndTime = Time.time + invincibilityDuration;
+            if (logDamageEvents)
+            {
+                Debug.Log($"{gameObject.name} 进入无敌状态，持续 {invincibilityDuration} 秒");
+            }
+        }
+        
+        // 控制台输出伤害信息
+        if (logDamageEvents)
+        {
+            Debug.Log($"{gameObject.name} 受到 {intDamage} 点 {info.Element} 伤害，剩余生命值: {currentHealth}/{maxHealth}");
+        }
+        
+        // 显示血条变化
+        if (showHealthBar)
+        {
+            UpdateHealthBar();
+        }
+        
+        // 触发受到伤害事件
+        OnTakeDamage?.Invoke(intDamage, null);
+        
+        // 触发生命值变化事件
+        OnHealthChanged?.Invoke(currentHealth);
+        
+        // 检查是否死亡
+        if (currentHealth <= 0 && previousHealth > 0)
+        {
+            OnDeath?.Invoke();
+            if (logDamageEvents)
+            {
+                Debug.Log($"{gameObject.name} 死亡!");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 返回Transform，用于技能系统的位置计算
+    /// </summary>
+    public Transform GetTransform() => transform;
+    
+    // ========== 转换属性：提供float访问器以兼容技能系统 ==========
+    /// <summary>
+    /// 最大生命值（float版本，用于技能系统）
+    /// </summary>
+    public float MaxHealthFloat => maxHealth;
+    
+    /// <summary>
+    /// 当前生命值（float版本，用于技能系统）
+    /// </summary>
+    public float CurrentHealthFloat => currentHealth;
+    
+    /// <summary>
+    /// 攻击力（float版本，用于技能系统）
+    /// </summary>
+    public float AttackFloat => attack;
+    
+    /// <summary>
+    /// 防御力（float版本，用于技能系统）
+    /// </summary>
+    public float DefenseFloat => defense;
 }

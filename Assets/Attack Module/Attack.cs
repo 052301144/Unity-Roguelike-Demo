@@ -141,41 +141,17 @@ public class Attack : MonoBehaviour
         // 更新人物朝向
         UpdateFacingDirection();
 
-        if (Input.GetKeyDown(attackKey))
-        {
-            PerformAttack();
-        }
-
+        // 注意：攻击输入现在由 PlayerController 统一处理
+        // 攻击实际执行由动画事件触发（在 Attack-01 动画中设置事件）
+        // 旧代码保留作为备用（可通过 Inspector 启用，但通常不需要）
 
     }
 
     // 更新人物朝向 
     private void UpdateFacingDirection()
     {
-        int newDirection = facingDirection; // 默认保持当前朝向
-
-        // 根据localScale.x判断朝向（主要方法）
-        if (transform.localScale.x != 0)
-        {
-            newDirection = transform.localScale.x > 0 ? 1 : -1;
-        }
-
-        // 如果有Rigidbody2D，根据速度判断朝向（辅助方法）
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        if (rb != null && Mathf.Abs(rb.velocity.x) > 0.1f)
-        {
-            newDirection = rb.velocity.x > 0 ? 1 : -1;
-        }
-
-        // 只有当朝向确实改变时才更新
-        if (newDirection != facingDirection)
-        {
-            facingDirection = newDirection;
-            if (showDebugInfo)
-            {
-                Debug.Log($"朝向更新: {(facingDirection > 0 ? "右" : "左")}");
-            }
-        }
+        // 不自动变向，不根据localScale和速度自动判断朝向
+        // 只允许被PlayerController等外部同步
     }
 
 
@@ -278,9 +254,6 @@ public class Attack : MonoBehaviour
     private void ForceRight()
     {
         facingDirection = 1;
-        Vector3 scale = transform.localScale;
-        scale.x = Mathf.Abs(scale.x);
-        transform.localScale = scale;
         Debug.Log($"强制设置为向右，facingDirection: {facingDirection}");
     }
 
@@ -288,9 +261,6 @@ public class Attack : MonoBehaviour
     private void ForceLeft()
     {
         facingDirection = -1;
-        Vector3 scale = transform.localScale;
-        scale.x = -Mathf.Abs(scale.x);
-        transform.localScale = scale;
         Debug.Log($"强制设置为向左，facingDirection: {facingDirection}");
     }
 
@@ -560,11 +530,7 @@ public class Attack : MonoBehaviour
     public void SetFacingDirection(int direction)
     {
         facingDirection = Mathf.Clamp(direction, -1, 1);
-        // 同步更新localScale
-        Vector3 scale = transform.localScale;
-        scale.x = Mathf.Abs(scale.x) * facingDirection;
-        transform.localScale = scale;
-        Debug.Log($"设置朝向: {(facingDirection > 0 ? "右" : "左")}");
+        // 注意：不再修改 transform.localScale，视觉翻转由 SpriteRenderer.flipX 控制
     }
 
     public void SetAttackType(AttackType newType) => attackType = newType;
