@@ -71,6 +71,7 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     private bool isGrounded;
     private bool doubleJumpUsed;
     private int facing = 1; // 1 右, -1 左，用于表示角色的朝向
+    private bool isDead = false; // 角色是否已死亡
     
     // 角色回复设置
     [Header("Regeneration")]
@@ -405,6 +406,9 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
 
     void HandleMovement()
     {
+        // 死亡状态下不允许移动
+        if (isDead) return;
+        
         // 检测A/D按键输入
         bool pressingA = Input.GetKey(KeyCode.A);
         bool pressingD = Input.GetKey(KeyCode.D);
@@ -453,6 +457,9 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     
     void HandleJump()
     {
+        // 死亡状态下不允许跳跃
+        if (isDead) return;
+        
         // 处理跳跃输入缓冲
         HandleJumpInput();
 
@@ -559,8 +566,21 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     private void OnDeath()
     {
         Debug.Log("[角色] 角色死亡！");
-        // 禁用玩家控制
-        enabled = false;
+        
+        // 设置死亡状态
+        isDead = true;
+        
+        // 禁用物理移动（可选，也可以让角色继续受物理影响）
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            // 不冻结刚体，以便死亡动画时仍可受重力影响
+            // rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        }
+        
+        // 禁用玩家控制脚本
+        // 注意：不直接设置 enabled = false，因为这样会停止所有Update/FixedUpdate
+        // 而是通过isDead标志来控制
     }
     
     /// <summary>
@@ -688,21 +708,26 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     // Update is called once per frame
     void Update()
     {
-        // 检测跳跃输入
-        if (Input.GetKeyDown(KeyCode.K))
+        // 死亡状态下不处理输入
+        if (!isDead)
         {
-            wantJump = true;
+            // 检测跳跃输入
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                wantJump = true;
+            }
+            // 攻击输入检测（示例用J键，可根据技能系统调整）
+            if (Input.GetKeyDown(KeyCode.J))
+            {
+                TriggerAttackAnim();
+            }
+            
+            // 更新技能瞄准方向
+            UpdateSkillAim();
         }
-        // 攻击输入检测（示例用J键，可根据技能系统调整）
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            TriggerAttackAnim();
-        }
+        
         // 动画参数同步，每帧更新
         UpdateAnimationParameters();
-        
-        // 更新技能瞄准方向
-        UpdateSkillAim();
         
         // 更新生命值
         UpdateHealth();
@@ -713,26 +738,30 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
 
     void FixedUpdate()
     {
-        CheckGround();
-        
-        // 更新跳跃状态
-        UpdateJumpMovementState();
-        
-        // 处理移动
-        HandleMovement();
-        
-        // 处理跳跃
-        HandleJump();
-        
-        // 更新状态
-        UpdateStates();
-        
-        // 更新计时器
-        UpdateTimers();
-        
-        // 重置跳跃输入
-        wantJump = false;
-        // 可以根据物理状态同步动画参数（如需实时，建议用UpdateAnimationParameters()）
+        // 死亡状态下不更新物理状态
+        if (!isDead)
+        {
+            CheckGround();
+            
+            // 更新跳跃状态
+            UpdateJumpMovementState();
+            
+            // 处理移动
+            HandleMovement();
+            
+            // 处理跳跃
+            HandleJump();
+            
+            // 更新状态
+            UpdateStates();
+            
+            // 更新计时器
+            UpdateTimers();
+            
+            // 重置跳跃输入
+            wantJump = false;
+            // 可以根据物理状态同步动画参数（如需实时，建议用UpdateAnimationParameters()）
+        }
     }
 
     // 绘制检测范围（调试用）
@@ -889,20 +918,28 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     private void UpdateAnimationParameters()
     {
         if (animator == null) return;
-        // Speed 横向绝对速度，用于区分Idle/Walk
-        animator.SetFloat("Speed", Mathf.Abs(rb != null ? rb.velocity.x : 0f));
-        // 跳跃中（可拆出上升/悬空/落地等动画）
-        animator.SetBool("IsJumping", isJumping && !isGrounded);
-        // 落地Idle（可配合IsJumping做blend tree）
-        animator.SetBool("IsGrounded", isGrounded);
-        // 朝向（通过动画参数控制翻转，不再手动翻转transform）
-        animator.SetBool("FacingRight", facing >= 0);
-        animator.SetFloat("Facing", facing);
         
-        // 使用SpriteRenderer翻转来控制朝向（Animator的Mirror对2D Sprite无效）
-        if (spriteRenderer != null)
+        // 死亡状态（最高优先级）
+        animator.SetBool("IsDead", isDead);
+        
+        // 只有在非死亡状态下才更新其他动画参数
+        if (!isDead)
         {
-            spriteRenderer.flipX = facing < 0; // 向左时翻转
+            // Speed 横向绝对速度，用于区分Idle/Walk
+            animator.SetFloat("Speed", Mathf.Abs(rb != null ? rb.velocity.x : 0f));
+            // 跳跃中（可拆出上升/悬空/落地等动画）
+            animator.SetBool("IsJumping", isJumping && !isGrounded);
+            // 落地Idle（可配合IsJumping做blend tree）
+            animator.SetBool("IsGrounded", isGrounded);
+            // 朝向（通过动画参数控制翻转，不再手动翻转transform）
+            animator.SetBool("FacingRight", facing >= 0);
+            animator.SetFloat("Facing", facing);
+            
+            // 使用SpriteRenderer翻转来控制朝向（Animator的Mirror对2D Sprite无效）
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = facing < 0; // 向左时翻转
+            }
         }
         
         // 核心：攻击动画trigger由输入接口专门触发（避免状态机错乱）
@@ -912,6 +949,9 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     /// </summary>
     public void TriggerAttackAnim()
     {
+        // 死亡状态下不能攻击
+        if (isDead) return;
+        
         // 检查是否允许在空中攻击
         if (!allowAttackInAir && !isGrounded)
         {

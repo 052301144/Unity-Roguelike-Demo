@@ -23,6 +23,10 @@ public class Attribute : MonoBehaviour, SM_IDamageable
     [SerializeField] private float invincibilityDuration = 0.3f; // 无敌帧持续时间（秒）
     private float invincibilityEndTime = 0f; // 无敌帧结束时间
 
+    [Header("死亡保护设置")]
+    [SerializeField] private bool deathProtected = false; // 是否受到死亡保护（血量0时不会死亡）
+    [SerializeField] private int protectedHealthThreshold = 0; // 保护触发的最低血量（通常为0）
+
     // 属性访问器
     public int MaxHealth => maxHealth;
     public int CurrentHealth => currentHealth;
@@ -30,6 +34,14 @@ public class Attribute : MonoBehaviour, SM_IDamageable
     public int Defense => defense;
     public bool IsAlive => currentHealth > 0;
     public bool IsInvincible => useInvincibilityFrames && Time.time < invincibilityEndTime; // 是否处于无敌状态
+    public bool IsDeathProtected => deathProtected; // 是否处于死亡保护状态
+    
+    // 属性设置器
+    public bool DeathProtected
+    {
+        get => deathProtected;
+        set => deathProtected = value;
+    }
 
     // 事件
     public System.Action<int> OnHealthChanged;           // 生命值变化事件
@@ -100,13 +112,23 @@ public class Attribute : MonoBehaviour, SM_IDamageable
         // 触发生命值变化事件
         OnHealthChanged?.Invoke(currentHealth);
 
-        // 检查是否死亡
+        // 检查是否死亡（只有在不受死亡保护时才触发）
         if (currentHealth <= 0 && previousHealth > 0)
         {
-            OnDeath?.Invoke();
-            if (logDamageEvents)
+            if (!deathProtected)
             {
-                Debug.Log($"{gameObject.name} 死亡!");
+                OnDeath?.Invoke();
+                if (logDamageEvents)
+                {
+                    Debug.Log($"{gameObject.name} 死亡!");
+                }
+            }
+            else
+            {
+                if (logDamageEvents)
+                {
+                    Debug.Log($"{gameObject.name} 受到死亡保护，血量归0但未死亡！");
+                }
             }
         }
     }
@@ -159,13 +181,23 @@ public class Attribute : MonoBehaviour, SM_IDamageable
         // 触发生命值变化事件
         OnHealthChanged?.Invoke(currentHealth);
 
-        // 检查是否死亡
+        // 检查是否死亡（只有在不受死亡保护时才触发）
         if (currentHealth <= 0 && previousHealth > 0)
         {
-            OnDeath?.Invoke();
-            if (logDamageEvents)
+            if (!deathProtected)
             {
-                Debug.Log($"{gameObject.name} 死亡!");
+                OnDeath?.Invoke();
+                if (logDamageEvents)
+                {
+                    Debug.Log($"{gameObject.name} 死亡!");
+                }
+            }
+            else
+            {
+                if (logDamageEvents)
+                {
+                    Debug.Log($"{gameObject.name} 受到死亡保护，血量归0但未死亡！");
+                }
             }
         }
     }
@@ -447,13 +479,23 @@ public class Attribute : MonoBehaviour, SM_IDamageable
         // 触发生命值变化事件
         OnHealthChanged?.Invoke(currentHealth);
         
-        // 检查是否死亡
+        // 检查是否死亡（只有在不受死亡保护时才触发）
         if (currentHealth <= 0 && previousHealth > 0)
         {
-            OnDeath?.Invoke();
-            if (logDamageEvents)
+            if (!deathProtected)
             {
-                Debug.Log($"{gameObject.name} 死亡!");
+                OnDeath?.Invoke();
+                if (logDamageEvents)
+                {
+                    Debug.Log($"{gameObject.name} 死亡!");
+                }
+            }
+            else
+            {
+                if (logDamageEvents)
+                {
+                    Debug.Log($"{gameObject.name} 受到死亡保护，血量归0但未死亡！");
+                }
             }
         }
     }

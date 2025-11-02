@@ -41,6 +41,7 @@
 | **Speed** | Float | 横向绝对速度，用于Idle/Run混合 |
 | **IsJumping** | Bool | 是否正在跳跃（在空中）|
 | **IsGrounded** | Bool | 是否在地面上 |
+| **IsDead** | Bool | 是否已死亡（最高优先级状态）|
 | **FacingRight** | Bool | 是否面向右侧 |
 | **Facing** | Float | 朝向数值（1或-1）|
 | **Attack** | Trigger | 触发攻击动画 |
@@ -52,11 +53,14 @@
 ```
 Base Layer (Base Layer)
 ├── Any State (特殊状态)
-│   ├──→ Dead (死亡) [无条件，任何状态都可触发]
+│   ├──→ Dead (死亡) [条件: IsDead = true，任何状态都可触发]
 │   └──→ Attack-01 [通过 Attack Trigger 触发]
 │
 ├── Entry (入口)
 │   └──→ Idle (默认状态)
+│
+├── Dead (死亡动画)
+│   └── [永久状态，无退出]
 │
 ├── Idle (待机动画)
 │   ├──→ Run [条件: Speed > 0.1]
@@ -194,9 +198,11 @@ Base Layer (Base Layer)
 ### 3. Any State 连接
 
 #### Any State → Dead
-- **条件**: (可选) 添加死亡触发器
-- **退出时间**: `取消`
-- **注意**: 死亡是最终状态，没有出口
+- **条件**: `IsDead = true`
+- **Has Exit Time**: ❌ **取消勾选** (立即触发死亡动画)
+- **退出时间**: 0 (不需要)
+- **平滑时间**: `0.1秒`
+- **注意**: 死亡是最终状态，没有出口。确保死亡动画剪辑不循环播放
 
 #### Any State → Attack-01
 - **条件**: `Attack Trigger`
@@ -829,6 +835,152 @@ public void TriggerAttackAnim()
 - [ ] 决定使用哪种跳跃攻击方案（A 或 B）
 - [ ] Attack 组件的 Attack Cooldown 已设置
 - [ ] 敌人的 Invincibility Duration 已设置（如果需要）
+
+---
+
+## 九、死亡系统详解
+
+### 死亡机制
+
+当角色的生命值归零时，会触发死亡状态。系统通过以下方式实现：
+
+#### 1. Attribute 组件
+
+在 `Attribute.cs` 中实现了以下功能：
+
+- **基本死亡检测**：当 `currentHealth <= 0` 时触发 `OnDeath` 事件
+- **死亡保护机制**：通过 `DeathProtected` 属性可以设置特殊状态下的死亡保护
+  - 默认值：`false`（正常死亡）
+  - 设置为 `true`：即使生命值为0也不会触发死亡事件
+  - 用途：可以为某些buff状态（如复活、无敌等）预留接口
+
+```csharp
+// 在Unity Inspector或代码中设置
+attributeComponent.DeathProtected = true;  // 启用死亡保护
+attributeComponent.DeathProtected = false; // 禁用死亡保护
+```
+
+#### 2. PlayerController 死亡处理
+
+在 `PlayerController.cs` 的 `OnDeath()` 方法中：
+
+- 设置内部死亡状态标志 `isDead = true`
+- 停止物理移动（速度归零）
+- **不冻结刚体**：允许死亡动画时仍受重力影响
+- **不禁用脚本**：使用 `isDead` 标志控制，而非 `enabled = false`
+
+#### 3. 死亡状态下的行为
+
+- ✅ **仍然执行**：
+  - 动画参数同步（更新 `IsDead` 状态）
+  - 生命值回复检查
+  - 重力影响（刚体不受冻结）
+  
+- ❌ **被禁用**：
+  - 移动输入（A/D键）
+  - 跳跃输入（K键）
+  - 攻击输入（J键）
+  - 技能释放
+  - 物理状态检测（地面检测、跳跃状态等）
+
+#### 4. Animator 参数
+
+死亡状态通过 `IsDead` 布尔参数控制：
+
+- **参数类型**：Bool
+- **设置位置**：`UpdateAnimationParameters()` 方法
+- **优先级**：最高优先级，在任何其他动画参数之前设置
+- **状态机配置**：
+  - `Any State → Dead`（条件：`IsDead = true`）
+  - 死亡状态为**永久状态**，没有退出路径
+
+### 动画设置建议
+
+#### Dead 动画剪辑设置
+
+在 Unity 的 Animation 窗口或 Inspector 中：
+
+1. **Loop**：取消勾选（死亡动画不应循环播放）
+2. **Speed**：通常设置为 `1.0`（正常播放速度）
+3. **Length**：根据您的死亡动画实际长度设置
+
+#### Animator 过渡设置
+
+```
+Any State → Dead:
+- 条件: IsDead == true
+- Has Exit Time: ❌ 取消勾选（立即触发）
+- Transition Duration: 0.1（快速切换）
+```
+
+#### 示例：死亡动画场景
+
+假设您的死亡动画（Dead）有10帧，帧率为12fps：
+
+1. Dead 动画总长度 = 10 / 12 = 0.83秒
+2. 角色生命值归0时，立即切换到死亡动画
+3. 死亡动画播放完毕后停留最后一帧
+4. 角色保持死亡状态直到关卡重启或复活
+
+### 测试检查清单
+
+- [ ] 角色生命值归零时触发死亡动画
+- [ ] 死亡后不再响应任何输入（移动/跳跃/攻击）
+- [ ] 死亡动画播放完毕后停留在最后一帧
+- [ ] 死亡状态下角色仍受重力影响（不漂浮）
+- [ ] 死亡保护机制可以通过代码正常切换
+- [ ] 死亡动画剪辑设置为不循环
+
+### ⚠️ 常见问题：死亡动画循环播放
+
+**症状**：死亡后动画不断重复播放，角色在Any State和Dead之间反复切换
+
+**原因分析**：
+1. Dead状态有退出路径到其他状态
+2. Dead状态内的动画剪辑设置为循环播放
+3. Any State有多个过渡条件冲突
+
+**解决方案**（按顺序检查）：
+
+#### 方案1：检查Dead状态是否有退出路径
+1. 在Animator窗口中选中 **Dead** 状态
+2. 查看右侧的Inspector面板，检查 **Transitions** 列表
+3. **必须确保列表为空**，即没有任何从Dead出去的过渡箭头
+4. 如果有任何过渡，请**删除它们**
+
+#### 方案2：检查Dead动画剪辑是否循环
+1. 在Project窗口找到您的Dead动画剪辑（通常是.anim文件）
+2. 选中该文件，在Inspector中查看
+3. 找到 **Loop** 或 **Loop Pose** 选项
+4. **取消勾选**这些选项
+
+#### 方案3：检查Any State的过渡设置
+1. 在Animator窗口中点击 **Any State** 到 **Dead** 的过渡箭头
+2. 在右侧Inspector中检查 **Conditions**（条件）
+3. **只应该有一个条件**：`IsDead == true`
+4. 如果有其他条件（如 `Speed == 0`），请**删除多余的条件**
+5. 确认 **Has Exit Time** 为**未勾选**状态
+
+#### 方案4：提高过渡优先级
+如果Any State有多个过渡，确保：
+1. 选中 **Any State → Dead** 过渡
+2. 在Inspector中点击右上角的菜单（三个点）
+3. 选择 **Move Up** 或直接拖拽到列表最上方
+4. 确保该过渡的**优先级最高**
+
+#### 方案5：添加Pause On Transition
+作为额外保障：
+1. 选中 **Any State → Dead** 过渡
+2. 在Inspector中找到 **Settings**
+3. 勾选 **Interruption Source: None**
+4. 取消勾选 **Can Transition To Self**（如果该选项存在）
+
+#### 验证步骤
+设置完成后：
+1. 在Unity中运行游戏
+2. 让角色受到足够伤害死亡
+3. 观察Animator窗口中的状态
+4. **应该看到**：角色进入Dead状态后，就停留在此状态，不再切换
 
 ---
 
