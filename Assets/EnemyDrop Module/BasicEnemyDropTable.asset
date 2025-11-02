@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e22dd1a36dcb79499524605eb1068fc, type: 3}
+  m_Name: BasicEnemyDropTable
+  m_EditorClassIdentifier: 
+  enemyName: "\u57FA\u7840\u654C\u4EBA"
+  minTotalDrops: 1
+  maxTotalDrops: 2
+  possibleDrops:
+  - itemName: "\u751F\u547D\u836F\u6C34"
+    itemPrefab: {fileID: 189845631566739158, guid: b327483c53042944c8477f25f278fac4, type: 3}
+    itemIcon: {fileID: 0}
+    dropChance: 0.4
+    minQuantity: 1
+    maxQuantity: 2
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 0
+  - itemName: "\u9B54\u6CD5\u836F\u6C34"
+    itemPrefab: {fileID: 1496370975145116466, guid: 830c26289449f51489bb0f9013b5b3e4, type: 3}
+    itemIcon: {fileID: 0}
+    dropChance: 0.35
+    minQuantity: 1
+    maxQuantity: 2
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 1
+  - itemName: "\u91D1\u5E01"
+    itemPrefab: {fileID: 6049858402603625659, guid: 8fe62488d9afcf9429571ef29ea3b4b7, type: 3}
+    itemIcon: {fileID: 0}
+    dropChance: 1
+    minQuantity: 0
+    maxQuantity: 0
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 2
+  alwaysDropCoin: 1
+  minCoins: 1
+  maxCoins: 3
+  coinDropChance: 0.8
