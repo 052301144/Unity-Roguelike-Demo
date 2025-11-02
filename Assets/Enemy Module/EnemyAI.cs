@@ -94,6 +94,28 @@ public class EnemyAI : MonoBehaviour
 
     // ✅ 新增：动画状态跟踪
     private string currentAnimationState = "Idle";
+    
+    // ✅ 新增：玩家碰撞体缓存
+    private BoxCollider2D playerCollider;
+    
+    // ✅ 新增：获取玩家碰撞框中心位置的属性
+    private Vector2 PlayerColliderCenter
+    {
+        get
+        {
+            if (playerCollider != null)
+            {
+                // 使用bounds.center获取世界空间中的碰撞框中心
+                return playerCollider.bounds.center;
+            }
+            // 如果没有碰撞体，回退到使用Transform位置
+            if (playerRoot != null && playerRoot != player)
+            {
+                return playerRoot.position;
+            }
+            return player != null ? player.position : Vector2.zero;
+        }
+    }
 
     private void Start()
     {
@@ -149,6 +171,16 @@ public class EnemyAI : MonoBehaviour
 
         // ✅ 新增：验证组件获取情况
         Debug.Log($"🎯 EnemyAI初始化完成 - Animator: {anim != null}, SpriteRenderer: {sprite != null}, Attribute: {enemyAttributes != null}, 玩家Attribute: {playerAttributes != null}, 玩家根对象: {playerRoot?.name ?? "未找到"}");
+        
+        // ✅ 新增：验证玩家位置修复和碰撞框检测
+        if (playerCollider != null)
+        {
+            Debug.Log($"✅ 玩家碰撞框检测已启用 - Size: {playerCollider.size}, Offset: {playerCollider.offset}, 将使用bounds.center进行检测");
+        }
+        else if (playerRoot != null && playerRoot != player)
+        {
+            Debug.Log($"⚠️ 玩家位置修复已启用（但未找到碰撞体）- 使用根对象'{playerRoot.name}'而不是子对象'{player.name}'进行检测");
+        }
     }
 
     private void OnDestroy()
@@ -489,7 +521,8 @@ public class EnemyAI : MonoBehaviour
 
         if (playerDetected && player != null)
         {
-            float xDiff = player.position.x - transform.position.x;
+            // ✅ 修复：使用PlayerColliderCenter获取玩家碰撞框中心位置
+            float xDiff = PlayerColliderCenter.x - transform.position.x;
             bool playerOnRight = xDiff > 0;
             if (playerOnRight != facingRight && Time.time >= lastFlipTime + flipCooldown)
             {
@@ -584,7 +617,8 @@ public class EnemyAI : MonoBehaviour
     {
         if (player == null) return;
 
-        float xDiff = player.position.x - transform.position.x;
+        // ✅ 修复：使用PlayerColliderCenter获取玩家碰撞框中心位置
+        float xDiff = PlayerColliderCenter.x - transform.position.x;
 
         if (Mathf.Abs(xDiff) > flipThreshold && Time.time >= lastFlipTime + flipCooldown)
         {
@@ -1103,7 +1137,8 @@ public class EnemyAI : MonoBehaviour
     {
         if (player == null || detectionPoint == null) return false;
 
-        Vector2 offset = player.position - detectionPoint.position;
+        // ✅ 修复：使用PlayerColliderCenter获取玩家碰撞框中心位置
+        Vector2 offset = PlayerColliderCenter - (Vector2)detectionPoint.position;
         float ellipseValue =
             (offset.x * offset.x) / (detectionWidth * detectionWidth / 4f) +
             (offset.y * offset.y) / (detectionHeight * detectionHeight / 4f);
@@ -1502,6 +1537,26 @@ public class EnemyAI : MonoBehaviour
         {
             playerRoot = player;
             Debug.LogWarning($"⚠️ 无法找到玩家根对象，使用当前对象: {player.name}");
+        }
+        
+        // ✅ 新增：查找玩家的BoxCollider2D组件（用于精确的碰撞框检测）
+        playerCollider = playerRoot.GetComponent<BoxCollider2D>();
+        if (playerCollider != null)
+        {
+            Debug.Log($"✅ 找到玩家BoxCollider2D - Size: {playerCollider.size}, Offset: {playerCollider.offset}");
+        }
+        else
+        {
+            // 如果在根对象没找到，尝试在整个玩家层次结构中查找
+            playerCollider = player.GetComponentInParent<BoxCollider2D>();
+            if (playerCollider == null)
+            {
+                playerCollider = player.GetComponentInChildren<BoxCollider2D>();
+            }
+            if (playerCollider != null)
+            {
+                Debug.Log($"✅ 在玩家层次结构中找到BoxCollider2D - Size: {playerCollider.size}, Offset: {playerCollider.offset}");
+            }
         }
 
         // ✅ 改进：多层级查找 Attribute 组件
