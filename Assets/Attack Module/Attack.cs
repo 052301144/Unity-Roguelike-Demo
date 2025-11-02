@@ -85,6 +85,35 @@ public class Attack : MonoBehaviour
             Debug.LogWarning("攻击点未设置，使用角色自身位置作为攻击点");
         }
 
+        // ✅ 新增：检查并尝试自动设置 enemyLayer
+        if (enemyLayer == 0)
+        {
+            Debug.LogWarning($"⚠️ {gameObject.name} 的 Attack 组件：enemyLayer 未设置！尝试自动查找 Enemy 层级...");
+            
+            // 尝试查找 Enemy 层级
+            int enemyLayerIndex = LayerMask.NameToLayer("Enemy");
+            if (enemyLayerIndex != -1)
+            {
+                enemyLayer = 1 << enemyLayerIndex;
+                Debug.Log($"✅ 已自动设置 enemyLayer 为 'Enemy' 层级 (索引: {enemyLayerIndex})");
+            }
+            else
+            {
+                // 如果找不到 Enemy 层级，尝试使用 Default 层级作为备选
+                int defaultLayerIndex = LayerMask.NameToLayer("Default");
+                if (defaultLayerIndex != -1)
+                {
+                    enemyLayer = 1 << defaultLayerIndex;
+                    Debug.LogWarning($"⚠️ 未找到 'Enemy' 层级，已临时设置为 'Default' 层级 (索引: {defaultLayerIndex})");
+                    Debug.LogWarning($"⚠️ 请在 Unity 中创建 'Enemy' 层级，并将敌人对象设置为该层级！");
+                }
+                else
+                {
+                    Debug.LogError($"❌ {gameObject.name} 的 Attack 组件：无法自动设置 enemyLayer！请在 Inspector 中手动设置敌人的层级掩码。");
+                }
+            }
+        }
+
         // 初始化调试资源
         InitializeDebugResources();
     }
@@ -293,6 +322,16 @@ public class Attack : MonoBehaviour
         Vector2 actualAttackPosition = GetActualAttackPosition();
         float actualAttackAngle = GetActualAttackAngle();
 
+        // ✅ 修复：检查 enemyLayer 是否设置
+        if (enemyLayer == 0)
+        {
+            if (showDebugInfo)
+            {
+                Debug.LogWarning("⚠️ enemyLayer 未设置！攻击无法检测到敌人。请在 Inspector 中设置敌人的层级。");
+            }
+            return new Collider2D[0];
+        }
+
         // 使用2D Box检测长方形区域
         Collider2D[] hitColliders = Physics2D.OverlapBoxAll(
             actualAttackPosition,
@@ -300,6 +339,66 @@ public class Attack : MonoBehaviour
             actualAttackAngle,
             enemyLayer
         );
+
+        // ✅ 新增：调试信息 - 显示所有检测到的碰撞体
+        if (showDebugInfo && hitColliders.Length == 0)
+        {
+            // 检测所有层级，看看区域内有什么
+            Collider2D[] allColliders = Physics2D.OverlapBoxAll(
+                actualAttackPosition,
+                boxSize,
+                actualAttackAngle,
+                Physics2D.AllLayers
+            );
+            
+            if (allColliders.Length > 0)
+            {
+                Debug.LogWarning($"⚠️ 攻击区域内检测到 {allColliders.Length} 个碰撞体，但没有匹配 enemyLayer 的对象：");
+                bool foundEnemy = false;
+                foreach (Collider2D col in allColliders)
+                {
+                    string layerName = LayerMask.LayerToName(col.gameObject.layer);
+                    bool hasAttribute = col.GetComponent<Attribute>() != null || col.GetComponentInChildren<Attribute>() != null;
+                    bool hasEnemyAI = col.GetComponent<EnemyAI>() != null || col.GetComponentInChildren<EnemyAI>() != null;
+                    
+                    Debug.LogWarning($"  - {col.gameObject.name} (层级: {layerName}, Layer值: {col.gameObject.layer}, 有Attribute: {hasAttribute}, 有EnemyAI: {hasEnemyAI})");
+                    
+                    // ✅ 新增：如果检测到有 EnemyAI 或 Attribute 的对象，尝试自动修复
+                    if ((hasEnemyAI || hasAttribute) && !foundEnemy)
+                    {
+                        int enemyLayerIndex = col.gameObject.layer;
+                        if (enemyLayerIndex != 0 && !LayerMask.LayerToName(enemyLayerIndex).Contains("Wall"))
+                        {
+                            // 尝试将敌人的层级添加到 enemyLayer
+                            int currentLayerValue = enemyLayer.value;
+                            int newLayerValue = currentLayerValue | (1 << enemyLayerIndex);
+                            if (newLayerValue != currentLayerValue)
+                            {
+                                enemyLayer = newLayerValue;
+                                Debug.LogWarning($"🔧 自动修复：检测到敌人对象 '{col.gameObject.name}' 在层级 '{layerName}'，已将该层级添加到 enemyLayer");
+                                Debug.LogWarning($"   新的 enemyLayer 掩码值: {enemyLayer.value}");
+                                foundEnemy = true;
+                                
+                                // 重新检测
+                                hitColliders = Physics2D.OverlapBoxAll(
+                                    actualAttackPosition,
+                                    boxSize,
+                                    actualAttackAngle,
+                                    enemyLayer
+                                );
+                            }
+                        }
+                    }
+                }
+                
+                if (!foundEnemy)
+                {
+                    Debug.LogWarning($"当前 enemyLayer 掩码值: {enemyLayer.value} (二进制: {System.Convert.ToString(enemyLayer.value, 2)})");
+                    Debug.LogWarning($"提示：请确保敌人对象的层级在 enemyLayer 掩码中");
+                    Debug.LogWarning($"提示：如果敌人对象在 'Default' 层级，请确保 enemyLayer 包含 Default 层级");
+                }
+            }
+        }
 
         // 过滤掉自身
         List<Collider2D> validEnemies = new List<Collider2D>();
@@ -334,6 +433,70 @@ public class Attack : MonoBehaviour
     {
         enemyLayer = LayerMask.GetMask("Default", "Enemy");
         Debug.Log("已设置为检测Default和Enemy层级");
+    }
+
+    [ContextMenu("自动设置 Enemy 层级")]
+    private void AutoSetEnemyLayer()
+    {
+        int enemyLayerIndex = LayerMask.NameToLayer("Enemy");
+        if (enemyLayerIndex != -1)
+        {
+            enemyLayer = 1 << enemyLayerIndex;
+            Debug.Log($"✅ 已设置 enemyLayer 为 'Enemy' 层级 (索引: {enemyLayerIndex}, 掩码值: {enemyLayer.value})");
+        }
+        else
+        {
+            Debug.LogError("❌ 未找到 'Enemy' 层级！请在 Unity 的 Layers 设置中创建该层级。");
+        }
+    }
+
+    [ContextMenu("诊断攻击检测问题")]
+    private void DiagnoseAttackDetection()
+    {
+        Debug.Log("=== 攻击检测诊断 ===");
+        Debug.Log($"enemyLayer 掩码值: {enemyLayer.value}");
+        Debug.Log($"enemyLayer 是否为 0 (未设置): {enemyLayer == 0}");
+        
+        if (enemyLayer != 0)
+        {
+            Debug.Log($"enemyLayer 二进制: {System.Convert.ToString(enemyLayer.value, 2)}");
+            
+            // 列出所有被 enemyLayer 包含的层级
+            for (int i = 0; i < 32; i++)
+            {
+                if ((enemyLayer.value & (1 << i)) != 0)
+                {
+                    string layerName = LayerMask.LayerToName(i);
+                    Debug.Log($"  - 层级 {i}: {layerName}");
+                }
+            }
+        }
+        
+        Debug.Log($"攻击点位置: {GetActualAttackPosition()}");
+        Debug.Log($"攻击区域大小: {boxSize}");
+        Debug.Log($"攻击角度: {GetActualAttackAngle()}度");
+        Debug.Log($"朝向: {(facingDirection > 0 ? "右" : "左")}");
+        Debug.Log($"攻击冷却状态: {(CanAttack ? "就绪" : "冷却中")}");
+        
+        // 检测攻击区域内的所有碰撞体
+        Vector2 actualAttackPosition = GetActualAttackPosition();
+        float actualAttackAngle = GetActualAttackAngle();
+        Collider2D[] allColliders = Physics2D.OverlapBoxAll(
+            actualAttackPosition,
+            boxSize,
+            actualAttackAngle,
+            Physics2D.AllLayers
+        );
+        
+        Debug.Log($"攻击区域内所有碰撞体数量: {allColliders.Length}");
+        foreach (Collider2D col in allColliders)
+        {
+            string layerName = LayerMask.LayerToName(col.gameObject.layer);
+            bool inEnemyLayer = enemyLayer != 0 && ((1 << col.gameObject.layer) & enemyLayer.value) != 0;
+            Debug.Log($"  - {col.gameObject.name} (层级: {layerName}, Layer值: {col.gameObject.layer}, 在enemyLayer中: {inEnemyLayer})");
+        }
+        
+        Debug.Log("=== 诊断结束 ===");
     }
 
     private void ProcessAttackHit(GameObject target)
