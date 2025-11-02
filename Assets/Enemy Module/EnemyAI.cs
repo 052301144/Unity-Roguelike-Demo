@@ -116,6 +116,21 @@ public class EnemyAI : MonoBehaviour
             return player != null ? player.position : Vector2.zero;
         }
     }
+    
+    // ✅ 新增：获取敌人视觉位置（用于Gizmos绘制和调试）
+    private Vector2 EnemyVisualPosition
+    {
+        get
+        {
+            // 如果有视觉对象，使用视觉对象的位置
+            if (sprite != null && sprite.transform != null)
+            {
+                return sprite.transform.position;
+            }
+            // 否则使用根对象位置
+            return transform.position;
+        }
+    }
 
     private void Start()
     {
@@ -524,18 +539,16 @@ public class EnemyAI : MonoBehaviour
             // ✅ 修复：使用PlayerColliderCenter获取玩家碰撞框中心位置
             float xDiff = PlayerColliderCenter.x - transform.position.x;
             bool playerOnRight = xDiff > 0;
-            if (playerOnRight != facingRight && Time.time >= lastFlipTime + flipCooldown)
+            // ✅ 修复：统一转向逻辑，与ChasePlayer保持一致
+            if (Mathf.Abs(xDiff) > flipThreshold && playerOnRight != facingRight && Time.time >= lastFlipTime + flipCooldown)
             {
                 Flip(playerOnRight);
                 lastFlipTime = Time.time;
             }
         }
 
-        // 在追击状态下也持续检测墙体
-        if (isChasing)
-        {
-            CheckWallForChasing();
-        }
+        // ✅ 修复：移除Update中的墙体检测，避免与ChasePlayer冲突
+        // 墙体检测应该在FixedUpdate的ChasePlayer中进行
 
         // 确保攻击条件正确判断
         if (player != null && IsPlayerInAttackRange() && !isAttacking && !attackAnimationPlaying && !isHurting)
@@ -620,6 +633,8 @@ public class EnemyAI : MonoBehaviour
         // ✅ 修复：使用PlayerColliderCenter获取玩家碰撞框中心位置
         float xDiff = PlayerColliderCenter.x - transform.position.x;
 
+        // ✅ 修复：先检查是否需要转向，然后再进行其他判断
+        bool justFlipped = false;
         if (Mathf.Abs(xDiff) > flipThreshold && Time.time >= lastFlipTime + flipCooldown)
         {
             bool shouldFaceRight = xDiff > 0;
@@ -627,11 +642,13 @@ public class EnemyAI : MonoBehaviour
             {
                 Flip(shouldFaceRight);
                 lastFlipTime = Time.time;
+                justFlipped = true;
             }
         }
 
-        // 改进：如果距离玩家很近，停止移动准备攻击
-        if (Mathf.Abs(xDiff) < attackRange * 1.2f)
+        // ✅ 修复：如果距离玩家很近，停止移动准备攻击
+        // 但是，如果刚刚转向，给一点缓冲时间，避免立即停止
+        if (Mathf.Abs(xDiff) < attackRange * 1.2f && !justFlipped)
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
             return;
@@ -639,6 +656,14 @@ public class EnemyAI : MonoBehaviour
 
         // 改进：检查前方是否有墙体阻挡
         Transform checkPoint = facingRight ? wallCheckRight : wallCheckLeft;
+        if (checkPoint == null)
+        {
+            // 如果检测点为空，直接移动（避免空引用错误）
+            float moveDir = Mathf.Sign(xDiff);
+            rb.velocity = new Vector2(moveDir * chaseSpeed, rb.velocity.y);
+            return;
+        }
+
         Vector2 dir = facingRight ? Vector2.right : Vector2.left;
 
         RaycastHit2D wallHit = Physics2D.Raycast(checkPoint.position, dir, wallCheckDistance, wallLayer);
@@ -646,11 +671,30 @@ public class EnemyAI : MonoBehaviour
 
         if (blocked)
         {
-            // 追击时遇到墙体，寻找替代路径
-            HandleChaseWallCollision();
+            // ✅ 修复：墙体阻挡处理
+            // 先检查玩家方向
+            float playerDir = Mathf.Sign(xDiff);
+            float facingDir = facingRight ? 1f : -1f;
+            
+            // 如果玩家方向和敌人朝向一致，说明玩家在前方但有墙体阻挡
+            if (Mathf.Sign(playerDir) == Mathf.Sign(facingDir))
+            {
+                // 玩家确实在前方，但检测到墙体，尝试绕过
+                HandleChaseWallCollision();
+            }
+            else
+            {
+                // 玩家在后方，转向继续追击
+                Flip(!facingRight);
+                lastFlipTime = Time.time;
+                // ✅ 修复：转向后立即设置移动方向，避免静止
+                float moveDir = Mathf.Sign(xDiff);
+                rb.velocity = new Vector2(moveDir * chaseSpeed, rb.velocity.y);
+            }
         }
         else
         {
+            // ✅ 修复：没有墙体阻挡，直接移动
             float moveDir = Mathf.Sign(xDiff);
             rb.velocity = new Vector2(moveDir * chaseSpeed, rb.velocity.y);
         }
@@ -1135,10 +1179,10 @@ public class EnemyAI : MonoBehaviour
 
     bool IsPlayerInDetectionRange()
     {
-        if (player == null || detectionPoint == null) return false;
+        if (player == null) return false;
 
-        // ✅ 修复：使用PlayerColliderCenter获取玩家碰撞框中心位置
-        Vector2 offset = PlayerColliderCenter - (Vector2)detectionPoint.position;
+        // ✅ 修复：使用敌人的根对象位置和玩家的碰撞框中心位置进行检测
+        Vector2 offset = PlayerColliderCenter - (Vector2)transform.position;
         float ellipseValue =
             (offset.x * offset.x) / (detectionWidth * detectionWidth / 4f) +
             (offset.y * offset.y) / (detectionHeight * detectionHeight / 4f);
@@ -1148,9 +1192,12 @@ public class EnemyAI : MonoBehaviour
 
     bool IsPlayerInAttackRange()
     {
-        if (player == null || attackPoint == null) return false;
+        if (player == null) return false;
 
-        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, playerLayer);
+        // ✅ 修复：使用敌人的根对象位置进行攻击范围检测，确保与ChasePlayer的距离计算一致
+        Vector2 attackPosition = transform.position;
+        
+        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPosition, attackRange, playerLayer);
         return hits.Length > 0;
     }
 
@@ -1159,8 +1206,10 @@ public class EnemyAI : MonoBehaviour
     {
         if (isKnockedBack) return;
 
-        // 将布尔方向转换为数值方向
-        float direction = fromRight ? -1f : 1f; // fromRight=true 表示力来自右边，所以向左击退
+        // ✅ 修复：将布尔方向转换为数值方向
+        // fromRight=true 表示力来自右边，敌人应该被击退到左边（负方向）
+        // fromRight=false 表示力来自左边，敌人应该被击退到右边（正方向）
+        float direction = fromRight ? -1f : 1f;
         StartCoroutine(KnockbackCoroutine(force, direction));
     }
 
@@ -1729,17 +1778,16 @@ public class EnemyAI : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (detectionPoint != null)
+        // ✅ 修复：绘制检测范围和攻击范围（使用根对象位置）
+        if (!Application.isPlaying || player != null)
         {
             Gizmos.color = new Color(0f, 0f, 1f, 0.3f);
-            DrawEllipseGizmo(detectionPoint.position, detectionWidth, detectionHeight, 64);
+            DrawEllipseGizmo(transform.position, detectionWidth, detectionHeight, 64);
         }
 
-        if (attackPoint != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(attackPoint.position, attackRange);
-        }
+        // ✅ 修复：绘制攻击范围
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
 
         if (wallCheckLeft != null)
         {
@@ -1820,6 +1868,35 @@ public class EnemyAI : MonoBehaviour
                 $"动画状态: {stateName}\n受击: {isHurting}\n移动: {Mathf.Abs(rb.velocity.x) > 0.1f}\n当前状态: {currentAnimationState}", style);
 #endif
         }
+        
+        // ✅ 新增：绘制玩家位置和距离
+        if (Application.isPlaying && player != null)
+        {
+            Vector2 playerPos = PlayerColliderCenter;
+            Vector2 enemyVisualPos = EnemyVisualPosition;
+            float xDiff = playerPos.x - transform.position.x; // 使用根对象位置计算距离
+            
+            // ✅ 修复：从敌人视觉位置绘制到玩家位置的连线
+            Gizmos.color = isChasing ? Color.red : Color.yellow;
+            Gizmos.DrawLine(enemyVisualPos, playerPos);
+            
+            // 绘制玩家碰撞框中心
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(playerPos, 0.5f);
+            
+            // ✅ 修复：在敌人视觉位置绘制标记
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(enemyVisualPos, 0.3f);
+            
+            // 绘制距离文本（在视觉位置上方）
+#if UNITY_EDITOR
+            GUIStyle labelStyle = new GUIStyle();
+            labelStyle.normal.textColor = Color.white;
+            labelStyle.fontSize = 11;
+            UnityEditor.Handles.Label((Vector3)enemyVisualPos + Vector3.up * 3.5f, 
+                $"到玩家距离: {Mathf.Abs(xDiff):F1}\n攻击范围: {attackRange}\n停止范围: {attackRange * 1.2f}", labelStyle);
+#endif
+        }
     }
 
     void DrawEllipseGizmo(Vector3 center, float width, float height, int segments)
@@ -1837,5 +1914,92 @@ public class EnemyAI : MonoBehaviour
             Gizmos.DrawLine(prev, next);
             prev = next;
         }
+    }
+    
+    // ✅ 新增：调试玩家位置检测问题
+    [ContextMenu("诊断玩家位置检测")]
+    private void DiagnosePlayerDetection()
+    {
+        Debug.Log("=== 玩家位置检测诊断 ===");
+        
+        if (player == null)
+        {
+            Debug.LogError("❌ player引用为空！");
+            return;
+        }
+        
+        Debug.Log($"player引用对象: {player.name}");
+        Debug.Log($"player.position: {player.position}");
+        
+        if (playerRoot != null)
+        {
+            Debug.Log($"playerRoot: {playerRoot.name}");
+            Debug.Log($"playerRoot.position: {playerRoot.position}");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ playerRoot为空！");
+        }
+        
+        if (playerCollider != null)
+        {
+            Debug.Log($"玩家碰撞体对象: {playerCollider.name}");
+            Debug.Log($"碰撞体Size: {playerCollider.size}");
+            Debug.Log($"碰撞体Offset: {playerCollider.offset}");
+            Debug.Log($"碰撞体bounds.center: {playerCollider.bounds.center}");
+            Debug.Log($"碰撞体bounds.size: {playerCollider.bounds.size}");
+            Debug.Log($"碰撞体bounds.min: {playerCollider.bounds.min}");
+            Debug.Log($"碰撞体bounds.max: {playerCollider.bounds.max}");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ playerCollider为空！");
+        }
+        
+        Debug.Log($"当前使用的位置PlayerColliderCenter: {PlayerColliderCenter}");
+        
+        // ✅ 新增：敌人位置信息
+        Debug.Log($"敌人根对象位置: {transform.position}");
+        Debug.Log($"敌人视觉位置: {EnemyVisualPosition}");
+        if (sprite != null)
+        {
+            Debug.Log($"敌人视觉对象: {sprite.name}, 位置: {sprite.transform.position}");
+        }
+        
+        // 计算距离
+        float xDiff = PlayerColliderCenter.x - transform.position.x;
+        Debug.Log($"到玩家的水平距离（基于根对象）: {xDiff}");
+        Debug.Log($"攻击范围: {attackRange}");
+        Debug.Log($"停止移动范围: {attackRange * 1.2f}");
+        Debug.Log($"是否在停止范围内: {Mathf.Abs(xDiff) < attackRange * 1.2f}");
+        Debug.Log($"当前朝向: {(facingRight ? "右" : "左")}");
+        Debug.Log($"当前速度: {rb.velocity}");
+        
+        Debug.Log($"isChasing: {isChasing}");
+        Debug.Log($"isAttacking: {isAttacking}");
+        Debug.Log($"attackAnimationPlaying: {attackAnimationPlaying}");
+        Debug.Log($"isHurting: {isHurting}");
+        Debug.Log($"isKnockedBack: {isKnockedBack}");
+        
+        // ✅ 修复：检测范围信息（使用根对象位置）
+        bool inDetectionRange = IsPlayerInDetectionRange();
+        Debug.Log($"检测中心位置: {transform.position}");
+        Debug.Log($"在检测范围内: {inDetectionRange}");
+        
+        // ✅ 修复：攻击范围检测信息（使用根对象位置）
+        bool inAttackRange = IsPlayerInAttackRange();
+        Debug.Log($"攻击检测中心位置: {transform.position}");
+        Debug.Log($"在攻击范围内: {inAttackRange}");
+        
+        // 墙体检测
+        if (wallCheckLeft != null && wallCheckRight != null)
+        {
+            RaycastHit2D leftHit = Physics2D.Raycast(wallCheckLeft.position, Vector2.left, wallCheckDistance, wallLayer);
+            RaycastHit2D rightHit = Physics2D.Raycast(wallCheckRight.position, Vector2.right, wallCheckDistance, wallLayer);
+            Debug.Log($"左侧墙体检测: {leftHit.collider != null}");
+            Debug.Log($"右侧墙体检测: {rightHit.collider != null}");
+        }
+        
+        Debug.Log("=== 诊断结束 ===");
     }
 }

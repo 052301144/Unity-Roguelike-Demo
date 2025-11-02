@@ -625,12 +625,19 @@ public class Attack : MonoBehaviour
         EnemyAI enemyAI = target.GetComponent<EnemyAI>();
         if (enemyAI != null)
         {
-            // 计算击退方向：如果攻击者在目标左侧，则击退朝右（fromRight = true）
-            bool fromRight = transform.position.x < target.transform.position.x;
+            // ✅ 修复：使用实际的攻击位置计算击退方向，而不是根对象位置
+            // 这样可以正确处理有子对象的角色结构
+            Vector2 attackPos = GetActualAttackPosition();
+            Vector2 targetPos = target.transform.position;
+            
+            // ✅ 修复：计算击退方向
+            // 如果攻击点在目标左侧（攻击者<目标），力来自左边，fromRight=false，击退向右
+            // 如果攻击点在目标右侧（攻击者>目标），力来自右边，fromRight=true，击退向左
+            bool fromRight = attackPos.x > targetPos.x;
             enemyAI.ApplyWindKnockback(windKnockbackForce, fromRight);
 
             if (showDebugInfo)
-                Debug.Log($"风元素 -> 通过 EnemyAI 对 {target.name} 触发击退 (force={windKnockbackForce}, fromRight={fromRight})");
+                Debug.Log($"风元素 -> 通过 EnemyAI 对 {target.name} 触发击退 (force={windKnockbackForce}, fromRight={fromRight}, 攻击点: {attackPos}, 目标: {targetPos})");
 
             return;
         }
