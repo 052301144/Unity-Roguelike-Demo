@@ -769,7 +769,7 @@ RectTransform:
   m_Father: {fileID: 687188945}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2592,6 +2592,7 @@ GameObject:
   m_Component:
   - component: {fileID: 383146281}
   - component: {fileID: 383146282}
+  - component: {fileID: 383146283}
   m_Layer: 7
   m_Name: Square
   m_TagString: Untagged
@@ -2609,7 +2610,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -550, z: 19.213835}
-  m_LocalScale: {x: 40, y: 80, z: 1}
+  m_LocalScale: {x: 325, y: 452, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 551935775}
@@ -2655,7 +2656,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: -5930504669954815374, guid: fcca10a8217c276408e016586ac4ce2a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -2666,6 +2667,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &383146283
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 383146280}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 2486bdc4be4f8f5498941b627d2564b2, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &387405481
 GameObject:
   m_ObjectHideFlags: 0
@@ -4877,13 +4899,21 @@ MonoBehaviour:
   wallCheckLeft: {fileID: 471954500}
   wallCheckRight: {fileID: 38263491}
   player: {fileID: 2031928923}
-  detectionWidth: 221.6
-  detectionHeight: 95.9
+  detectionWidth: 400
+  detectionHeight: 100
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
   windKnockbackDuration: 0.1
   windKnockbackForce: 100000
+  attackAnimationName: Attack
+  walkParamName: isWalk
+  attackParamName: Attack
+  hurtParamName: isHurt
+  deadParamName: Dead
+  animationChild: {fileID: 0}
+  hurtAnimationDuration: 0.3
+  isKnockedBack: 0
 --- !u!61 &551935777
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -8714,7 +8744,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1094881568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9856,7 +9886,7 @@ RectTransform:
   m_Father: {fileID: 1806268528}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
