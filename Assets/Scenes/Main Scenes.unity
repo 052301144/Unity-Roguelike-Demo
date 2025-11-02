@@ -769,7 +769,7 @@ RectTransform:
   m_Father: {fileID: 687188945}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4798,7 +4798,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71e0c740e19aee344ae062e71d0238c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10000
+  maxHealth: 100
   currentHealth: 0
   attack: 10
   defense: 0
@@ -4806,6 +4806,8 @@ MonoBehaviour:
   logDamageEvents: 1
   useInvincibilityFrames: 1
   invincibilityDuration: 0.3
+  deathProtected: 0
+  protectedHealthThreshold: 0
 --- !u!4 &551935775
 Transform:
   m_ObjectHideFlags: 0
@@ -4861,8 +4863,8 @@ MonoBehaviour:
   walkParamName: isWalk
   attackParamName: Attack
   hurtParamName: isHurt
-  deadParamName: Dead
-  animationChild: {fileID: 0}
+  deadParamName: isDead
+  animationChild: {fileID: 383146281}
   hurtAnimationDuration: 0.3
   isKnockedBack: 0
 --- !u!61 &551935777
@@ -5355,14 +5357,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71e0c740e19aee344ae062e71d0238c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1000
+  maxHealth: 100000
   currentHealth: 0
-  attack: 10
+  attack: 1000
   defense: 0
   showHealthBar: 1
   logDamageEvents: 1
   useInvincibilityFrames: 0
   invincibilityDuration: 0.3
+  deathProtected: 0
+  protectedHealthThreshold: 0
 --- !u!114 &574374879
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8695,7 +8699,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1094881568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9837,7 +9841,7 @@ RectTransform:
   m_Father: {fileID: 1806268528}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
