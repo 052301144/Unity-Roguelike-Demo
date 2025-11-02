@@ -59,6 +59,9 @@ public class EnemyAI : MonoBehaviour
     // ✅ 新增：受击状态变量
     private bool isHurting = false;
     private float hurtTimer = 0f;
+    
+    // ✅ 新增：死亡状态标志
+    private bool isDead = false;
 
     private SpriteRenderer sprite;
     private Animator anim;
@@ -478,7 +481,7 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         // ✅ 新增：检查敌人是否已死亡
-        if (enemyAttributes != null && !enemyAttributes.IsAlive)
+        if (isDead)
         {
             return;
         }
@@ -1293,6 +1296,15 @@ public class EnemyAI : MonoBehaviour
     // ✅ 改进：死亡方法，与Attribute系统集成
     public void Die()
     {
+        // ✅ 修复：防止重复调用Die()
+        if (isDead)
+        {
+            Debug.Log("⚠️ 敌人已经死亡，跳过重复调用");
+            return;
+        }
+        
+        isDead = true;
+        
         // 停止所有行为
         isAttacking = false;
         attackAnimationPlaying = false;
