@@ -49,6 +49,9 @@ TagManager:
   - name: Map Background
     uniqueID: 3382878733
     locked: 0
+  - name: Map Background Decorate
+    uniqueID: 2233477983
+    locked: 0
   - name: Map Decorate
     uniqueID: 1083662339
     locked: 0
@@ -57,6 +60,9 @@ TagManager:
     locked: 0
   - name: Map Block
     uniqueID: 1645502539
+    locked: 0
+  - name: Enemy
+    uniqueID: 662110949
     locked: 0
   - name: Player
     uniqueID: 3624999309
