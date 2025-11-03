@@ -56,19 +56,21 @@ public class DropEventListener : MonoBehaviour
     /// <param name="amount">收集的金币数量</param>
     private void OnCoinCollected(int amount)
     {
-        // 这里应该连接到玩家的金币系统
-        Debug.Log("金币系统: 获得 " + amount + " 金币");
-
-        // 示例代码 - 实际使用时应该连接到真实的金币系统
-        // 如果有金币管理器组件
-        // CoinManager coinManager = FindObjectOfType<CoinManager>();
-        // if (coinManager != null) 
-        // {
-        //     coinManager.AddCoins(amount);
-        // }
-
-        // 或者使用单例模式
-        // CoinManager.Instance.AddCoins(amount);
+        // 记录日志
+        Debug.Log($"[DropEventListener] 金币收集事件触发: {amount} 金币");
+        
+        // 注意：CurrencyManager 已经直接订阅了 DropManager.OnCoinCollected 事件
+        // 所以这里只需要记录日志即可，不需要再次调用 AddCoins（避免重复添加）
+        // 如果需要备用连接，可以检查 CurrencyManager 是否存在
+        CurrencyManager currencyManager = FindObjectOfType<CurrencyManager>();
+        if (currencyManager == null)
+        {
+            Debug.LogWarning("[DropEventListener] 未找到 CurrencyManager 组件，金币可能无法正确添加到玩家！请确保玩家对象上已添加 CurrencyManager 组件。");
+        }
+        else
+        {
+            Debug.Log($"[DropEventListener] CurrencyManager 已找到，当前金币数量: {currencyManager.CurrentCoins}");
+        }
     }
 
     /// <summary>

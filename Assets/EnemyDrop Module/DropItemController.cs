@@ -1,58 +1,130 @@
-﻿using System.Collections; // 引入协程命名空间
-using UnityEngine; // 引入Unity引擎命名空间
+﻿using System.Collections;
+using UnityEngine;
 
 /// <summary>
 /// 掉落物品控制器 - 控制掉落在地面上的物品行为状态
+/// 重写版本：修复显示问题和初始化顺序问题
 /// </summary>
 public class DropItemController : MonoBehaviour
 {
-    [Header("物品信息")] // 物品相关信息部分
-    public DropItem itemData;            // 物品数据对象引用
-    public DropItemType itemType;        // 物品类型枚举
+    [Header("物品信息")]
+    [SerializeField] private DropItem itemData;            // 物品数据对象引用
+    [SerializeField] private DropItemType itemType;         // 物品类型枚举
 
-    [Header("视觉效果")] // 视觉效果相关部分
-    public SpriteRenderer spriteRenderer; // 渲染物品图像的精灵渲染器
-    public float hoverHeight = 0.2f;     // 悬浮效果的高度范围
-    public float hoverSpeed = 2f;        // 悬浮效果的移动速度
+    [Header("视觉效果")]
+    [SerializeField] private SpriteRenderer spriteRenderer; // 渲染物品图像的精灵渲染器
+    [SerializeField] private float hoverHeight = 0.2f;      // 悬浮效果的高度范围
+    [SerializeField] private float hoverSpeed = 2f;          // 悬浮效果的移动速度
 
-    [Header("拾取设置")] // 拾取相关配置部分
-    public float pickupDelay = 0.5f;     // 生成后允许拾取的延迟时间
+    [Header("拾取设置")]
+    [SerializeField] private float pickupDelay = 0.5f;      // 生成后允许拾取的延迟时间
 
-    // 公共属性 - 外部可以通过此属性获取拾取状态
-    public bool CanBePickedUp { get; private set; } = false; // 标记物品是否可以被拾取
+    // 公共属性
+    public bool CanBePickedUp { get; private set; } = false;
 
-    // 私有字段 - 内部状态管理
-    private float lifetime;              // 物品剩余存活时间
-    private Vector3 startPosition;       // 物品的初始位置，用于悬浮动画计算
-    private bool isPickedUp = false;     // 标记物品是否已被拾取
+    // 私有字段
+    private float lifetime;
+    private Vector3 startPosition;
+    private bool isPickedUp = false;
+    private bool isInitialized = false;
 
     void Awake()
     {
-        // 如果没有手动指定SpriteRenderer，自动查找
-        if (spriteRenderer == null)
-        {
-            spriteRenderer = GetComponent<SpriteRenderer>();
-            
-            // 如果没找到，尝试从子对象中查找
-            if (spriteRenderer == null)
-            {
-                spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            }
-            
-            // 如果还是没找到，记录警告
-            if (spriteRenderer == null)
-            {
-                Debug.LogWarning($"[DropItemController] {gameObject.name} 未找到SpriteRenderer组件。请确保预制体上有SpriteRenderer组件。");
-            }
-        }
+        // 自动查找SpriteRenderer组件
+        EnsureSpriteRenderer();
+        
+        // 记录初始位置（在初始化之前记录，避免被Initialize覆盖）
+        startPosition = transform.position;
     }
-    
-    /// <summary>
-    /// Start方法 - 在对象激活时调用
-    /// </summary>
+
     void Start()
     {
-        // 确保SpriteRenderer已初始化（如果Awake中未找到，再次尝试）
+        // 如果还没有初始化，确保SpriteRenderer有效
+        if (!isInitialized)
+        {
+            EnsureSpriteRenderer();
+            ValidateRendering();
+        }
+        
+        // 启动延迟拾取的协程
+        StartCoroutine(EnablePickupAfterDelay());
+    }
+
+    void Update()
+    {
+        if (isPickedUp || !isInitialized) return;
+
+        // 悬浮动画（保持Z坐标为0）
+        if (CanBePickedUp)
+        {
+            float newY = startPosition.y + Mathf.Sin(Time.time * hoverSpeed) * hoverHeight;
+            transform.position = new Vector3(transform.position.x, newY, 0f);
+        }
+        else
+        {
+            // 即使不能拾取时，也确保Z坐标为0
+            if (Mathf.Abs(transform.position.z) > 0.01f)
+            {
+                Vector3 pos = transform.position;
+                pos.z = 0f;
+                transform.position = pos;
+            }
+        }
+
+        // 生命周期管理
+        if (lifetime > 0)
+        {
+            lifetime -= Time.deltaTime;
+            if (lifetime <= 0)
+            {
+                DestroyItem();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 初始化掉落物品 - 必须在实例化后立即调用
+    /// </summary>
+    public void Initialize(DropItem data, float lifeTime)
+    {
+        if (data == null)
+        {
+            Debug.LogError($"[DropItemController] {gameObject.name} 初始化失败：物品数据为null");
+            return;
+        }
+
+        itemData = data;
+        lifetime = lifeTime;
+        itemType = data.itemType;
+        gameObject.name = $"{data.itemName} (Drop)";
+
+        // 确保SpriteRenderer已初始化
+        EnsureSpriteRenderer();
+
+        // 修复Z坐标问题 - 确保掉落物在正确的Z深度
+        Vector3 pos = transform.position;
+        pos.z = 0f; // 强制Z坐标为0，确保在2D相机视野内
+        transform.position = pos;
+
+        // 设置sprite - 这是关键修复
+        SetupSprite();
+
+        // 验证渲染设置
+        ValidateRendering();
+
+        isInitialized = true;
+
+        // 重新记录位置（已修复Z坐标）
+        startPosition = transform.position;
+
+        Debug.Log($"[DropItemController] {gameObject.name} 初始化完成 - Sprite: {(spriteRenderer != null && spriteRenderer.sprite != null ? spriteRenderer.sprite.name : "NULL")}, Position: {transform.position}, SortingLayer: {SortingLayer.IDToName(spriteRenderer.sortingLayerID)}, SortingOrder: {spriteRenderer.sortingOrder}");
+    }
+
+    /// <summary>
+    /// 确保SpriteRenderer组件存在
+    /// </summary>
+    private void EnsureSpriteRenderer()
+    {
         if (spriteRenderer == null)
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -60,169 +132,166 @@ public class DropItemController : MonoBehaviour
             {
                 spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             }
-        }
-    
-        // 记录初始位置
-        startPosition = transform.position;
-        // 启动延迟允许拾取的协程
-        StartCoroutine(EnablePickupAfterDelay());
 
-        // 设置物品的图标
-        if (spriteRenderer != null && itemData != null && itemData.itemIcon != null)
-        {
-            // 将物品数据中的图标设置到精灵渲染器
-            spriteRenderer.sprite = itemData.itemIcon;
-        }
-    }
-
-    /// <summary>
-    /// Update方法 - 每帧调用
-    /// </summary>
-    void Update()
-    {
-        // 如果物品已被拾取，不执行任何更新逻辑
-        if (isPickedUp) return;
-
-        // 悬浮动画 - 只在可以拾取时执行
-        if (CanBePickedUp)
-        {
-            // 使用正弦函数计算Y轴偏移，产生上下浮动效果
-            float newY = startPosition.y + Mathf.Sin(Time.time * hoverSpeed) * hoverHeight;
-            // 更新物品位置，只改变Y轴
-            transform.position = new Vector3(transform.position.x, newY, transform.position.z);
-        }
-
-        // 生命周期管理 - 如果设置了最大存活时间
-        if (lifetime > 0)
-        {
-            // 减少剩余时间
-            lifetime -= Time.deltaTime;
-            // 如果时间到了，销毁物品
-            if (lifetime <= 0)
+            if (spriteRenderer == null)
             {
-                DestroyItem(); // 销毁掉落物品
+                Debug.LogError($"[DropItemController] {gameObject.name} 未找到SpriteRenderer组件！");
             }
         }
     }
 
     /// <summary>
-    /// 初始化掉落物品
+    /// 设置Sprite - 修复显示问题的核心方法
     /// </summary>
-    /// <param name="data">物品数据对象</param>
-    /// <param name="lifeTime">物品存活时间</param>
-    public void Initialize(DropItem data, float lifeTime)
+    private void SetupSprite()
     {
-        itemData = data;         // 设置物品数据
-        lifetime = lifeTime;     // 设置存活时间
-        itemType = data.itemType; // 设置物品类型
+        if (spriteRenderer == null)
+        {
+            Debug.LogError($"[DropItemController] {gameObject.name} SpriteRenderer为空，无法设置sprite");
+            return;
+        }
 
-        // 设置游戏对象名称，便于在场景中识别
-        gameObject.name = data.itemName + " (Drop)";
+        // 优先级1：如果物品数据中指定了图标，使用指定的图标
+        if (itemData != null && itemData.itemIcon != null)
+        {
+            spriteRenderer.sprite = itemData.itemIcon;
+            Debug.Log($"[DropItemController] {gameObject.name} 使用itemData中的sprite: {itemData.itemIcon.name}");
+            return;
+        }
+
+        // 优先级2：保持预制体的sprite（如果预制体本身有sprite）
+        if (spriteRenderer.sprite != null)
+        {
+            Debug.Log($"[DropItemController] {gameObject.name} 使用预制体的sprite: {spriteRenderer.sprite.name}");
+            return;
+        }
+
+        // 如果都没有，记录错误
+        Debug.LogError($"[DropItemController] {gameObject.name} 警告：Sprite为空！物品将不可见。请检查：1)预制体的SpriteRenderer是否有sprite 2)DropItem的itemIcon是否设置");
+        
+        // 检查是否是占位符sprite
+        if (spriteRenderer.sprite != null && spriteRenderer.sprite.name == "Square")
+        {
+            Debug.LogWarning($"[DropItemController] {gameObject.name} 使用的是占位符sprite 'Square'，这可能是Unity默认sprite。请确保使用正确的金币sprite资源。");
+        }
     }
 
     /// <summary>
-    /// 延迟允许拾取的协程
+    /// 验证渲染设置，确保物品可见
     /// </summary>
+    private void ValidateRendering()
+    {
+        if (spriteRenderer == null) return;
+
+        // 确保SpriteRenderer启用
+        if (!spriteRenderer.enabled)
+        {
+            Debug.LogWarning($"[DropItemController] {gameObject.name} SpriteRenderer被禁用，已自动启用");
+            spriteRenderer.enabled = true;
+        }
+
+        // 确保有sprite
+        if (spriteRenderer.sprite == null)
+        {
+            Debug.LogError($"[DropItemController] {gameObject.name} Sprite为空！物品将不可见！");
+        }
+
+        // 验证SortingLayer（确保不是无效的层）
+        string sortingLayerName = SortingLayer.IDToName(spriteRenderer.sortingLayerID);
+        if (string.IsNullOrEmpty(sortingLayerName))
+        {
+            Debug.LogWarning($"[DropItemController] {gameObject.name} 使用了无效的SortingLayer ID: {spriteRenderer.sortingLayerID}，已设置为Default");
+            spriteRenderer.sortingLayerID = 0; // 设置为Default层
+        }
+
+        // 确保颜色不透明
+        if (spriteRenderer.color.a < 1f)
+        {
+            Debug.LogWarning($"[DropItemController] {gameObject.name} SpriteRenderer颜色alpha值小于1，已设置为1");
+            spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, 1f);
+        }
+    }
+
     private IEnumerator EnablePickupAfterDelay()
     {
-        // 等待指定的延迟时间
         yield return new WaitForSeconds(pickupDelay);
-        // 启用拾取功能
         CanBePickedUp = true;
     }
 
-    /// <summary>
-    /// 拾取物品
-    /// </summary>
-    /// <param name="picker">拾取者的游戏对象</param>
     public void Pickup(GameObject picker)
     {
-        // 检查物品是否可以被拾取且未被拾取
-        if (!CanBePickedUp || isPickedUp) return;
+        if (!CanBePickedUp || isPickedUp || !isInitialized) return;
 
-        // 标记为已拾取，防止重复拾取
         isPickedUp = true;
-
-        // 应用物品效果（恢复生命值、魔法值、增加金币等）
         ApplyItemEffect();
-
-        // 销毁掉落物品对象
         DestroyItem();
-
-        // 输出拾取日志
-        Debug.Log("拾取物品: " + itemData.itemName);
+        
+        Debug.Log($"拾取物品: {(itemData != null ? itemData.itemName : "Unknown")}");
     }
 
-    /// <summary>
-    /// 应用物品效果
-    /// </summary>
     private void ApplyItemEffect()
     {
-        // 检查掉落管理器是否存在
-        if (DropManager.Instance == null) return;
+        if (DropManager.Instance == null || itemData == null) return;
 
-        // 获取掉落数量
         int amount = itemData.GetDropQuantity();
 
-        // 根据物品类型触发不同的事件
         switch (itemType)
         {
+            // 消耗品类 - 立即生效
             case DropItemType.Health:
-                // 触发生命值恢复事件
                 DropManager.Instance.TriggerHealthRestored(amount);
                 break;
-
             case DropItemType.Mana:
-                // 触发魔法值恢复事件
                 DropManager.Instance.TriggerManaRestored(amount);
                 break;
-
             case DropItemType.Coin:
-                // 触发金币收集事件
                 DropManager.Instance.TriggerCoinCollected(amount);
+                break;
+            
+            // 装备类 - 添加到背包
+            case DropItemType.Weapon:
+            case DropItemType.Equipment:
+            case DropItemType.Consumable:
+                // 创建物品数据并触发拾取事件
+                ItemData pickedItem = new ItemData(itemData);
+                if (itemType == DropItemType.Weapon)
+                {
+                    DropManager.Instance.TriggerWeaponPickedUp(pickedItem);
+                }
+                else if (itemType == DropItemType.Equipment)
+                {
+                    DropManager.Instance.TriggerEquipmentPickedUp(pickedItem);
+                }
+                else if (itemType == DropItemType.Consumable)
+                {
+                    DropManager.Instance.TriggerConsumablePickedUp(pickedItem);
+                }
                 break;
         }
     }
 
-    /// <summary>
-    /// 销毁掉落物品
-    /// </summary>
     private void DestroyItem()
     {
-        // 从管理器的活动列表中移除
         if (DropManager.Instance != null)
         {
             DropManager.Instance.RemoveFromActiveDrops(gameObject);
         }
-
-        // 销毁游戏对象
         Destroy(gameObject);
     }
 
-    /// <summary>
-    /// 2D碰撞器触发进入事件
-    /// </summary>
-    /// <param name="other">触发碰撞的另一个碰撞器</param>
     void OnTriggerEnter2D(Collider2D other)
     {
-        // 检查是否可以被拾取且未被拾取且碰撞对象是玩家
         if (CanBePickedUp && !isPickedUp && other.CompareTag("Player"))
         {
-            // 执行拾取操作
             Pickup(other.gameObject);
         }
     }
 
-    /// <summary>
-    /// 在Scene视图中绘制Gizmos，用于可视化调试
-    /// </summary>
     void OnDrawGizmos()
     {
-        // 如果物品可以被拾取且未被拾取，绘制蓝色线框球体
         if (CanBePickedUp && !isPickedUp)
         {
-            Gizmos.color = Color.blue; // 设置Gizmos颜色为蓝色
-            // 在物品位置绘制线框球体，半径0.3单位
+            Gizmos.color = Color.blue;
             Gizmos.DrawWireSphere(transform.position, 0.3f);
         }
     }

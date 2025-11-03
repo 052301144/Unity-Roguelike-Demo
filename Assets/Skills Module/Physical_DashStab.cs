@@ -1,58 +1,58 @@
-﻿using UnityEngine; // Unity �����ռ�
+﻿using UnityEngine; // Unity 引擎命名空间
 
 /// <summary>
-/// ͻ�̣���ǰ�̾������λ�ƣ���·���ϵĵ�����������˺�
-/// Ϊ�˲��������ǵ��ƶ����ƣ�����ֱ���޸� transform.position������ʱ�䣩
+/// 突刺：向前冲一小段距离，对路径上的敌方造成伤害
+/// 为了避免影响你的移动系统，这里直接修改 transform.position（按时间）
 /// </summary>
 public class SM_Physical_DashStab : SM_BaseSkill
 {
-    [Header("ͻ�̲���")]
-    public float dashDistance = 4f;    // λ�ƾ���
-    public float dashTime = 0.15f;     // λ�ƺ�ʱ
-    public float damage = 20f;         // �˺���ֵ
-    public LayerMask enemyMask;        // ����ͼ��
+    [Header("突刺")]
+    public float dashDistance = 4f;    // 位移距离
+    public float dashTime = 0.15f;     // 位移后时长
+    public float damage = 20f;         // 伤害值
+    public LayerMask enemyMask;        // 敌人图层
 
-    private float _timer;              // ��ʱ
-    private Vector2 _start;            // ���
-    private Vector2 _end;              // �յ�
-    private bool _dashing;             // �Ƿ�ͻ����
+    private float _timer;              // 计时
+    private Vector2 _start;            // 起点
+    private Vector2 _end;              // 终点
+    private bool _dashing;             // 是否突刺中
 
     protected override bool DoCast()
     {
-        _start = character.AimOrigin.position;                          // ��¼���
-        _end = _start + character.AimDirection.normalized * dashDistance; // �����յ�
-        _timer = 0f;                                                    // ���ü�ʱ
-        _dashing = true;                                                // ��ʼͻ��
-        return true;                                                    // �ɹ�
+        _start = character.AimOrigin.position;                          // 记录起点
+        _end = _start + character.AimDirection.normalized * dashDistance; // 计算终点
+        _timer = 0f;                                                    // 重置计时
+        _dashing = true;                                                // 开始突刺
+        return true;                                                    // 成功
     }
 
     public override void Tick(float dt)
     {
-        base.Tick(dt);                                                  // ��ȴ��ʱ
-        if (!_dashing) return;                                          // ��ͻ����
-        _timer += dt;                                                   // ����ʱ��
-        float t = Mathf.Clamp01(_timer / dashTime);                     // ��һ������
-        var pos = Vector2.Lerp(_start, _end, t);                        // ��ֵλ��
-        transform.position = pos;                                       // ֱ������λ�ã�����������
+        base.Tick(dt);                                                  // 先更新冷却计时
+        if (!_dashing) return;                                          // 非突刺中
+        _timer += dt;                                                   // 累计时间
+        float t = Mathf.Clamp01(_timer / dashTime);                     // 归一化进度
+        var pos = Vector2.Lerp(_start, _end, t);                        // 插值位置
+        transform.position = pos;                                       // 直接改写位置（影响当前敌人）
 
-        // �ڵ�ǰλ�õ�һ��СԲ�ڼ����ˣ�ģ�⡰·���˺�����
+        // 在当前位置的一个小圆内检测敌人，模拟「路径伤害」
         var hits = Physics2D.OverlapCircleAll(pos, 0.6f, enemyMask);
         foreach (var h in hits)
         {
-            var dmg = h.GetComponent<SM_IDamageable>();                 // ���˽ӿ�
+            var dmg = h.GetComponent<SM_IDamageable>();                 // 可伤害接口
             if (dmg != null)
             {
                 dmg.ApplyDamage(new SM_DamageInfo
                 {
-                    Amount = damage,                                    // �˺�
-                    Element = SM_Element.Physical,                      // ����
-                    IgnoreDefense = true,                               // ���ӷ���
-                    CritChance = 0.1f,                                  // �ͱ���
-                    CritMultiplier = 1.5f                               // ��������
+                    Amount = damage,                                    // 伤害
+                    Element = SM_Element.Physical,                      // 物理
+                    IgnoreDefense = true,                               // 忽略防
+                    CritChance = 0.1f,                                  // 暴击
+                    CritMultiplier = 1.5f                               // 暴击倍数
                 });
             }
         }
 
-        if (t >= 1f) _dashing = false;                                  // ����ͻ��
+        if (t >= 1f) _dashing = false;                                  // 结束突刺
     }
 }

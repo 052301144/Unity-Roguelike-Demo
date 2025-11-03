@@ -69,7 +69,13 @@ public class DropItem
 /// </summary>
 public enum DropItemType
 {
+    // 消耗品类
     Health,         // 生命值恢复物品
     Mana,           // 魔法值恢复物品  
-    Coin            // 金币物品
+    Coin,           // 金币物品
+    
+    // 装备类
+    Weapon,         // 武器
+    Equipment,      // 装备（防具、饰品等）
+    Consumable      // 其他消耗品（可能包含多种效果）
 }

@@ -1,21 +1,21 @@
-﻿using System; // ί��/�¼�
+﻿using System; // 委托/事件
 
 /// <summary>
-/// ����ģ����¼����ߣ�������㲥������������ģ��
-/// UI ����־ģ����Զ�����Щ�¼����������ü����ڲ�ϸ��
+/// 技能模块事件总线：提供解耦广播，不影响其他模块
+/// UI 和日志模块都可订阅这些事件，使用技能内部细节
 /// </summary>
 public static class SM_SkillEventBus
 {
-    public static event Action<string> OnSkillCast;          // �����⼼�ܳɹ�ʩ��
-    public static event Action<float, float> OnMPChanged;     // �� MP �仯����ǰ/���
+    public static event Action<string> OnSkillCast;          // 当技能成功施放
+    public static event Action<float, float> OnMPChanged;     // 当 MP 变化（当前/最大）
 
-    public static void RaiseSkillCast(string name)            // ��������ʩ���¼�
+    public static void RaiseSkillCast(string name)            // 触发技能施放事件
     {
-        OnSkillCast?.Invoke(name);                            // ֪ͨ���ж�����
+        OnSkillCast?.Invoke(name);                            // 通知所有订阅者
     }
 
-    public static void RaiseMPChanged(float cur, float max)   // ���� MP �仯�¼�
+    public static void RaiseMPChanged(float cur, float max)   // 触发 MP 变化事件
     {
-        OnMPChanged?.Invoke(cur, max);                        // ֪ͨ���ж�����
+        OnMPChanged?.Invoke(cur, max);                        // 通知所有订阅者
     }
 }
