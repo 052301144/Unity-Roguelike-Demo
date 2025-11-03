@@ -1,29 +1,29 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// Áú¾í·ç£ºÕÙ»½Ò»¸ö»ºÂýÒÆ¶¯µÄ¾í·ç£¬³ÖÐø¶Ô½Ó´¥µÐÈËÉËº¦²¢»÷ÍË
-/// ÐèÒªÔÚ Inspector ÉèÖÃ tornadoPrefab£¨´ø SM_Tornado µÄÔ¤ÖÆÌå£©
+/// ï¿½ï¿½ï¿½ï¿½ç£ºï¿½Ù»ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½Ä¾ï¿½ç£¬ï¿½ï¿½ï¿½ï¿½ï¿½Ô½Ó´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+/// ï¿½ï¿½Òªï¿½ï¿½ Inspector ï¿½ï¿½ï¿½ï¿½ tornadoPrefabï¿½ï¿½ï¿½ï¿½ SM_Tornado ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½å£©
 /// </summary>
 public class SM_Wind_Tornado : SM_BaseSkill
 {
-    [Header("Áú¾í·ç²ÎÊý")]
-    public SM_Tornado tornadoPrefab;  // Ô¤ÖÆÌå
-    public float speed = 2f;          // ¸²¸ÇÊµÀýËÙ¶È
-    public float lifetime = 6f;       // ¸²¸ÇÊµÀýÉú´æ
-    public float tickDamage = 5f;     // ¸²¸ÇÊµÀýÃ¿TickÉËº¦
-    public float tickInterval = 0.5f; // ¸²¸ÇÊµÀýTick¼ä¸ô
-    public float knockback = 8f;      // ¸²¸ÇÊµÀý»÷ÍËÁ¦
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public SM_Tornado tornadoPrefab;  // Ô¤ï¿½ï¿½ï¿½ï¿½
+    public float speed = 2f;          // ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½Ù¶ï¿½
+    public float lifetime = 6f;       // ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public float tickDamage = 5f;     // ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½Ã¿Tickï¿½Ëºï¿½
+    public float tickInterval = 0.5f; // ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½Tickï¿½ï¿½ï¿½
+    public float knockback = 8f;      // ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
     protected override bool DoCast()
     {
-        if (tornadoPrefab == null) return false;                            // Î´ÅäÖÃ
-        var go = Instantiate(tornadoPrefab, character.AimOrigin.position, Quaternion.identity); // ÊµÀý»¯
-        go.speed = speed;                                                   // Ð´Èë²ÎÊý
+        if (tornadoPrefab == null) return false;                            // Î´ï¿½ï¿½ï¿½ï¿½
+        var go = Instantiate(tornadoPrefab, character.AimOrigin.position, Quaternion.identity); // Êµï¿½ï¿½ï¿½ï¿½
+        go.speed = speed;                                                   // Ð´ï¿½ï¿½ï¿½ï¿½ï¿½
         go.lifetime = lifetime;
         go.tickDamage = tickDamage;
         go.tickInterval = tickInterval;
         go.knockback = knockback;
-        go.Launch(character.AimDirection);                                  // ·¢Éä
-        return true;                                                        // ³É¹¦
+        go.Launch(character.AimDirection);                                  // ï¿½ï¿½ï¿½ï¿½
+        return true;                                                        // ï¿½É¹ï¿½
     }
 }

@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "LootTable", menuName = "Loot/Loot Table")]
@@ -6,20 +6,20 @@ public class LootTable : ScriptableObject
 {
     public List<LootItem> items = new List<LootItem>();
 
-    [Tooltip("×î´óµôÂäÌõÄ¿Êı£¨µ¥´ÎËÀÍö×î¶àµô¶àÉÙÖÖ²»Í¬ÎïÆ·£©¡£ÉèÎª0±íÊ¾²»ÏŞÖÆ£¨»á³¢ÊÔµôËùÓĞÂú×ã¸ÅÂÊµÄ£©¡£")]
+    [Tooltip("æœ€å¤§æ‰è½æ•°é‡ï¼Œæ§åˆ¶æ¯æ¬¡æ‰è½æ—¶ä¼šå°è¯•æ‰è½å¤šå°‘ç§ä¸åŒç‰©å“ã€‚å¦‚æœä¸º0ï¼Œè¡¨ç¤ºä¸é™åˆ¶ï¼Œä¼šå°è¯•æ‰è½æ‰€æœ‰æœ‰æƒé‡çš„ç‰©å“ï¼ˆå®é™…æ‰è½å–å†³äºæƒé‡æ¦‚ç‡ï¼‰ã€‚")]
     public int maxDrops = 1;
 
-    [Tooltip("ÊÇ·ñÔÊĞíÖØ¸´µôÂäÍ¬Ò»ÎïÆ·£¨true = Í¬Ò» prefab ¿ÉÄÜµô¶à·İ£»false = ×î¶àÒ»·İ£©")]
+    [Tooltip("æ˜¯å¦å…è®¸é‡å¤æ‰è½åŒä¸€ç‰©å“ã€‚true = åŒä¸€ prefab å¯ä»¥æ‰è½å¤šæ¬¡ï¼Œfalse = åªèƒ½æ‰ä¸€æ¬¡ã€‚")]
     public bool allowDuplicates = false;
 
-    // Í¨¹ı±¾·½·¨¸ù¾İÈ¨ÖØ/¸ÅÂÊÑ¡ÔñÒªµôÂäµÄÈô¸É LootItem ÓëÊıÁ¿
+    // é€šè¿‡æƒé‡ç³»ç»Ÿæˆ–ç›´æ¥æ¦‚ç‡é€‰æ‹©è¦æ‰è½çš„ LootItem åˆ—è¡¨
     public List<(GameObject prefab, int amount)> RollDrops()
     {
         List<(GameObject, int)> results = new List<(GameObject, int)>();
 
         if (items == null || items.Count == 0) return results;
 
-        // Ê×ÏÈ´¦Àí explicitChance ÀàµÄ¾ø¶Ô¸ÅÂÊµôÂä£¨Ã¿Ïî¶ÀÁ¢£©
+        // é¦–å…ˆå¤„ç† explicitChance çš„ç»å¯¹æ¦‚ç‡æ‰è½ï¼ˆæ¯ä¸ªç‹¬ç«‹åˆ¤æ–­ï¼‰
         List<int> availableIndices = new List<int>();
         float totalWeight = 0f;
         for (int i = 0; i < items.Count; i++)
@@ -27,7 +27,7 @@ public class LootTable : ScriptableObject
             var it = items[i];
             if (it.explicitChance >= 0f)
             {
-                // ¶ÀÁ¢ÅĞ¶ÏÊÇ·ñµôÂä£¨¸ÅÂÊÇø¼ä [0,1]£©
+                // éšæœºåˆ¤æ–­æ˜¯å¦æ‰è½ï¼ˆæ¦‚ç‡å€¼åœ¨ [0,1]ï¼‰
                 float r = Random.value;
                 if (r <= it.explicitChance)
                 {
@@ -36,7 +36,7 @@ public class LootTable : ScriptableObject
                     if (!allowDuplicates) availableIndices.Add(i); // mark handled to possibly exclude from further selection
                 }
             }
-            // ¼ÆËãÈ¨ÖØÓÃÓÚºóĞø°´È¨ÖØËæ»úÑ¡Ôñ
+            // æ”¶é›†æƒé‡æ•°æ®ï¼Œç”¨äºåç»­æƒé‡é€‰æ‹©
             if (it.weight > 0f)
             {
                 totalWeight += it.weight;
@@ -45,21 +45,21 @@ public class LootTable : ScriptableObject
             }
         }
 
-        // Èç¹û maxDrops == 0 ±íÊ¾²»ÏŞÖÆ£¨³¢ÊÔ¶ÔËùÓĞ°´È¨ÖØµÄÏî½øĞĞÒ»´ÎÑ¡Ôñ£©£¬·ñÔòÑ¡Ôñ up to maxDrops ´Î
+        // å¦‚æœ maxDrops == 0 è¡¨ç¤ºä¸é™åˆ¶ï¼Œä¼šè‡ªåŠ¨å°è¯•æ‰€æœ‰æœ‰æƒé‡çš„ç‰©å“è¿›è¡Œä¸€æ¬¡é€‰æ‹©ï¼ˆå®é™…æ‰è½å–å†³äºæƒé‡æ¦‚ç‡ï¼‰ï¼Œå¦åˆ™é€‰æ‹© up to maxDrops ä¸ª
         if (totalWeight > 0f && maxDrops != 0)
         {
             int dropsToDo = Mathf.Max(1, maxDrops - results.Count);
-            // °´È¨ÖØÑ¡Ôñ dropsToDo ¸ö£¨»òÖ±µ½Ã»ÓĞºòÑ¡£©
+            // æŒ‰æƒé‡é€‰æ‹© dropsToDo ä¸ªç‰©å“ï¼Œç›´åˆ°æ²¡æœ‰å€™é€‰ç‰©
             List<int> candidateIndices = new List<int>();
             for (int i = 0; i < items.Count; i++)
             {
-                // Ö»ÓĞ weight > 0 ²Å½øÈëºòÑ¡
+                // åªå°† weight > 0 çš„åŠ å…¥å€™é€‰
                 if (items[i].weight > 0f) candidateIndices.Add(i);
             }
 
             for (int d = 0; d < dropsToDo && candidateIndices.Count > 0; d++)
             {
-                // ¼ÆËã subtotal weight
+                // è®¡ç®— subtotal weight
                 float subtotal = 0f;
                 foreach (var idx in candidateIndices) subtotal += items[idx].weight;
 
@@ -82,14 +82,14 @@ public class LootTable : ScriptableObject
 
                 if (!allowDuplicates)
                 {
-                    // ´ÓºòÑ¡ÖĞÒÆ³ı chosenIdx
+                    // ä»å€™é€‰åˆ—è¡¨ç§»é™¤ chosenIdx
                     candidateIndices.Remove(chosenIdx);
                 }
             }
         }
         else if (totalWeight > 0f && maxDrops == 0)
         {
-            // maxDrops == 0: ¶ÔÃ¿¸öÈ¨ÖØ>0µÄÌõÄ¿×öÒ»´Î¶ÀÁ¢È¨ÖØÅĞ¶¨£¨¸ÅÂÊ = weight / totalWeight£©
+            // maxDrops == 0: å¯¹æ¯ä¸ªæƒé‡>0çš„ç‰©å“è¿›è¡Œä¸€æ¬¡ç‹¬ç«‹æƒé‡åˆ¤æ–­æ‰è½æ¦‚ç‡ = weight / totalWeightã€‚
             float subtotal = totalWeight;
             for (int i = 0; i < items.Count; i++)
             {

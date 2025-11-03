@@ -1,41 +1,41 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// ±ù»·£ºÒÔ×ÔÉíÎªÖÐÐÄ£¬»·ÐÎ·¶Î§ÉËº¦²¢¶³½áÖÜÎ§µÐÈË
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½Î·ï¿½Î§ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 public class SM_Ice_IceNova : SM_BaseSkill
 {
-    [Header("±ù»·²ÎÊý")]
-    public float radius = 3f;        // °ë¾¶
-    public float damage = 10f;       // ÉËº¦
-    public float freezeTime = 1.2f;  // ¶³½áÊ±¼ä
-    public LayerMask enemyMask;      // µÐÈËÍ¼²ã
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public float radius = 3f;        // ï¿½ë¾¶
+    public float damage = 10f;       // ï¿½Ëºï¿½
+    public float freezeTime = 1.2f;  // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    public LayerMask enemyMask;      // ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 
     protected override bool DoCast()
     {
-        var hits = Physics2D.OverlapCircleAll(character.AimOrigin.position, radius, enemyMask); // ËÑË÷ÖÜÎ§
+        var hits = Physics2D.OverlapCircleAll(character.AimOrigin.position, radius, enemyMask); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î§
         foreach (var h in hits)
         {
-            var dmg = h.GetComponent<SM_IDamageable>();    // ÊÜÉË½Ó¿Ú
-            if (dmg != null)                                // ¿ÉÊÜÉËÔòÉËº¦
+            var dmg = h.GetComponent<SM_IDamageable>();    // ï¿½ï¿½ï¿½Ë½Ó¿ï¿½
+            if (dmg != null)                                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
             {
                 dmg.ApplyDamage(new SM_DamageInfo
                 {
-                    Amount = damage,            // ÉËº¦
-                    Element = SM_Element.Ice,   // ±ùÔªËØ
-                    IgnoreDefense = false,      // ²»ÎÞÊÓ·ÀÓù
-                    CritChance = 0f,            // ÎÞ±©»÷
-                    CritMultiplier = 1f         // ±¶ÂÊ
+                    Amount = damage,            // ï¿½Ëºï¿½
+                    Element = SM_Element.Ice,   // ï¿½ï¿½Ôªï¿½ï¿½
+                    IgnoreDefense = false,      // ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
+                    CritChance = 0f,            // ï¿½Þ±ï¿½ï¿½ï¿½
+                    CritMultiplier = 1f         // ï¿½ï¿½ï¿½ï¿½
                 });
             }
-            h.GetComponent<SM_FreezeEffect>()?.Freeze(freezeTime); // Ê©¼Ó¶³½á£¨ÈôÓÐ×é¼þ£©
+            h.GetComponent<SM_FreezeEffect>()?.Freeze(freezeTime); // Ê©ï¿½Ó¶ï¿½ï¿½á£¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         }
         return true;
     }
 
-    private void OnDrawGizmosSelected() // ±à¼­Æ÷¿ÉÊÓ»¯
+    private void OnDrawGizmosSelected() // ï¿½à¼­ï¿½ï¿½ï¿½ï¿½ï¿½Ó»ï¿½
     {
-        Gizmos.color = Color.blue;      // À¶É«
+        Gizmos.color = Color.blue;      // ï¿½ï¿½É«
         Gizmos.DrawWireSphere(transform.position, radius);
     }
 }

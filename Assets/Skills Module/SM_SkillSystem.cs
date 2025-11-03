@@ -1,101 +1,101 @@
-using UnityEngine;                // Unity ÃüÃû¿Õ¼ä
-using System.Collections.Generic; // Ê¹ÓÃ×Öµä
+ï»¿using UnityEngine;                // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
+using System.Collections.Generic; // Ê¹ï¿½ï¿½ï¿½Öµï¿½
 
 /// <summary>
-/// ¼¼ÄÜÏµÍ³£º
-/// - Ìá¹© 4 ¸ö¼¼ÄÜÎ»£¨U/I/O/L£©
-/// - Ìá¹© MP »úÖÆ£¨º¬±»¶¯»ØÀ¶£©
-/// - Ìá¹© ICharacterProvider ¸ø¼¼ÄÜÊ¹ÓÃ£¨Ö»¶Á£©
-/// - ½öÍ¨¹ýÊÂ¼þ×ÜÏß¶ÔÍâ¹ã²¥£¬²»ÐÞ¸ÄÆäËûÄ£¿é
-/// - ¡°Ãæ³¯·½Ïò/AimDirection¡±¿ÉÓÉÍâ²¿½ÇÉ«¿ØÖÆÔÚÃ¿Ö¡µ÷ÓÃ SetAim() ÉèÖÃ£»
-///   ÈôÍâ²¿Ã»ÉèÖÃ£¬ÔòÄ¬ÈÏÏòÓÒ£¨1,0£©
+/// ï¿½ï¿½ï¿½ï¿½ÏµÍ³ï¿½ï¿½
+/// - ï¿½á¹© 4 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½U/I/O/Lï¿½ï¿½
+/// - ï¿½á¹© MP ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+/// - ï¿½á¹© ICharacterProvider ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ã£ï¿½Ö»ï¿½ï¿½ï¿½ï¿½
+/// - ï¿½ï¿½Í¨ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ß¶ï¿½ï¿½ï¿½ã²¥ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½
+/// - ï¿½ï¿½ï¿½æ³¯ï¿½ï¿½ï¿½ï¿½/AimDirectionï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â²¿ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿Ö¡ï¿½ï¿½ï¿½ï¿½ SetAim() ï¿½ï¿½ï¿½Ã£ï¿½
+///   ï¿½ï¿½ï¿½â²¿Ã»ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½Ò£ï¿½1,0ï¿½ï¿½
 /// </summary>
 public class SM_SkillSystem : MonoBehaviour, SM_ICharacterProvider
 {
-    [Header("°ó¶¨ & MP")]
-    public Transform aimOrigin;           // ÊÍ·ÅÆðµã£¨½¨ÒéÍÏ½ÇÉ«ÊÖ²¿»ò½ÇÉ«ÖÐÐÄ£©
-    public Vector2 defaultAim = Vector2.right; // Ä¬ÈÏ³¯Ïò£¨Ã»ÉèÖÃÊ±ÓÃ£©
-    public float maxMP = 100f;            // ×î´ó MP
-    public float mpRegenPerSec = 5f;      // Ã¿Ãë»ØÀ¶
-    [SerializeField] private float currentMP = 100f; // µ±Ç° MP£¨ÐòÁÐ»¯±ãÓÚ¹Û²ì£©
+    [Header("ï¿½ï¿½ & MP")]
+    public Transform aimOrigin;           // ï¿½Í·ï¿½ï¿½ï¿½ã£¨ï¿½ï¿½ï¿½ï¿½ï¿½Ï½ï¿½É«ï¿½Ö²ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½Ä£ï¿½
+    public Vector2 defaultAim = Vector2.right; // Ä¬ï¿½Ï³ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ã£ï¿½
+    public float maxMP = 100f;            // ï¿½ï¿½ï¿½ MP
+    public float mpRegenPerSec = 5f;      // Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½
+    [SerializeField] private float currentMP = 100f; // ï¿½ï¿½Ç° MPï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½Ú¹Û²ì£©
 
-    [Header("¼¼ÄÜÎ»£¨¶ÔÓ¦°´¼ü£ºU/I/O/L£©")]
-    public SM_BaseSkill slotU;            // U ¼ü¼¼ÄÜ
-    public SM_BaseSkill slotI;            // I ¼ü¼¼ÄÜ
-    public SM_BaseSkill slotO;            // O ¼ü¼¼ÄÜ
-    public SM_BaseSkill slotL;            // L ¼ü¼¼ÄÜ
+    [Header("ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½U/I/O/Lï¿½ï¿½")]
+    public SM_BaseSkill slotU;            // U ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public SM_BaseSkill slotI;            // I ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public SM_BaseSkill slotO;            // O ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public SM_BaseSkill slotL;            // L ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    // ¼üÎ»Ó³Éä±í£¨ÔËÐÐÊ±£©
+    // ï¿½ï¿½Î»Ó³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
     private readonly Dictionary<KeyCode, SM_BaseSkill> _map = new Dictionary<KeyCode, SM_BaseSkill>();
 
-    // »º´æÍâ²¿ÉèÖÃµÄ³¯Ïò
+    // ï¿½ï¿½ï¿½ï¿½ï¿½â²¿ï¿½ï¿½ï¿½ÃµÄ³ï¿½ï¿½ï¿½
     private Vector2 _aimDir;
 
-    // ========== SM_ICharacterProvider ÊµÏÖ ==========
-    public Transform AimOrigin => aimOrigin != null ? aimOrigin : transform;   // Èç¹ûÃ»ÍÏ£¬ÍË»¯Îª×ÔÉí
-    public Vector2 AimDirection => _aimDir == Vector2.zero ? defaultAim : _aimDir; // Ã»ÉèÖÃÔòÓÃÄ¬ÈÏ
-    public float CurrentMP => currentMP;                                       // µ±Ç° MP
-    public float MaxMP => maxMP;                                               // ×î´ó MP
+    // ========== SM_ICharacterProvider Êµï¿½ï¿½ ==========
+    public Transform AimOrigin => aimOrigin != null ? aimOrigin : transform;   // ï¿½ï¿½ï¿½Ã»ï¿½Ï£ï¿½ï¿½Ë»ï¿½Îªï¿½ï¿½ï¿½ï¿½
+    public Vector2 AimDirection => _aimDir == Vector2.zero ? defaultAim : _aimDir; // Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½
+    public float CurrentMP => currentMP;                                       // ï¿½ï¿½Ç° MP
+    public float MaxMP => maxMP;                                               // ï¿½ï¿½ï¿½ MP
 
-    public bool ConsumeMP(float amount)                                        // ÏûºÄ MP
+    public bool ConsumeMP(float amount)                                        // ï¿½ï¿½ï¿½ï¿½ MP
     {
-        if (currentMP < amount) return false;                                  // ²»×ã
-        currentMP -= amount;                                                   // ¿Û³ý
-        SM_SkillEventBus.RaiseMPChanged(currentMP, maxMP);                     // ¹ã²¥ MP ±ä»¯
-        return true;                                                           // ³É¹¦
+        if (currentMP < amount) return false;                                  // ï¿½ï¿½ï¿½ï¿½
+        currentMP -= amount;                                                   // ï¿½Û³ï¿½
+        SM_SkillEventBus.RaiseMPChanged(currentMP, maxMP);                     // ï¿½ã²¥ MP ï¿½ä»¯
+        return true;                                                           // ï¿½É¹ï¿½
     }
 
-    // ========== ÉúÃüÖÜÆÚ ==========
+    // ========== ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ==========
     private void Awake()
     {
-        currentMP = Mathf.Clamp(currentMP, 0, maxMP);                          // ·ÀÓù
-        // ¹¹½¨¼üÎ»Ó³Éä
+        currentMP = Mathf.Clamp(currentMP, 0, maxMP);                          // ï¿½ï¿½ï¿½ï¿½
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»Ó³ï¿½ï¿½
         _map[KeyCode.U] = slotU;
         _map[KeyCode.I] = slotI;
         _map[KeyCode.O] = slotO;
         _map[KeyCode.L] = slotL;
 
-        // ×¢Èë½ÇÉ«Ö»¶ÁÐÅÏ¢
+        // ×¢ï¿½ï¿½ï¿½É«Ö»ï¿½ï¿½ï¿½ï¿½Ï¢
         foreach (var kv in _map)
         {
             if (kv.Value != null) kv.Value.Initialize(this);
         }
 
-        // ³õ´Î¹ã²¥ MP
+        // ï¿½ï¿½ï¿½Î¹ã²¥ MP
         SM_SkillEventBus.RaiseMPChanged(currentMP, maxMP);
     }
 
-    public void Equip(KeyCode key, SM_BaseSkill skill)                         // ÔËÐÐÊ±»»×°£¨¿ÉÑ¡£©
+    public void Equip(KeyCode key, SM_BaseSkill skill)                         // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½
     {
-        _map[key] = skill;                                                     // Ìæ»»Ó³Éä
-        if (skill != null) skill.Initialize(this);                             // ×¢Èë
+        _map[key] = skill;                                                     // ï¿½æ»»Ó³ï¿½ï¿½
+        if (skill != null) skill.Initialize(this);                             // ×¢ï¿½ï¿½
     }
 
     /// <summary>
-    /// Íâ²¿£¨ÀýÈç PlayerController£©Ã¿Ö¡¿Éµ÷ÓÃ´Ë·½·¨ÉèÖÃÃé×¼/Ãæ³¯·½Ïò£»
-    /// Ò²¿ÉÒÔ²»µ÷ÓÃ£¬±¾ÏµÍ³»áÊ¹ÓÃ defaultAim¡£
+    /// ï¿½â²¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ PlayerControllerï¿½ï¿½Ã¿Ö¡ï¿½Éµï¿½ï¿½Ã´Ë·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¼/ï¿½æ³¯ï¿½ï¿½ï¿½ï¿½
+    /// Ò²ï¿½ï¿½ï¿½Ô²ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½ÏµÍ³ï¿½ï¿½Ê¹ï¿½ï¿½ defaultAimï¿½ï¿½
     /// </summary>
     public void SetAim(Vector2 dir)
     {
-        _aimDir = dir.normalized;                                              // ¹éÒ»»¯±£´æ
+        _aimDir = dir.normalized;                                              // ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 
     private void Update()
     {
-        // ±»¶¯»ØÀ¶
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (currentMP < maxMP)
         {
             currentMP = Mathf.Min(maxMP, currentMP + mpRegenPerSec * Time.deltaTime);
-            SM_SkillEventBus.RaiseMPChanged(currentMP, maxMP);                 // ¹ã²¥ MP ¸üÐÂ
+            SM_SkillEventBus.RaiseMPChanged(currentMP, maxMP);                 // ï¿½ã²¥ MP ï¿½ï¿½ï¿½ï¿½
         }
 
-        // ¼¼ÄÜÀäÈ´/³ÖÐø Tick
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´/ï¿½ï¿½ï¿½ï¿½ Tick
         foreach (var kv in _map)
         {
             if (kv.Value != null) kv.Value.Tick(Time.deltaTime);
         }
 
-        // ÊäÈë¼ì²â£¨U/I/O/L£©
+        // ï¿½ï¿½ï¿½ï¿½ï¿½â£¨U/I/O/Lï¿½ï¿½
         if (Input.GetKeyDown(KeyCode.U)) TryCast(KeyCode.U);
         if (Input.GetKeyDown(KeyCode.I)) TryCast(KeyCode.I);
         if (Input.GetKeyDown(KeyCode.O)) TryCast(KeyCode.O);
@@ -104,7 +104,7 @@ public class SM_SkillSystem : MonoBehaviour, SM_ICharacterProvider
 
     private void TryCast(KeyCode key)
     {
-        if (!_map.TryGetValue(key, out var skill) || skill == null) return;    // Î´×°¼¼ÄÜÔòºöÂÔ
-        skill.TryCast();                                                        // ½»¸ø¼¼ÄÜ×ÔÉí¼ì²éÊ©·Å
+        if (!_map.TryGetValue(key, out var skill) || skill == null) return;    // Î´×°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        skill.TryCast();                                                        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê©ï¿½ï¿½
     }
 }

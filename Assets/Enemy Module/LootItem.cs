@@ -1,24 +1,24 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [System.Serializable]
 public class LootItem
 {
-    // ����� prefab�����룩
+    // 掉落的 prefab（必需）
     public GameObject prefab;
 
-    // �������Ȩ�أ����ֵ�������ȫ��Ȩ��Ϊ 0������˻ص� equal-chance
-    // Ҳ��ʹ�� explicitChance�������棩��֧��ֱ�����þ��Ը���
+    // 掉落权重（权重大，被选中概率高，如果所有物品权重为 0，则回退到 equal-chance）
+    // 也可以使用 explicitChance（见下面），支持直接设置绝对概率
     public float weight = 1f;
 
-    // �� explicitChance >= 0 ʱ��ʹ�� explicitChance��0~1����Ϊ���Ե�����ʣ���ѡ��
-    // �������Ϊ -1 ����Ϊδ���ã�Ĭ�ϣ�
+    // 当 explicitChance >= 0 时，使用 explicitChance（0~1）作为绝对掉落概率（会优先判断）
+    // 如果设为 -1 则视为未使用（默认）
     [Range(-1f, 1f)]
     public float explicitChance = -1f;
 
-    // ��С/����������������ѵ��
+    // 最小/最大掉落数量（当掉落时）
     public int minAmount = 1;
     public int maxAmount = 1;
 
-    // �Ƿ���ѡ�񵽸���Ŀ���ٸ��� explicitChance ���������Ƿ���䣨���ڶ��׶ο��ƣ�
-    // �������ջ������Ҫʹ�ã�
+    // 是否被选择到候选列表中，再根据 explicitChance 判断是否掉落（用于两阶段控制）
+    // 一般情况不需要使用
 }

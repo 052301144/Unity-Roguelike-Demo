@@ -1,49 +1,49 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// ËùÓÐ¼¼ÄÜµÄ³éÏó»ùÀà£ºÍ³Ò»¹ÜÀíÀäÈ´/ÏûºÄ/ÊÂ¼þ
+/// ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½ÜµÄ³ï¿½ï¿½ï¿½ï¿½ï¿½à£ºÍ³Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´/ï¿½ï¿½ï¿½ï¿½/ï¿½Â¼ï¿½
 /// </summary>
 public abstract class SM_BaseSkill : MonoBehaviour, SM_ISkill
 {
-    [Header("»ù´¡ÊôÐÔ")]
-    public string skillName = "Skill";        // ¼¼ÄÜÃû³Æ£¨¿ÉÔÚ Inspector ÉèÖÃ£©
-    public SM_Element element = SM_Element.Physical; // ÔªËØÀàÐÍ
-    public float manaCost = 10f;              // MP ÏûºÄ
-    public float cooldown = 2f;               // ÀäÈ´Ê±³¤£¨Ãë£©
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public string skillName = "Skill";        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ Inspector ï¿½ï¿½ï¿½Ã£ï¿½
+    public SM_Element element = SM_Element.Physical; // Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public float manaCost = 10f;              // MP ï¿½ï¿½ï¿½ï¿½
+    public float cooldown = 2f;               // ï¿½ï¿½È´Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ë£©
 
-    protected float cdTimer = 0f;             // ÄÚ²¿ÀäÈ´¼ÆÊ±Æ÷
-    protected SM_ICharacterProvider character;// ½ÇÉ«Ö»¶ÁÐÅÏ¢Ìá¹©Õß£¨ÓÉ¼¼ÄÜÏµÍ³×¢Èë£©
+    protected float cdTimer = 0f;             // ï¿½Ú²ï¿½ï¿½ï¿½È´ï¿½ï¿½Ê±ï¿½ï¿½
+    protected SM_ICharacterProvider character;// ï¿½ï¿½É«Ö»ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½á¹©ï¿½ß£ï¿½ï¿½É¼ï¿½ï¿½ï¿½ÏµÍ³×¢ï¿½ë£©
 
-    public string SkillName => skillName;     // ½Ó¿ÚÊµÏÖ£º¼¼ÄÜÃû
-    public SM_Element Element => element;     // ½Ó¿ÚÊµÏÖ£ºÔªËØ
-    public float ManaCost => manaCost;        // ½Ó¿ÚÊµÏÖ£ºÏûºÄ
-    public float Cooldown => cooldown;        // ½Ó¿ÚÊµÏÖ£ºÀäÈ´
-    public bool IsOnCooldown => cdTimer > 0f; // ½Ó¿ÚÊµÏÖ£ºÀäÈ´ÖÐ£¿
+    public string SkillName => skillName;     // ï¿½Ó¿ï¿½Êµï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public SM_Element Element => element;     // ï¿½Ó¿ï¿½Êµï¿½Ö£ï¿½Ôªï¿½ï¿½
+    public float ManaCost => manaCost;        // ï¿½Ó¿ï¿½Êµï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½
+    public float Cooldown => cooldown;        // ï¿½Ó¿ï¿½Êµï¿½Ö£ï¿½ï¿½ï¿½È´
+    public bool IsOnCooldown => cdTimer > 0f; // ï¿½Ó¿ï¿½Êµï¿½Ö£ï¿½ï¿½ï¿½È´ï¿½Ð£ï¿½
 
-    public void Initialize(SM_ICharacterProvider provider)    // ³õÊ¼»¯×¢Èë
+    public void Initialize(SM_ICharacterProvider provider)    // ï¿½ï¿½Ê¼ï¿½ï¿½×¢ï¿½ï¿½
     {
-        character = provider;                                   // ±£´æÒýÓÃ
+        character = provider;                                   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 
-    protected abstract bool DoCast();                           // ×ÓÀàÊµÏÖÊ©·ÅÂß¼­
+    protected abstract bool DoCast();                           // ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½Ê©ï¿½ï¿½ï¿½ß¼ï¿½
 
-    public virtual bool TryCast()                               // ³¢ÊÔÊ©·Å
+    public virtual bool TryCast()                               // ï¿½ï¿½ï¿½ï¿½Ê©ï¿½ï¿½
     {
-        if (IsOnCooldown) return false;                         // ÀäÈ´ÖÐ£¬²»¿ÉÊ©·Å
-        if (character == null) return false;                    // Î´³õÊ¼»¯£¬°²È«·µ»Ø
-        if (!character.ConsumeMP(manaCost)) return false;       // MP ²»×ã£¬Ê©·ÅÊ§°Ü
+        if (IsOnCooldown) return false;                         // ï¿½ï¿½È´ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½Ê©ï¿½ï¿½
+        if (character == null) return false;                    // Î´ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½
+        if (!character.ConsumeMP(manaCost)) return false;       // MP ï¿½ï¿½ï¿½ã£¬Ê©ï¿½ï¿½Ê§ï¿½ï¿½
 
-        var ok = DoCast();                                      // Ö´ÐÐ×ÓÀàÂß¼­
-        if (ok)                                                 // ÈôÊ©·Å³É¹¦
+        var ok = DoCast();                                      // Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
+        if (ok)                                                 // ï¿½ï¿½Ê©ï¿½Å³É¹ï¿½
         {
-            cdTimer = cooldown;                                 // ½øÈëÀäÈ´
-            SM_SkillEventBus.RaiseSkillCast(skillName);         // ¹ã²¥Ê©·ÅÊÂ¼þ
+            cdTimer = cooldown;                                 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´
+            SM_SkillEventBus.RaiseSkillCast(skillName);         // ï¿½ã²¥Ê©ï¿½ï¿½ï¿½Â¼ï¿½
         }
-        return ok;                                              // ·µ»Ø½á¹û
+        return ok;                                              // ï¿½ï¿½ï¿½Ø½ï¿½ï¿½
     }
 
-    public virtual void Tick(float dt)                          // Ã¿Ö¡¸üÐÂ
+    public virtual void Tick(float dt)                          // Ã¿Ö¡ï¿½ï¿½ï¿½ï¿½
     {
-        if (cdTimer > 0f) cdTimer -= dt;                        // ÀäÈ´¼ÆÊ±¼õÉÙ
+        if (cdTimer > 0f) cdTimer -= dt;                        // ï¿½ï¿½È´ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
     }
 }

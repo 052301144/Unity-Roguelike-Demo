@@ -1,21 +1,21 @@
-using System; // Î¯ÍÐ/ÊÂ¼þ
+ï»¿using System; // Î¯ï¿½ï¿½/ï¿½Â¼ï¿½
 
 /// <summary>
-/// ¼¼ÄÜÄ£¿éµÄÊÂ¼þ×ÜÏß£º½ö¶ÔÍâ¹ã²¥£¬²»ÒÀÀµÆäËûÄ£¿é
-/// UI »òÈÕÖ¾Ä£¿é¿ÉÒÔ¶©ÔÄÕâÐ©ÊÂ¼þ¶øÎÞÐèÒýÓÃ¼¼ÄÜÄÚ²¿Ï¸½Ú
+/// ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ß£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã²¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½
+/// UI ï¿½ï¿½ï¿½ï¿½Ö¾Ä£ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½Ð©ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½Ú²ï¿½Ï¸ï¿½ï¿½
 /// </summary>
 public static class SM_SkillEventBus
 {
-    public static event Action<string> OnSkillCast;          // µ±ÈÎÒâ¼¼ÄÜ³É¹¦Ê©·Å
-    public static event Action<float, float> OnMPChanged;     // µ± MP ±ä»¯£¨µ±Ç°/×î´ó£©
+    public static event Action<string> OnSkillCast;          // ï¿½ï¿½ï¿½ï¿½ï¿½â¼¼ï¿½Ü³É¹ï¿½Ê©ï¿½ï¿½
+    public static event Action<float, float> OnMPChanged;     // ï¿½ï¿½ MP ï¿½ä»¯ï¿½ï¿½ï¿½ï¿½Ç°/ï¿½ï¿½ï¿½
 
-    public static void RaiseSkillCast(string name)            // ´¥·¢¼¼ÄÜÊ©·ÅÊÂ¼þ
+    public static void RaiseSkillCast(string name)            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê©ï¿½ï¿½ï¿½Â¼ï¿½
     {
-        OnSkillCast?.Invoke(name);                            // Í¨ÖªËùÓÐ¶©ÔÄÕß
+        OnSkillCast?.Invoke(name);                            // Í¨Öªï¿½ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 
-    public static void RaiseMPChanged(float cur, float max)   // ´¥·¢ MP ±ä»¯ÊÂ¼þ
+    public static void RaiseMPChanged(float cur, float max)   // ï¿½ï¿½ï¿½ï¿½ MP ï¿½ä»¯ï¿½Â¼ï¿½
     {
-        OnMPChanged?.Invoke(cur, max);                        // Í¨ÖªËùÓÐ¶©ÔÄÕß
+        OnMPChanged?.Invoke(cur, max);                        // Í¨Öªï¿½ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 }

@@ -1,119 +1,119 @@
-using UnityEngine; // ÒıÈëUnityÒıÇæÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // å¼•å…¥Unityå¼•æ“å‘½åç©ºé—´
 
 /// <summary>
-/// µôÂäÊÂ¼ş¼àÌıÆ÷ - ÔÚÆäËûÄ£¿éÖĞ¼àÌıµôÂäÊÂ¼şµÄÊ¾Àı×é¼ş
+/// æ‰è½äº‹ä»¶ç›‘å¬å™¨ - ç›‘å¬æ‰è½æ¨¡å—ä¸­çš„æ‰€æœ‰äº‹ä»¶å¹¶æ˜¾ç¤ºæ—¥å¿—
 /// </summary>
 public class DropEventListener : MonoBehaviour
 {
     /// <summary>
-    /// Start·½·¨ - ÔÚ¶ÔÏóÊ×´ÎÆôÓÃÊ±µ÷ÓÃ
+    /// Startæ–¹æ³• - åœ¨å¯¹è±¡æ¿€æ´»æ—¶è°ƒç”¨
     /// </summary>
     void Start()
     {
-        // ×¢²áµôÂäÊÂ¼ş - ¼ì²éµôÂä¹ÜÀíÆ÷ÊÇ·ñ´æÔÚ
+        // æ³¨å†Œäº‹ä»¶ç›‘å¬ - æ£€æŸ¥æ‰è½ç®¡ç†å™¨æ˜¯å¦å­˜åœ¨
         if (DropManager.Instance != null)
         {
-            // ×¢²á½ğ±ÒÊÕ¼¯ÊÂ¼ş´¦Àí·½·¨
+            // æ³¨å†Œé‡‘å¸æ”¶é›†äº‹ä»¶çš„å¤„ç†å‡½æ•°
             DropManager.Instance.OnCoinCollected += OnCoinCollected;
-            // ×¢²áÉúÃü»Ö¸´ÊÂ¼ş´¦Àí·½·¨
+            // æ³¨å†Œç”Ÿå‘½å€¼æ¢å¤äº‹ä»¶çš„å¤„ç†å‡½æ•°
             DropManager.Instance.OnHealthRestored += OnHealthRestored;
-            // ×¢²áÄ§·¨»Ö¸´ÊÂ¼ş´¦Àí·½·¨
+            // æ³¨å†Œé­”æ³•å€¼æ¢å¤äº‹ä»¶çš„å¤„ç†å‡½æ•°
             DropManager.Instance.OnManaRestored += OnManaRestored;
 
-            // Êä³ö×¢²á³É¹¦ĞÅÏ¢
-            Debug.Log("µôÂäÊÂ¼ş¼àÌıÆ÷ÒÑ×¢²áËùÓĞÊÂ¼ş");
+            // è¾“å‡ºæ³¨å†ŒæˆåŠŸä¿¡æ¯
+            Debug.Log("æ‰è½äº‹ä»¶ç›‘å¬å™¨å·²æ³¨å†Œæ‰€æœ‰äº‹ä»¶");
         }
-        else // Èç¹ûµôÂä¹ÜÀíÆ÷²»´æÔÚ
+        else // å¦‚æœæ‰è½ç®¡ç†å™¨ä¸å­˜åœ¨
         {
-            // Êä³ö¾¯¸æĞÅÏ¢
-            Debug.LogWarning("µôÂä¹ÜÀíÆ÷Î´ÕÒµ½£¬ÎŞ·¨×¢²áÊÂ¼ş¼àÌıÆ÷");
+            // è¾“å‡ºè­¦å‘Šä¿¡æ¯
+            Debug.LogWarning("æ‰è½ç®¡ç†å™¨æœªæ‰¾åˆ°ï¼Œæ— æ³•æ³¨å†Œäº‹ä»¶ç›‘å¬å™¨");
         }
     }
 
     /// <summary>
-    /// OnDestroy·½·¨ - ÔÚ¶ÔÏóÏú»ÙÊ±µ÷ÓÃ
+    /// OnDestroyæ–¹æ³• - åœ¨å¯¹è±¡é”€æ¯æ—¶è°ƒç”¨
     /// </summary>
     void OnDestroy()
     {
-        // È¡Ïû×¢²áµôÂäÊÂ¼ş - ¼ì²éµôÂä¹ÜÀíÆ÷ÊÇ·ñ´æÔÚ
+        // å–æ¶ˆæ³¨å†Œäº‹ä»¶ç›‘å¬ - æ£€æŸ¥æ‰è½ç®¡ç†å™¨æ˜¯å¦å­˜åœ¨
         if (DropManager.Instance != null)
         {
-            // È¡Ïû×¢²á½ğ±ÒÊÕ¼¯ÊÂ¼ş
+            // å–æ¶ˆæ³¨å†Œé‡‘å¸æ”¶é›†äº‹ä»¶
             DropManager.Instance.OnCoinCollected -= OnCoinCollected;
-            // È¡Ïû×¢²áÉúÃü»Ö¸´ÊÂ¼ş
+            // å–æ¶ˆæ³¨å†Œç”Ÿå‘½å€¼æ¢å¤äº‹ä»¶
             DropManager.Instance.OnHealthRestored -= OnHealthRestored;
-            // È¡Ïû×¢²áÄ§·¨»Ö¸´ÊÂ¼ş
+            // å–æ¶ˆæ³¨å†Œé­”æ³•å€¼æ¢å¤äº‹ä»¶
             DropManager.Instance.OnManaRestored -= OnManaRestored;
 
-            // Êä³öÈ¡Ïû×¢²áĞÅÏ¢
-            Debug.Log("µôÂäÊÂ¼ş¼àÌıÆ÷ÒÑÈ¡ÏûËùÓĞÊÂ¼ş×¢²á");
+            // è¾“å‡ºå–æ¶ˆæ³¨å†Œä¿¡æ¯
+            Debug.Log("æ‰è½äº‹ä»¶ç›‘å¬å™¨å·²å–æ¶ˆæ‰€æœ‰äº‹ä»¶æ³¨å†Œ");
         }
     }
 
     /// <summary>
-    /// ½ğ±ÒÊÕ¼¯ÊÂ¼ş´¦Àí·½·¨
+    /// é‡‘å¸æ”¶é›†äº‹ä»¶å¤„ç†å‡½æ•°
     /// </summary>
-    /// <param name="amount">ÊÕ¼¯µÄ½ğ±ÒÊıÁ¿</param>
+    /// <param name="amount">æ”¶é›†çš„é‡‘å¸æ•°é‡</param>
     private void OnCoinCollected(int amount)
     {
-        // ÔÚÕâÀïÁ¬½Óµ½ÄãµÄ½ğ±ÒÏµÍ³
-        Debug.Log("½ğ±ÒÏµÍ³: »ñµÃ " + amount + " ½ğ±Ò");
+        // è¿™é‡Œåº”è¯¥è¿æ¥åˆ°ç©å®¶çš„é‡‘å¸ç³»ç»Ÿ
+        Debug.Log("é‡‘å¸ç³»ç»Ÿ: è·å¾— " + amount + " é‡‘å¸");
 
-        // Ê¾Àı´úÂë - Äã¿ÉÒÔÔÚÕâÀïÁ¬½Óµ½Êµ¼ÊµÄ½ğ±ÒÏµÍ³£º
-        // Èç¹ûÓĞ½ğ±Ò¹ÜÀíÆ÷×é¼ş
+        // ç¤ºä¾‹ä»£ç  - å®é™…ä½¿ç”¨æ—¶åº”è¯¥è¿æ¥åˆ°çœŸå®çš„é‡‘å¸ç³»ç»Ÿ
+        // å¦‚æœæœ‰é‡‘å¸ç®¡ç†å™¨ç»„ä»¶
         // CoinManager coinManager = FindObjectOfType<CoinManager>();
         // if (coinManager != null) 
         // {
         //     coinManager.AddCoins(amount);
         // }
 
-        // »òÕßÈç¹û½ğ±Ò¹ÜÀíÆ÷ÊÇµ¥Àı£º
+        // æˆ–è€…ä½¿ç”¨å•ä¾‹æ¨¡å¼
         // CoinManager.Instance.AddCoins(amount);
     }
 
     /// <summary>
-    /// ÉúÃü»Ö¸´ÊÂ¼ş´¦Àí·½·¨
+    /// ç”Ÿå‘½å€¼æ¢å¤äº‹ä»¶å¤„ç†å‡½æ•°
     /// </summary>
-    /// <param name="amount">»Ö¸´µÄÉúÃüÖµÊıÁ¿</param>
+    /// <param name="amount">æ¢å¤çš„ç”Ÿå‘½å€¼æ•°é‡</param>
     private void OnHealthRestored(int amount)
     {
-        // ÔÚÕâÀïÁ¬½Óµ½ÄãµÄÉúÃüÖµÏµÍ³
-        Debug.Log("ÉúÃüÏµÍ³: »Ö¸´ " + amount + " ÉúÃüÖµ");
+        // è¿™é‡Œåº”è¯¥è¿æ¥åˆ°ç©å®¶çš„ç”Ÿå‘½å€¼ç³»ç»Ÿ
+        Debug.Log("ç”Ÿå‘½å€¼ç³»ç»Ÿ: æ¢å¤ " + amount + " ç”Ÿå‘½å€¼");
 
-        // Ê¾Àı´úÂë - Äã¿ÉÒÔÔÚÕâÀïÁ¬½Óµ½Êµ¼ÊµÄÉúÃüÖµÏµÍ³£º
-        // ²éÕÒÍæ¼ÒµÄÉúÃüÖµ×é¼ş
+        // ç¤ºä¾‹ä»£ç  - å®é™…ä½¿ç”¨æ—¶åº”è¯¥è¿æ¥åˆ°çœŸå®çš„ç”Ÿå‘½å€¼ç³»ç»Ÿ
+        // å¦‚æœç©å®¶çš„ç”Ÿå‘½å€¼ç»„ä»¶
         // HealthComponent health = GameObject.FindGameObjectWithTag("Player").GetComponent<HealthComponent>();
         // if (health != null) 
         // {
         //     health.Heal(amount);
         // }
 
-        // »òÕßÊ¹ÓÃÊÂ¼ş×ÜÏßÏµÍ³£º
+        // æˆ–è€…ä½¿ç”¨äº‹ä»¶æ€»çº¿ç³»ç»Ÿ
         // EventBus.Publish(new HealthRestoredEvent(amount));
     }
 
     /// <summary>
-    /// Ä§·¨»Ö¸´ÊÂ¼ş´¦Àí·½·¨
+    /// é­”æ³•å€¼æ¢å¤äº‹ä»¶å¤„ç†å‡½æ•°
     /// </summary>
-    /// <param name="amount">»Ö¸´µÄÄ§·¨ÖµÊıÁ¿</param>
+    /// <param name="amount">æ¢å¤çš„é­”æ³•å€¼æ•°é‡</param>
     private void OnManaRestored(int amount)
     {
-        // ÔÚÕâÀïÁ¬½Óµ½ÄãµÄÄ§·¨ÖµÏµÍ³
-        Debug.Log("Ä§·¨ÏµÍ³: »Ö¸´ " + amount + " Ä§·¨Öµ");
+        // è¿™é‡Œåº”è¯¥è¿æ¥åˆ°ç©å®¶çš„é­”æ³•å€¼ç³»ç»Ÿ
+        Debug.Log("é­”æ³•å€¼ç³»ç»Ÿ: æ¢å¤ " + amount + " é­”æ³•å€¼");
 
-        // Ê¾Àı´úÂë - Äã¿ÉÒÔÔÚÕâÀïÁ¬½Óµ½Êµ¼ÊµÄÄ§·¨ÖµÏµÍ³£º
-        // ²éÕÒÍæ¼ÒµÄÄ§·¨Öµ×é¼ş
+        // ç¤ºä¾‹ä»£ç  - å®é™…ä½¿ç”¨æ—¶åº”è¯¥è¿æ¥åˆ°çœŸå®çš„é­”æ³•å€¼ç³»ç»Ÿ
+        // å¦‚æœç©å®¶çš„é­”æ³•å€¼ç»„ä»¶
         // ManaComponent mana = GameObject.FindGameObjectWithTag("Player").GetComponent<ManaComponent>();
         // if (mana != null) 
         // {
         //     mana.RestoreMana(amount);
         // }
 
-        // »òÕßÊ¹ÓÃÏÖÓĞµÄAttribute×é¼ş£¨Èç¹ûÓĞµÄ»°£©£º
+        // æˆ–è€…ä½¿ç”¨ç°æœ‰çš„Attributeç»„ä»¶ï¼ˆå¦‚æœæœ‰çš„è¯ï¼‰
         // Attribute playerAttribute = GameObject.FindGameObjectWithTag("Player").GetComponent<Attribute>();
         // if (playerAttribute != null)
         // {
-        //     // ¼ÙÉèAttribute×é¼şÓĞ´¦ÀíÄ§·¨ÖµµÄ·½·¨
+        //     // éœ€è¦Attributeç»„ä»¶ä¸­å®ç°æ¢å¤é­”æ³•å€¼çš„æ–¹æ³•
         //     playerAttribute.RestoreMana(amount);
         // }
     }

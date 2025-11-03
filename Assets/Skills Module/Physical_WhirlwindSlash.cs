@@ -1,63 +1,63 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// Ðý·çÕ¶£ºÔ­µØ»·ÐÎ¶à¶ÎÎïÀíÉËº¦£»ÎïÀí=ÎÞÊÓ·ÀÓù£¬µÍ±©»÷
+/// ï¿½ï¿½ï¿½ï¿½Õ¶ï¿½ï¿½Ô­ï¿½Ø»ï¿½ï¿½Î¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½=ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ï¿½
 /// </summary>
 public class SM_Physical_WhirlwindSlash : SM_BaseSkill
 {
-    [Header("Ðý·çÕ¶²ÎÊý")]
-    public float radius = 2.5f;      // ×÷ÓÃ°ë¾¶
-    public int ticks = 5;            // ÉËº¦¶ÎÊý
-    public float totalTime = 0.8f;   // Õû¸öÐý×ª³ÖÐøÊ±¼ä
-    public float damagePerTick = 8f; // Ã¿¶ÎÉËº¦
-    public LayerMask enemyMask;      // µÐÈËÍ¼²ã
+    [Header("ï¿½ï¿½ï¿½ï¿½Õ¶ï¿½ï¿½ï¿½ï¿½")]
+    public float radius = 2.5f;      // ï¿½ï¿½ï¿½Ã°ë¾¶
+    public int ticks = 5;            // ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½
+    public float totalTime = 0.8f;   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    public float damagePerTick = 8f; // Ã¿ï¿½ï¿½ï¿½Ëºï¿½
+    public LayerMask enemyMask;      // ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 
-    private float _tk;               // ¼ÆÊ±Æ÷
-    private int _done;               // ÒÑ´¥·¢¶ÎÊý
-    private bool _active;            // ÊÇ·ñ½øÐÐÖÐ
+    private float _tk;               // ï¿½ï¿½Ê±ï¿½ï¿½
+    private int _done;               // ï¿½Ñ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    private bool _active;            // ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    protected override bool DoCast() // ¿ªÊ¼Ê©·Å
+    protected override bool DoCast() // ï¿½ï¿½Ê¼Ê©ï¿½ï¿½
     {
-        _active = true;              // ¼¤»îÐý·ç
-        _tk = 0f;                    // ÖØÖÃÊ±¼ä
-        _done = 0;                   // ÖØÖÃ¶ÎÊý
-        return true;                 // ³É¹¦
+        _active = true;              // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        _tk = 0f;                    // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+        _done = 0;                   // ï¿½ï¿½ï¿½Ã¶ï¿½ï¿½ï¿½
+        return true;                 // ï¿½É¹ï¿½
     }
 
-    public override void Tick(float dt) // ¸²¸Ç¸¸Àà Tick ÒÔÊµÏÖ³ÖÐø¶à¶ÎÉËº¦
+    public override void Tick(float dt) // ï¿½ï¿½ï¿½Ç¸ï¿½ï¿½ï¿½ Tick ï¿½ï¿½Êµï¿½Ö³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
     {
-        base.Tick(dt);               // ÏÈ´¦ÀíÀäÈ´µ¹¼ÆÊ±
-        if (!_active) return;        // Î´¼¤»îÖ±½Ó·µ»Ø
+        base.Tick(dt);               // ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½ï¿½ï¿½Ê±
+        if (!_active) return;        // Î´ï¿½ï¿½ï¿½ï¿½Ö±ï¿½Ó·ï¿½ï¿½ï¿½
 
-        _tk += dt;                   // µÝÔö¼ÆÊ±
-        float interval = totalTime / Mathf.Max(1, ticks); // Ã¿¶Î¼ä¸ô
-        if (_done < ticks && _tk >= (_done + 1) * interval) // µ½´ïÏÂÒ»¶Î´¥·¢µã
+        _tk += dt;                   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±
+        float interval = totalTime / Mathf.Max(1, ticks); // Ã¿ï¿½Î¼ï¿½ï¿½
+        if (_done < ticks && _tk >= (_done + 1) * interval) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Î´ï¿½ï¿½ï¿½ï¿½ï¿½
         {
-            _done++;                  // ¶ÎÊý+1
-            // ÒÔ½ÇÉ«ÎªÔ²ÐÄËÑË÷µÐÈË
+            _done++;                  // ï¿½ï¿½ï¿½ï¿½+1
+            // ï¿½Ô½ï¿½É«ÎªÔ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             var hits = Physics2D.OverlapCircleAll(character.AimOrigin.position, radius, enemyMask);
-            foreach (var h in hits)   // ±éÀúÃüÖÐµÄµÐÈË
+            foreach (var h in hits)   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÐµÄµï¿½ï¿½ï¿½
             {
-                var dmg = h.GetComponent<SM_IDamageable>(); // »ñÈ¡ÊÜÉË½Ó¿Ú
-                if (dmg != null)       // ¿ÉÊÜÉËÔòÔì³ÉÉËº¦
+                var dmg = h.GetComponent<SM_IDamageable>(); // ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ë½Ó¿ï¿½
+                if (dmg != null)       // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
                 {
                     dmg.ApplyDamage(new SM_DamageInfo
                     {
-                        Amount = damagePerTick,            // Ã¿¶ÎÉËº¦
-                        Element = SM_Element.Physical,     // ÎïÀíÔªËØ
-                        IgnoreDefense = true,              // ÎÞÊÓ·ÀÓù
-                        CritChance = 0.1f,                 // µÍ±©»÷
-                        CritMultiplier = 1.5f              // ±©»÷±¶Êý
+                        Amount = damagePerTick,            // Ã¿ï¿½ï¿½ï¿½Ëºï¿½
+                        Element = SM_Element.Physical,     // ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½
+                        IgnoreDefense = true,              // ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
+                        CritChance = 0.1f,                 // ï¿½Í±ï¿½ï¿½ï¿½
+                        CritMultiplier = 1.5f              // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     });
                 }
             }
         }
-        if (_tk >= totalTime) _active = false; // ½áÊø
+        if (_tk >= totalTime) _active = false; // ï¿½ï¿½ï¿½ï¿½
     }
 
-    private void OnDrawGizmosSelected() // ±à¼­Æ÷·¶Î§¿ÉÊÓ»¯
+    private void OnDrawGizmosSelected() // ï¿½à¼­ï¿½ï¿½ï¿½ï¿½Î§ï¿½ï¿½ï¿½Ó»ï¿½
     {
-        Gizmos.color = Color.red;       // ºìÉ«Ïß¿ò
+        Gizmos.color = Color.red;       // ï¿½ï¿½É«ï¿½ß¿ï¿½
         Gizmos.DrawWireSphere(transform.position, radius);
     }
 }

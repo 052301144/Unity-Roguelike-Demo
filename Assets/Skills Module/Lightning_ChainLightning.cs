@@ -1,70 +1,70 @@
-using UnityEngine;                // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine;                // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 using System.Collections.Generic; // HashSet/List
 
 /// <summary>
-/// ÉÁµçÁ´£º´ÓµÚÒ»¸öÇ°·½Ä¿±ê¿ªÊ¼£¬Ïò½üÁÚÄ¿±êÌøÔ¾ N ´Î
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½Ò»ï¿½ï¿½Ç°ï¿½ï¿½Ä¿ï¿½ê¿ªÊ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½Ô¾ N ï¿½ï¿½
 /// </summary>
 public class SM_Lightning_ChainLightning : SM_BaseSkill
 {
-    [Header("ÉÁµçÁ´²ÎÊý")]
-    public float firstRange = 6f;     // µÚÒ»¸öÄ¿±êËÑË÷·¶Î§
-    public float jumpRange = 5f;      // ÌøÔ¾·¶Î§£¨ÏÂÒ»ÌøÔÚ¸Ã·¶Î§ÄÚ£©
-    public int maxJumps = 4;          // ×î´óÌøÔ¾´ÎÊý£¨ÃüÖÐÄ¿±êÊý=ÌøÊý+1£©
-    public float damage = 14f;        // Ã¿´ÎÃüÖÐµÄÉËº¦
-    public LayerMask enemyMask;       // µÐÈËÍ¼²ã
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public float firstRange = 6f;     // ï¿½ï¿½Ò»ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î§
+    public float jumpRange = 5f;      // ï¿½ï¿½Ô¾ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ú¸Ã·ï¿½Î§ï¿½Ú£ï¿½
+    public int maxJumps = 4;          // ï¿½ï¿½ï¿½ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½=ï¿½ï¿½ï¿½ï¿½+1ï¿½ï¿½
+    public float damage = 14f;        // Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½Ëºï¿½
+    public LayerMask enemyMask;       // ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 
     protected override bool DoCast()
     {
-        var origin = (Vector2)character.AimOrigin.position;    // ÊÍ·ÅÔ­µã
-        var dir = character.AimDirection.normalized;           // Ãæ³¯·½Ïò
+        var origin = (Vector2)character.AimOrigin.position;    // ï¿½Í·ï¿½Ô­ï¿½ï¿½
+        var dir = character.AimDirection.normalized;           // ï¿½æ³¯ï¿½ï¿½ï¿½ï¿½
 
-        // 1) ÕÒµÚÒ»¸öÄ¿±ê£ºÒªÇóÔÚ firstRange ÄÚ¡¢ÇÒ¾¡Á¿ºÍÇ°·½·½Ïò¼Ð½ÇÐ¡
-        Collider2D first = null;                               // µÚÒ»¸öÄ¿±ê
-        float bestDot = 0.5f;                                  // ÖÁÉÙ³¯Ïò¶ÈãÐÖµ£¨>0.5 ¼´¼Ð½Ç < ~60¡ã£©
-        var cands = Physics2D.OverlapCircleAll(origin, firstRange, enemyMask); // ºòÑ¡
+        // 1) ï¿½Òµï¿½Ò»ï¿½ï¿½Ä¿ï¿½ê£ºÒªï¿½ï¿½ï¿½ï¿½ firstRange ï¿½Ú¡ï¿½ï¿½Ò¾ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½Ð¡
+        Collider2D first = null;                               // ï¿½ï¿½Ò»ï¿½ï¿½Ä¿ï¿½ï¿½
+        float bestDot = 0.5f;                                  // ï¿½ï¿½ï¿½Ù³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½>0.5 ï¿½ï¿½ï¿½Ð½ï¿½ < ~60ï¿½ã£©
+        var cands = Physics2D.OverlapCircleAll(origin, firstRange, enemyMask); // ï¿½ï¿½Ñ¡
         foreach (var c in cands)
         {
-            var v = ((Vector2)c.transform.position - origin).normalized; // Ö¸Ïò·½Ïò
-            var d = Vector2.Dot(dir, v);                                 // ÓëÇ°·½¼Ð½ÇÓàÏÒ
-            if (d > bestDot) { bestDot = d; first = c; }                 // Ñ¡¸ü¿¿Ç°µÄ
+            var v = ((Vector2)c.transform.position - origin).normalized; // Ö¸ï¿½ï¿½ï¿½ï¿½
+            var d = Vector2.Dot(dir, v);                                 // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ï¿½
+            if (d > bestDot) { bestDot = d; first = c; }                 // Ñ¡ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½
         }
-        if (first == null) return false;                                 // ÕÒ²»µ½ÔòÊ§°Ü£¨²»ºÄÀäÈ´/²»ÔÙ¿ÛÀ¶£¬ÒòÎªÒÑ¿ÛÀ¶£©
+        if (first == null) return false;                                 // ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´/ï¿½ï¿½ï¿½Ù¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½Ñ¿ï¿½ï¿½ï¿½ï¿½ï¿½
 
-        // 2) ÖðÌø£ºÃ¿´Î¶Ô current Ôì³ÉÉËº¦£¬È»ºó´ÓÆä¸½½üÕÒÏÂÒ»¸öÎ´·ÃÎÊÄ¿±ê
-        var visited = new HashSet<Collider2D>();                         // ±ÜÃâÖØ¸´ÃüÖÐ
-        var current = first;                                             // µ±Ç°Ä¿±ê
-        for (int i = 0; i < maxJumps + 1 && current != null; i++)        // ÃüÖÐ´ÎÊý=ÌøÊý+1
+        // 2) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½Î¶ï¿½ current ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½È»ï¿½ï¿½ï¿½ï¿½ä¸½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½
+        var visited = new HashSet<Collider2D>();                         // ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½
+        var current = first;                                             // ï¿½ï¿½Ç°Ä¿ï¿½ï¿½
+        for (int i = 0; i < maxJumps + 1 && current != null; i++)        // ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½=ï¿½ï¿½ï¿½ï¿½+1
         {
-            if (visited.Contains(current)) break;                        // ÒÑÃüÖÐÔòÍË³ö
-            visited.Add(current);                                        // ±ê¼ÇÃüÖÐ
-            var dmg = current.GetComponent<SM_IDamageable>();            // ÊÜÉË½Ó¿Ú
+            if (visited.Contains(current)) break;                        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½
+            visited.Add(current);                                        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            var dmg = current.GetComponent<SM_IDamageable>();            // ï¿½ï¿½ï¿½Ë½Ó¿ï¿½
             if (dmg != null)
             {
                 dmg.ApplyDamage(new SM_DamageInfo
                 {
-                    Amount = damage,                 // Ã¿ÌøÉËº¦
-                    Element = SM_Element.Lightning,  // À×ÔªËØ
-                    IgnoreDefense = false,           // ²»ÎÞÊÓ·ÀÓù
-                    CritChance = 0f,                 // ÎÞ±©»÷
-                    CritMultiplier = 1f              // ±¶ÂÊ
+                    Amount = damage,                 // Ã¿ï¿½ï¿½ï¿½Ëºï¿½
+                    Element = SM_Element.Lightning,  // ï¿½ï¿½Ôªï¿½ï¿½
+                    IgnoreDefense = false,           // ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
+                    CritChance = 0f,                 // ï¿½Þ±ï¿½ï¿½ï¿½
+                    CritMultiplier = 1f              // ï¿½ï¿½ï¿½ï¿½
                 });
             }
-            current = FindNextTarget(current.transform.position, visited); // ²éÕÒÏÂÒ»Ìø
+            current = FindNextTarget(current.transform.position, visited); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
         }
-        return true;                                                      // ³É¹¦
+        return true;                                                      // ï¿½É¹ï¿½
     }
 
     private Collider2D FindNextTarget(Vector2 from, HashSet<Collider2D> visited)
     {
-        var targets = Physics2D.OverlapCircleAll(from, jumpRange, enemyMask); // Ñ°ÕÒ jumpRange ÄÚµÄÄ¿±ê
-        float closest = float.MaxValue;                                       // ×î½ü¾àÀë
-        Collider2D best = null;                                               // ×î¼ÑÄ¿±ê
+        var targets = Physics2D.OverlapCircleAll(from, jumpRange, enemyMask); // Ñ°ï¿½ï¿½ jumpRange ï¿½Úµï¿½Ä¿ï¿½ï¿½
+        float closest = float.MaxValue;                                       // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        Collider2D best = null;                                               // ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½
         foreach (var t in targets)
         {
-            if (visited.Contains(t)) continue;                                // Ìø¹ýÒÑÃüÖÐÄ¿±ê
-            float dist = Vector2.Distance(from, t.transform.position);        // ¾àÀë
-            if (dist < closest) { closest = dist; best = t; }                 // È¡×î½ü
+            if (visited.Contains(t)) continue;                                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½
+            float dist = Vector2.Distance(from, t.transform.position);        // ï¿½ï¿½ï¿½ï¿½
+            if (dist < closest) { closest = dist; best = t; }                 // È¡ï¿½ï¿½ï¿½
         }
-        return best;                                                          // ·µ»Ø×î½üÄ¿±ê£¨¿ÉÄÜÎª¿Õ£©
+        return best;                                                          // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ê£¨ï¿½ï¿½ï¿½ï¿½Îªï¿½Õ£ï¿½
     }
 }

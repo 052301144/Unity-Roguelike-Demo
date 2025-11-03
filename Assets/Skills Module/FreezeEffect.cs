@@ -1,21 +1,21 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// ¶³½áÐ§¹û£¨½ö¸ºÔð¼ÆÊ±£»ÕæÕýµÄ¡°Í£ÐÐ¶¯×÷¡±Áô¸øÄãÃÇµÐÈË½Å±¾×ÔÐÐ¶ÁÈ¡ IsFrozen À´´¦Àí£©
-/// ÕâÑù¿ÉÒÔ×öµ½²»ÐÞ¸ÄÄãÃÇµÐÈËÄ£¿éµÄÇ°ÌáÏÂ£¬±£ÁôÀ©Õ¹µã¡£
+/// ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡ï¿½Í£ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Çµï¿½ï¿½Ë½Å±ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½È¡ IsFrozen ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½Çµï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¹ï¿½ã¡£
 /// </summary>
 public class SM_FreezeEffect : MonoBehaviour, SM_IFreezable
 {
-    private float _remain;                // Ê£Óà¶³½áÊ±¼ä
-    public bool IsFrozen => _remain > 0f; // Íâ²¿¿É¶Á£ºÊÇ·ñ¶³½áÖÐ
+    private float _remain;                // Ê£ï¿½à¶³ï¿½ï¿½Ê±ï¿½ï¿½
+    public bool IsFrozen => _remain > 0f; // ï¿½â²¿ï¿½É¶ï¿½ï¿½ï¿½ï¿½Ç·ñ¶³½ï¿½ï¿½ï¿½
 
-    public void Freeze(float duration)    // ÊµÏÖ½Ó¿Ú£ºÊ©¼Ó¶³½á
+    public void Freeze(float duration)    // Êµï¿½Ö½Ó¿Ú£ï¿½Ê©ï¿½Ó¶ï¿½ï¿½ï¿½
     {
-        _remain = Mathf.Max(_remain, duration); // Ë¢ÐÂ³ÖÐøÊ±¼ä£¨È¡¸ü³¤£©
+        _remain = Mathf.Max(_remain, duration); // Ë¢ï¿½Â³ï¿½ï¿½ï¿½Ê±ï¿½ä£¨È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 
     private void Update()
     {
-        if (_remain > 0f) _remain -= Time.deltaTime; // ¶³½áÊ±¼äµÝ¼õ
+        if (_remain > 0f) _remain -= Time.deltaTime; // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ý¼ï¿½
     }
 }

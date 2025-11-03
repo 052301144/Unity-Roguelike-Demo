@@ -1,41 +1,41 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// È¼ÉÕ³ÖÐøÉËº¦£¨µÐÈË¿ÉÑ¡¸´ÓÃ£©
-/// ÈôµÐÈËÃ»ÓÐÊµÏÖ SM_IDamageable£¬Ôò±¾Ð§¹û²»»áÉúÐ§£¬µ«²»»á±¨´í¡£
+/// È¼ï¿½Õ³ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¿ï¿½Ñ¡ï¿½ï¿½ï¿½Ã£ï¿½
+/// ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Êµï¿½ï¿½ SM_IDamageableï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á±¨ï¿½ï¿½ï¿½
 /// </summary>
 public class SM_BurnEffect : MonoBehaviour
 {
-    private float _remain; // Ê£Óà³ÖÐøÊ±¼ä
-    private float _dps;    // Ã¿ÃëÉËº¦
-    private float _tick;   // Ã¿Ãë½áËã¼ÆÊ±Æ÷
+    private float _remain; // Ê£ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    private float _dps;    // Ã¿ï¿½ï¿½ï¿½Ëºï¿½
+    private float _tick;   // Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
 
-    /// <summary>Ê©¼ÓÈ¼ÉÕ</summary>
+    /// <summary>Ê©ï¿½ï¿½È¼ï¿½ï¿½</summary>
     public void Apply(float dps, float duration)
     {
-        _dps = dps;                                      // ¼ÇÂ¼Ã¿ÃëÉËº¦
-        _remain = Mathf.Max(_remain, duration);          // µþ¼ÓË¢ÐÂ³ÖÐøÊ±¼ä£¨È¡¸ü³¤£©
+        _dps = dps;                                      // ï¿½ï¿½Â¼Ã¿ï¿½ï¿½ï¿½Ëºï¿½
+        _remain = Mathf.Max(_remain, duration);          // ï¿½ï¿½ï¿½ï¿½Ë¢ï¿½Â³ï¿½ï¿½ï¿½Ê±ï¿½ä£¨È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 
     private void Update()
     {
-        if (_remain <= 0f) return;                       // Ã»ÓÐÈ¼ÉÕÔò·µ»Ø
-        _remain -= Time.deltaTime;                       // ³ÖÐøÊ±¼äµÝ¼õ
-        _tick += Time.deltaTime;                         // Ã¿Ãë¼ÆÊ±
+        if (_remain <= 0f) return;                       // Ã»ï¿½ï¿½È¼ï¿½ï¿½ï¿½ò·µ»ï¿½
+        _remain -= Time.deltaTime;                       // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ý¼ï¿½
+        _tick += Time.deltaTime;                         // Ã¿ï¿½ï¿½ï¿½Ê±
 
-        if (_tick >= 1f)                                 // Ã¿Ãë´¥·¢Ò»´Î
+        if (_tick >= 1f)                                 // Ã¿ï¿½ë´¥ï¿½ï¿½Ò»ï¿½ï¿½
         {
-            _tick = 0f;                                  // ÖØÖÃÃë¼ä¸ô
-            var dmg = GetComponent<SM_IDamageable>();    // »ñÈ¡¿ÉÊÜÉË½Ó¿Ú
-            if (dmg != null)                             // ´æÔÚÔòÔì³ÉÉËº¦
+            _tick = 0f;                                  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            var dmg = GetComponent<SM_IDamageable>();    // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ë½Ó¿ï¿½
+            if (dmg != null)                             // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
             {
                 dmg.ApplyDamage(new SM_DamageInfo
                 {
-                    Amount = _dps,                       // ±¾ÃëÉËº¦
-                    Element = SM_Element.Fire,           // »ðÔªËØ
-                    IgnoreDefense = false,               // ³ÖÐøÉËº¦²»ÎÞÊÓ·ÀÓù
-                    CritChance = 0f,                     // ÎÞ±©»÷
-                    CritMultiplier = 1f                  // ±¶ÂÊ1
+                    Amount = _dps,                       // ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
+                    Element = SM_Element.Fire,           // ï¿½ï¿½Ôªï¿½ï¿½
+                    IgnoreDefense = false,               // ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
+                    CritChance = 0f,                     // ï¿½Þ±ï¿½ï¿½ï¿½
+                    CritMultiplier = 1f                  // ï¿½ï¿½ï¿½ï¿½1
                 });
             }
         }

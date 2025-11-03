@@ -1,116 +1,116 @@
-using System.Collections.Generic; // ÒıÈë¼¯ºÏÀàÃüÃû¿Õ¼ä
-using UnityEngine; // ÒıÈëUnityÒıÇæÃüÃû¿Õ¼ä
+ï»¿using System.Collections.Generic; // å¼•å…¥é›†åˆå‘½åç©ºé—´
+using UnityEngine; // å¼•å…¥Unityå¼•æ“å‘½åç©ºé—´
 
 /// <summary>
-/// µôÂäÅäÖÃ±í - ¶¨ÒåµĞÈË¿ÉÒÔµôÂäµÄËùÓĞÎïÆ·¼°Æä¸ÅÂÊ
+/// æ‰è½è¡¨é…ç½® - å®šä¹‰äº†æ•Œäººå¯ä»¥æ‰è½çš„ç‰©å“æ•°æ®åˆ—è¡¨
 /// </summary>
 
     [CreateAssetMenu(fileName = "NewDropTable", menuName = "Roguelike/Drop Table")]
-    // ÉÏÃæÕâĞĞ´úÂë»áÔÚUnityµÄCreate²Ëµ¥ÖĞÌí¼Ó´´½¨µôÂä±íµÄÑ¡Ïî
-    public class DropTable : ScriptableObject // ¼Ì³Ğ×ÔScriptableObject£¬¿ÉÒÔ×÷Îª×ÊÔ´ÎÄ¼ş±£´æ
+    // è¿™è¡Œä»£ç å…è®¸åœ¨Unityçš„Createèœå•ä¸­æ·»åŠ åˆ›å»ºé€‰é¡¹
+    public class DropTable : ScriptableObject // ç»§æ‰¿è‡ªScriptableObjectï¼Œå¯ä»¥ä½œä¸ºèµ„æºæ–‡ä»¶ä½¿ç”¨
 {
-    [Header("»ù´¡ÉèÖÃ")] // »ù´¡ÉèÖÃ·Ö×é
-    public string enemyName;              // Ê¹ÓÃÕâ¸öµôÂä±íµÄµĞÈËÃû³Æ
-    public int minTotalDrops = 1;         // Ã¿´ÎµôÂäµÄ×îĞ¡ÎïÆ·×ÜÊı
-    public int maxTotalDrops = 3;         // Ã¿´ÎµôÂäµÄ×î´óÎïÆ·×ÜÊı
+    [Header("åŸºæœ¬ä¿¡æ¯")] // åŸºæœ¬ä¿¡æ¯é…ç½®éƒ¨åˆ†
+    public string enemyName;              // ä½¿ç”¨æ­¤æ‰è½è¡¨çš„æ•Œäººåç§°
+    public int minTotalDrops = 1;         // æ¯æ¬¡æ‰è½çš„æœ€å°ç‰©å“æ•°
+    public int maxTotalDrops = 3;         // æ¯æ¬¡æ‰è½çš„æœ€å¤§ç‰©å“æ•°
 
-    [Header("µôÂäÎïÆ·ÁĞ±í")] // ¿ÉµôÂäÎïÆ·ÁĞ±í·Ö×é
-    public List<DropItem> possibleDrops = new List<DropItem>(); // ËùÓĞ¿ÉÄÜµôÂäµÄÎïÆ·ÁĞ±í
+    [Header("å¯æ‰è½ç‰©å“åˆ—è¡¨")] // å¯æ‰è½ç‰©å“åˆ—è¡¨éƒ¨åˆ†
+    public List<DropItem> possibleDrops = new List<DropItem>(); // æ‰€æœ‰å¯èƒ½çš„æ‰è½ç‰©å“åˆ—è¡¨
 
-    [Header("½ğ±ÒµôÂäÉèÖÃ")] // ½ğ±ÒÌØÊâÉèÖÃ·Ö×é
-    public bool alwaysDropCoin = true;    // ÊÇ·ñ×ÜÊÇ³¢ÊÔµôÂä½ğ±Ò
-    public int minCoins = 1;              // ×îĞ¡½ğ±ÒÊıÁ¿
-    public int maxCoins = 5;              // ×î´ó½ğ±ÒÊıÁ¿
-    public float coinDropChance = 0.8f;   // ½ğ±ÒµôÂä¸ÅÂÊ
+    [Header("é‡‘å¸è®¾ç½®")] // é‡‘å¸ç›¸å…³é…ç½®éƒ¨åˆ†
+    public bool alwaysDropCoin = true;    // æ˜¯å¦æ€»æ˜¯å°è¯•æ‰è½é‡‘å¸
+    public int minCoins = 1;              // æœ€å°é‡‘å¸æ•°
+    public int maxCoins = 5;              // æœ€å¤§é‡‘å¸æ•°
+    public float coinDropChance = 0.8f;   // é‡‘å¸æ‰è½æ¦‚ç‡
 
     /// <summary>
-    /// »ñÈ¡Ëæ»úµôÂäÎïÆ·ÁĞ±í
+    /// è·å–éšæœºæ‰è½ç‰©å“åˆ—è¡¨
     /// </summary>
-    /// <returns>±¾´ÎÓ¦¸ÃµôÂäµÄÎïÆ·ÁĞ±í</returns>
+    /// <returns>åº”è¯¥æ‰è½çš„ç‰©å“åˆ—è¡¨</returns>
     public List<DropItem> GetRandomDrops()
     {
-        // ´´½¨¿ÕµÄµôÂäÁĞ±í
+        // åˆ›å»ºç©ºçš„æ‰è½åˆ—è¡¨
         List<DropItem> drops = new List<DropItem>();
 
-        // ¼ÆËã±¾´ÎµôÂäµÄ×ÜÎïÆ·ÊıÁ¿£¨²»°üÀ¨½ğ±Ò£©
+        // è®¡ç®—æœ¬æ¬¡æ‰è½çš„ç‰©å“æ•°é‡ï¼ˆéšæœºæ•°ï¼Œä¸åŒ…æ‹¬é‡‘å¸ï¼‰
         int totalDrops = Random.Range(minTotalDrops, maxTotalDrops + 1);
 
-        // Ëæ»úÑ¡ÔñµôÂäÎïÆ·£¨Ö»Ñ¡ÔñÉúÃüºÍÄ§·¨ÎïÆ·£¬²»°üÀ¨½ğ±Ò£©
+        // éšæœºé€‰æ‹©æ‰è½ç‰©å“ï¼ˆåªé€‰æ‹©éé‡‘å¸å’Œé­”æ³•ç‰©å“ï¼Œä¸åŒ…æ‹¬é‡‘å¸ï¼‰
         for (int i = 0; i < totalDrops && possibleDrops.Count > 0; i++)
         {
-            // ´Ó¿ÉÄÜµôÂäÁĞ±íÖĞËæ»úÑ¡ÔñÒ»¸öÎïÆ·
+            // ä»å¯èƒ½çš„æ‰è½åˆ—è¡¨ä¸­éšæœºé€‰æ‹©ä¸€ä¸ªç‰©å“
             DropItem randomItem = possibleDrops[Random.Range(0, possibleDrops.Count)];
-            // ¼ì²éÊÇ·ñÓ¦¸ÃµôÂäÇÒ²»ÊÇ½ğ±ÒÀàĞÍ
+            // æ£€æŸ¥æ˜¯å¦åº”è¯¥æ‰è½ä¸”ä¸æ˜¯é‡‘å¸ç±»å‹
             if (randomItem.ShouldDrop() && randomItem.itemType != DropItemType.Coin)
             {
-                // Ìí¼Óµ½µôÂäÁĞ±í
+                // æ·»åŠ åˆ°æ‰è½åˆ—è¡¨
                 drops.Add(randomItem);
             }
         }
 
-        // ¼ì²éÊÇ·ñĞèÒªµôÂä½ğ±Ò
+        // æ£€æŸ¥æ˜¯å¦éœ€è¦æ‰è½é‡‘å¸
         if (alwaysDropCoin && Random.value <= coinDropChance)
         {
-            // ´´½¨½ğ±ÒµôÂäÏî
+            // åˆ›å»ºé‡‘å¸æ‰è½å¯¹è±¡
             DropItem coinDrop = new DropItem();
-            coinDrop.itemName = "½ğ±Ò";           // ÉèÖÃÎïÆ·Ãû³Æ
-            coinDrop.itemType = DropItemType.Coin; // ÉèÖÃÎïÆ·ÀàĞÍÎª½ğ±Ò
-            coinDrop.minQuantity = minCoins;      // ÉèÖÃ×îĞ¡ÊıÁ¿
-            coinDrop.maxQuantity = maxCoins;      // ÉèÖÃ×î´óÊıÁ¿
-            coinDrop.dropChance = 1f;             // ½ğ±Ò×ÜÊÇµôÂä
+            coinDrop.itemName = "é‡‘å¸";           // è®¾ç½®ç‰©å“åç§°
+            coinDrop.itemType = DropItemType.Coin; // è®¾ç½®ç‰©å“ç±»å‹ä¸ºé‡‘å¸
+            coinDrop.minQuantity = minCoins;      // è®¾ç½®æœ€å°é‡‘å¸æ•°
+            coinDrop.maxQuantity = maxCoins;      // è®¾ç½®æœ€å¤§é‡‘å¸æ•°
+            coinDrop.dropChance = 1f;             // è®¾ç½®ä¸ºå¿…å®šæ‰è½
 
-            // ´Ó¿ÉÄÜµôÂäÁĞ±íÖĞ²éÕÒ½ğ±ÒÔ¤ÖÆÌåºÍÍ¼±ê
+            // ä»å¯èƒ½çš„æ‰è½åˆ—è¡¨ä¸­æŸ¥æ‰¾é‡‘å¸é¢„åˆ¶ä½“å’Œå›¾æ ‡
             foreach (var drop in possibleDrops)
             {
                 if (drop.itemType == DropItemType.Coin)
                 {
-                    // ¸´ÖÆ½ğ±ÒµÄÔ¤ÖÆÌåºÍÍ¼±ê
+                    // å¤åˆ¶é‡‘å¸çš„é¢„åˆ¶ä½“å’Œå›¾æ ‡
                     coinDrop.itemPrefab = drop.itemPrefab;
                     coinDrop.itemIcon = drop.itemIcon;
-                    break; // ÕÒµ½ºó¾ÍÍË³öÑ­»·
+                    break; // æ‰¾åˆ°åé€€å‡ºå¾ªç¯
                 }
             }
 
-            // ½«½ğ±ÒÌí¼Óµ½µôÂäÁĞ±í
+            // å°†é‡‘å¸æ·»åŠ åˆ°æ‰è½åˆ—è¡¨
             drops.Add(coinDrop);
         }
 
-        // ·µ»Ø×îÖÕµÄµôÂäÁĞ±í
+        // è¿”å›æœ€ç»ˆçš„æ‰è½åˆ—è¡¨
         return drops;
     }
 
     /// <summary>
-    /// »ñÈ¡ÌØ¶¨ÀàĞÍµÄµôÂäÎïÆ·
+    /// è·å–ç‰¹å®šç±»å‹çš„æ‰è½ç‰©å“
     /// </summary>
-    /// <param name="type">Òª²éÕÒµÄÎïÆ·ÀàĞÍ</param>
-    /// <returns>¸ÃÀàĞÍµÄËùÓĞÎïÆ·ÁĞ±í</returns>
+    /// <param name="type">è¦æŸ¥æ‰¾çš„ç‰©å“ç±»å‹</param>
+    /// <returns>è¯¥ç±»å‹çš„æ‰è½ç‰©å“åˆ—è¡¨</returns>
     public List<DropItem> GetDropsByType(DropItemType type)
     {
-        // Ê¹ÓÃFindAll·½·¨²éÕÒËùÓĞÆ¥ÅäÀàĞÍµÄÎïÆ·
+        // ä½¿ç”¨FindAllæ–¹æ³•ç­›é€‰å‡ºåŒ¹é…ç±»å‹çš„ç‰©å“
         return possibleDrops.FindAll(item => item.itemType == type);
     }
 
     /// <summary>
-    /// ÑéÖ¤µôÂä±íÅäÖÃÊÇ·ñÕıÈ·
+    /// éªŒè¯æ‰è½è¡¨é…ç½®æ˜¯å¦æ­£ç¡®
     /// </summary>
     public void ValidateTable()
     {
-        // ±éÀúËùÓĞ¿ÉÄÜµôÂäµÄÎïÆ·
+        // éå†æ‰€æœ‰å¯èƒ½çš„æ‰è½ç‰©å“
         foreach (var drop in possibleDrops)
         {
-            // ¼ì²éÔ¤ÖÆÌåÊÇ·ñÉèÖÃ
+            // æ£€æŸ¥é¢„åˆ¶ä½“æ˜¯å¦ä¸ºç©º
             if (drop.itemPrefab == null)
             {
-                // Êä³ö¾¯¸æĞÅÏ¢
-                Debug.LogWarning("µôÂä±íÖĞ´æÔÚÎ´ÉèÖÃÔ¤ÖÆÌåµÄÎïÆ·: " + drop.itemName);
+                // è¾“å‡ºè­¦å‘Šä¿¡æ¯
+                Debug.LogWarning("æ‰è½è¡¨ä¸­å­˜åœ¨æœªè®¾ç½®é¢„åˆ¶ä½“çš„ç‰©å“: " + drop.itemName);
             }
 
-            // ¼ì²éÊıÁ¿ÉèÖÃÊÇ·ñºÏÀí
+            // æ£€æŸ¥æ•°é‡èŒƒå›´æ˜¯å¦æ­£ç¡®
             if (drop.minQuantity > drop.maxQuantity)
             {
-                // Êä³ö¾¯¸æ²¢×Ô¶¯ĞŞÕı
-                Debug.LogWarning("ÎïÆ· " + drop.itemName + " µÄ×îĞ¡ÊıÁ¿´óÓÚ×î´óÊıÁ¿£¬ÒÑ×Ô¶¯ĞŞÕı");
-                drop.maxQuantity = drop.minQuantity; // ½«×î´óÊıÁ¿ÉèÖÃÎª×îĞ¡ÊıÁ¿
+                // è¾“å‡ºè­¦å‘Šå¹¶è‡ªåŠ¨ä¿®å¤
+                Debug.LogWarning("ç‰©å“ " + drop.itemName + " çš„æœ€å°æ•°é‡å¤§äºæœ€å¤§æ•°é‡ï¼Œå·²è‡ªåŠ¨ä¿®å¤");
+                drop.maxQuantity = drop.minQuantity; // å°†æœ€å¤§æ•°é‡è®¾ä¸ºæœ€å°æ•°é‡
             }
         }
     }

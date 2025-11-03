@@ -1,26 +1,26 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 public class QuitGameManager : MonoBehaviour
 {
-    [Header("ÍË³ö°´Å¥")]
+    [Header("é€€å‡ºæŒ‰é’®")]
     public Button quitButton;
 
     void Start()
     {
-        // Èç¹ûÃ»ÓĞÖ¸¶¨°´Å¥£¬×Ô¶¯²éÕÒ
+        // å¦‚æœæ²¡æœ‰æŒ‡å®šæŒ‰é’®ï¼Œè‡ªåŠ¨æŸ¥æ‰¾
         if (quitButton == null)
         {
-            quitButton = GameObject.Find("ÍË³öÓÎÏ·Button")?.GetComponent<Button>();
-            // »òÕß¸ù¾İÎÄ×Ö²éÕÒ
+            quitButton = GameObject.Find("é€€å‡ºæ¸¸æˆButton")?.GetComponent<Button>();
+            // æˆ–è€…æ›´é€šç”¨çš„æŸ¥æ‰¾æ–¹å¼
             if (quitButton == null)
             {
                 Button[] allButtons = FindObjectsOfType<Button>();
                 foreach (Button btn in allButtons)
                 {
                     TextMeshProUGUI btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
-                    if (btnText != null && btnText.text == "ÍË³öÓÎÏ·")
+                    if (btnText != null && btnText.text == "é€€å‡ºæ¸¸æˆ")
                     {
                         quitButton = btn;
                         break;
@@ -29,30 +29,30 @@ public class QuitGameManager : MonoBehaviour
             }
         }
 
-        // °ó¶¨µã»÷ÊÂ¼ş
+        // ç»‘å®šç‚¹å‡»äº‹ä»¶
         if (quitButton != null)
         {
             quitButton.onClick.AddListener(QuitGame);
-            Debug.Log("ÍË³ö°´Å¥ÊÂ¼ş°ó¶¨³É¹¦");
+            Debug.Log("é€€å‡ºæŒ‰é’®äº‹ä»¶ç»‘å®šæˆåŠŸ");
         }
         else
         {
-            Debug.LogError("Ã»ÓĞÕÒµ½ÍË³öÓÎÏ·°´Å¥£¡");
+            Debug.LogError("æ²¡æœ‰æ‰¾åˆ°é€€å‡ºæ¸¸æˆæŒ‰é’®");
         }
     }
 
     public void QuitGame()
     {
-        Debug.Log("ÍË³öÓÎÏ·°´Å¥±»µã»÷");
+        Debug.Log("é€€å‡ºæ¸¸æˆæŒ‰é’®è¢«ç‚¹å‡»");
 
 #if UNITY_EDITOR
-        // ÔÚ±à¼­Æ÷ÖĞÍ£Ö¹²¥·Å
+        // åœ¨ç¼–è¾‘å™¨ä¸­åœæ­¢æ’­æ”¾
         UnityEditor.EditorApplication.isPlaying = false;
-        Debug.Log("±à¼­Æ÷Ä£Ê½£ºÍ£Ö¹ÔËĞĞ");
+        Debug.Log("ç¼–è¾‘å™¨æ¨¡å¼ä¸‹åœæ­¢æ’­æ”¾");
 #else
-            // ÔÚ´ò°üºóµÄÓÎÏ·ÖĞÍË³ö³ÌĞò
+            // åœ¨æ„å»ºç‰ˆæœ¬ä¸­é€€å‡ºåº”ç”¨ç¨‹åº
             Application.Quit();
-            Debug.Log("Ó¦ÓÃ³ÌĞò£ºÍË³öÓÎÏ·");
+            Debug.Log("åº”ç”¨ç¨‹åºé€€å‡ºæ¸¸æˆ");
 #endif
     }
 }

@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
@@ -6,28 +6,28 @@ using System.Collections;
 
 public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    [Header("×é¼şÒıÓÃ")]
+    [Header("ç»„ä»¶å¼•ç”¨")]
     public Image buttonImage;
     public TextMeshProUGUI buttonText;
     public AudioSource audioSource;
 
-    [Header("ÑÕÉ«ÉèÖÃ")]
+    [Header("é¢œè‰²è®¾ç½®")]
     public Color normalColor = new Color(0.2f, 0.2f, 0.4f, 1f);
     public Color hoverColor = new Color(0.3f, 0.3f, 0.6f, 1f);
     public Color pressedColor = new Color(0.4f, 0.4f, 0.8f, 1f);
     public Color disabledColor = new Color(0.3f, 0.3f, 0.3f, 0.5f);
 
-    [Header("¶¯»­ÉèÖÃ")]
+    [Header("ç¼©æ”¾è®¾ç½®")]
     public float hoverScale = 1.1f;
     public float clickScale = 0.95f;
     public float animationDuration = 0.2f;
     public float clickAnimationDuration = 0.15f;
 
-    [Header("ÒôĞ§ÉèÖÃ")]
+    [Header("éŸ³æ•ˆè®¾ç½®")]
     public AudioClip hoverSound;
     public AudioClip clickSound;
 
-    [Header("¸ß¼¶Ğ§¹û")]
+    [Header("ç²’å­æ•ˆæœ")]
     public ParticleSystem hoverParticles;
     public GameObject selectionIndicator;
     public bool enableGlowEffect = true;
@@ -46,41 +46,41 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
     {
         InitializeComponents();
 
-        // ±£´æÔ­Ê¼×´Ì¬ - È·±£ÔÚĞŞ¸ÄÇ°±£´æ
+        // ä¿å­˜åŸå§‹çŠ¶æ€ - ç¡®ä¿åœ¨ä¿®æ”¹å‰ä¿å­˜
         originalScale = transform.localScale;
 
         if (buttonText != null)
         {
             originalTextColor = buttonText.color;
-            // È·±£ÎÄ×ÖÆôÓÃ
+            // ç¡®ä¿æ–‡æœ¬å¯ç”¨
             buttonText.enabled = true;
         }
 
         if (buttonImage != null)
         {
             originalImageColor = buttonImage.color;
-            // È·±£Í¼Æ¬ÆôÓÃ
+            // ç¡®ä¿å›¾ç‰‡å¯ç”¨
             buttonImage.enabled = true;
         }
 
-        // ´´½¨°´Å¥²ÄÖÊÊµÀı£¨±ÜÃâ¹²Ïí²ÄÖÊ£©
+        // åˆ›å»ºæŒ‰é’®æè´¨çš„å®ä¾‹ï¼ˆé¿å…å…±äº«æè´¨å¯¼è‡´çš„é—®é¢˜ï¼‰
         if (buttonImage != null && enableGlowEffect)
         {
             buttonMaterial = new Material(buttonImage.material);
             buttonImage.material = buttonMaterial;
         }
 
-        // Á¢¼´ÉèÖÃµ½Õı³£×´Ì¬£¬±ÜÃâÉÁË¸
+        // é‡ç½®åˆ°æ­£å¸¸çŠ¶æ€ï¼Œé˜²æ­¢é—ªçƒ
         ResetToNormalStateImmediately();
 
         isInitialized = true;
 
-        Debug.Log($"°´Å¥ {name} ³õÊ¼»¯Íê³É - Î»ÖÃ: {transform.position}, Ëõ·Å: {transform.localScale}, ¼¤»î: {gameObject.activeInHierarchy}");
+        Debug.Log($"æŒ‰é’® {name} åˆå§‹åŒ–å®Œæˆ - ä½ç½®: {transform.position}, ç¼©æ”¾: {transform.localScale}, æ¿€æ´»: {gameObject.activeInHierarchy}");
     }
 
     void InitializeComponents()
     {
-        // ×Ô¶¯»ñÈ¡×é¼şÒıÓÃ
+        // è‡ªåŠ¨è·å–ç»„ä»¶å¼•ç”¨
         if (buttonImage == null)
             buttonImage = GetComponent<Image>();
         if (buttonText == null)
@@ -88,14 +88,14 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
 
-        // È·±£×é¼ş²»Îª¿Õ
+        // ç¡®ä¿ç»„ä»¶ä¸ä¸ºç©º
         if (buttonImage == null)
-            Debug.LogWarning($"°´Å¥ {name} Ã»ÓĞÕÒµ½ Image ×é¼ş");
+            Debug.LogWarning($"æŒ‰é’® {name} æ²¡æœ‰æ‰¾åˆ° Image ç»„ä»¶");
         if (buttonText == null)
-            Debug.LogWarning($"°´Å¥ {name} Ã»ÓĞÕÒµ½ TextMeshProUGUI ×é¼ş");
+            Debug.LogWarning($"æŒ‰é’® {name} æ²¡æœ‰æ‰¾åˆ° TextMeshProUGUI ç»„ä»¶");
     }
 
-    // ĞÂÔö£ºÁ¢¼´ÖØÖÃµ½Õı³£×´Ì¬£¨²»Í¨¹ıĞ­³Ì£©
+    // é‡ç½®åˆ°æ­£å¸¸çŠ¶æ€ï¼ˆä¸é€šè¿‡åç¨‹ï¼Œç«‹å³æ‰§è¡Œï¼‰
     private void ResetToNormalStateImmediately()
     {
         transform.localScale = originalScale;
@@ -141,7 +141,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
     {
         if (gameObject.CompareTag("PauseMenuButton"))
         {
-            // ÕâÊÇÔİÍ£²Ëµ¥°´Å¥£¬²»Ö´ĞĞ¶îÍâÂß¼­
+            // å¦‚æœæ˜¯æš‚åœèœå•æŒ‰é’®ï¼Œä¸æ‰§è¡ŒåŠ¨ç”»é€»è¾‘
             return;
         }
         if (!isInteractable) return;
@@ -158,14 +158,14 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
         Color startColor = buttonImage != null ? buttonImage.color : normalColor;
         Color startTextColor = buttonText != null ? buttonText.color : originalTextColor;
 
-        // ²¥·ÅĞüÍ£ÒôĞ§
+        // æ’­æ”¾æ‚¬åœéŸ³æ•ˆ
         PlaySound(hoverSound);
 
-        // Æô¶¯Á£×ÓĞ§¹û
+        // å¯åŠ¨ç²’å­æ•ˆæœ
         if (hoverParticles != null && !hoverParticles.isPlaying)
             hoverParticles.Play();
 
-        // ÏÔÊ¾Ñ¡ÔñÖ¸Ê¾Æ÷
+        // æ˜¾ç¤ºé€‰æ‹©æŒ‡ç¤ºå™¨
         if (selectionIndicator != null)
             selectionIndicator.SetActive(true);
 
@@ -175,15 +175,15 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
             float t = elapsed / animationDuration;
             float easedT = EaseOutBack(t);
 
-            // Ëõ·Å¶¯»­
+            // ç¼©æ”¾åŠ¨ç”»
             transform.localScale = Vector3.Lerp(startScale, targetScale, easedT);
 
-            // °´Å¥ÑÕÉ«¶¯»­
+            // æŒ‰é’®é¢œè‰²è¿‡æ¸¡
             if (buttonImage != null)
             {
                 buttonImage.color = Color.Lerp(startColor, hoverColor, t);
 
-                // ·¢¹âĞ§¹û
+                // å‘å…‰æ•ˆæœ
                 if (enableGlowEffect && buttonMaterial != null)
                 {
                     float glowValue = Mathf.Lerp(1f, glowIntensity, t);
@@ -191,7 +191,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
                 }
             }
 
-            // ÎÄ×ÖÑÕÉ«¶¯»­
+            // æ–‡æœ¬é¢œè‰²è¿‡æ¸¡
             if (buttonText != null)
             {
                 buttonText.color = Color.Lerp(startTextColor, Color.white, t);
@@ -200,7 +200,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
             yield return null;
         }
 
-        // È·±£×îÖÕ×´Ì¬
+        // ç¡®ä¿æœ€ç»ˆçŠ¶æ€
         transform.localScale = targetScale;
         if (buttonImage != null)
             buttonImage.color = hoverColor;
@@ -217,11 +217,11 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
         Color startColor = buttonImage != null ? buttonImage.color : normalColor;
         Color startTextColor = buttonText != null ? buttonText.color : originalTextColor;
 
-        // Í£Ö¹Á£×ÓĞ§¹û
+        // åœæ­¢ç²’å­æ•ˆæœ
         if (hoverParticles != null && hoverParticles.isPlaying)
             hoverParticles.Stop();
 
-        // Òş²ØÑ¡ÔñÖ¸Ê¾Æ÷
+        // éšè—é€‰æ‹©æŒ‡ç¤ºå™¨
         if (selectionIndicator != null)
             selectionIndicator.SetActive(false);
 
@@ -231,15 +231,15 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
             float t = elapsed / animationDuration;
             float easedT = EaseOutQuad(t);
 
-            // Ëõ·Å¶¯»­
+            // ç¼©æ”¾åŠ¨ç”»
             transform.localScale = Vector3.Lerp(startScale, originalScale, easedT);
 
-            // °´Å¥ÑÕÉ«¶¯»­
+            // æŒ‰é’®é¢œè‰²è¿‡æ¸¡
             if (buttonImage != null)
             {
                 buttonImage.color = Color.Lerp(startColor, normalColor, t);
 
-                // ·¢¹âĞ§¹û
+                // å‘å…‰æ•ˆæœ
                 if (enableGlowEffect && buttonMaterial != null)
                 {
                     float glowValue = Mathf.Lerp(glowIntensity, 1f, t);
@@ -247,7 +247,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
                 }
             }
 
-            // ÎÄ×ÖÑÕÉ«¶¯»­
+            // æ–‡æœ¬é¢œè‰²è¿‡æ¸¡
             if (buttonText != null)
             {
                 buttonText.color = Color.Lerp(startTextColor, originalTextColor, t);
@@ -256,7 +256,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
             yield return null;
         }
 
-        // È·±£×îÖÕ×´Ì¬
+        // ç¡®ä¿æœ€ç»ˆçŠ¶æ€
         transform.localScale = originalScale;
         if (buttonImage != null)
             buttonImage.color = normalColor;
@@ -273,10 +273,10 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
         Vector3 targetScale = originalScale * clickScale;
         Color startColor = buttonImage != null ? buttonImage.color : hoverColor;
 
-        // ²¥·Åµã»÷ÒôĞ§
+        // æ’­æ”¾ç‚¹å‡»éŸ³æ•ˆ
         PlaySound(clickSound);
 
-        // µã»÷°´ÏÂ½×¶Î
+        // æŒ‰ä¸‹é˜¶æ®µ
         while (elapsed < clickAnimationDuration * 0.5f)
         {
             elapsed += Time.unscaledDeltaTime;
@@ -290,7 +290,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
             yield return null;
         }
 
-        // µã»÷ÊÍ·Å½×¶Î
+        // å¼¹å›é˜¶æ®µ
         elapsed = 0f;
         startScale = transform.localScale;
         Vector3 finalScale = isHovering ? originalScale * hoverScale : originalScale;
@@ -311,7 +311,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
             yield return null;
         }
 
-        // È·±£×îÖÕ×´Ì¬
+        // ç¡®ä¿æœ€ç»ˆçŠ¶æ€
         transform.localScale = finalScale;
         if (buttonImage != null)
             buttonImage.color = finalColor;
@@ -319,7 +319,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
         currentAnimation = null;
     }
 
-    // »º¶¯º¯Êı
+    // ç¼“åŠ¨å‡½æ•°
     private float EaseOutBack(float t)
     {
         float c1 = 1.70158f;
@@ -332,7 +332,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
         return 1f - (1f - t) * (1f - t);
     }
 
-    // ¹¤¾ß·½·¨
+    // å·¥å…·æ–¹æ³•
     private void StopCurrentAnimation()
     {
         if (currentAnimation != null)
@@ -350,7 +350,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
         }
     }
 
-    // ¹«¹²·½·¨
+    // å…¬å…±æ¥å£
     public void SetInteractable(bool interactable)
     {
         if (isInteractable == interactable) return;
@@ -418,7 +418,7 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
             buttonText.color = disabledColor;
     }
 
-    // Ç¿ÖÆÖØÖÃ×´Ì¬
+    // å¼ºåˆ¶é‡ç½®çŠ¶æ€
     public void ResetState()
     {
         if (!isInitialized) return;
@@ -429,50 +429,50 @@ public class EnhancedButtonCoroutine : MonoBehaviour, IPointerEnterHandler, IPoi
 
     void OnDisable()
     {
-        // µ±¶ÔÏó±»½ûÓÃÊ±ÖØÖÃ×´Ì¬
+        // å½“å¯¹è±¡è¢«ç¦ç”¨æ—¶é‡ç½®çŠ¶æ€
         ResetState();
         isHovering = false;
     }
 
     void OnEnable()
     {
-        // µ±¶ÔÏóÆôÓÃÊ±È·±£×´Ì¬ÕıÈ·
+        // å½“å¯¹è±¡è¢«å¯ç”¨æ—¶ç¡®ä¿çŠ¶æ€æ­£ç¡®
         if (isInitialized)
         {
             ResetToNormalStateImmediately();
         }
     }
 
-    // µ÷ÊÔ·½·¨
-    [ContextMenu("¼ì²é°´Å¥×´Ì¬")]
+    // æµ‹è¯•æ–¹æ³•
+    [ContextMenu("æ£€æŸ¥æŒ‰é’®çŠ¶æ€")]
     public void CheckButtonState()
     {
-        Debug.Log($"=== °´Å¥ {name} ×´Ì¬¼ì²é ===");
-        Debug.Log($"¼¤»î×´Ì¬: {gameObject.activeInHierarchy}");
-        Debug.Log($"Î»ÖÃ: {transform.position}");
-        Debug.Log($"Ëõ·Å: {transform.localScale}");
-        Debug.Log($"Ô­Ê¼Ëõ·Å: {originalScale}");
+        Debug.Log($"=== æŒ‰é’® {name} çŠ¶æ€æ£€æŸ¥ ===");
+        Debug.Log($"æ¿€æ´»çŠ¶æ€: {gameObject.activeInHierarchy}");
+        Debug.Log($"ä½ç½®: {transform.position}");
+        Debug.Log($"ç¼©æ”¾: {transform.localScale}");
+        Debug.Log($"åŸå§‹ç¼©æ”¾: {originalScale}");
 
         if (buttonImage != null)
         {
-            Debug.Log($"Í¼Æ¬ÑÕÉ«: {buttonImage.color}");
-            Debug.Log($"Í¼Æ¬ÆôÓÃ: {buttonImage.enabled}");
-            Debug.Log($"Í¼Æ¬Í¸Ã÷¶È: {buttonImage.color.a}");
+            Debug.Log($"å›¾ç‰‡é¢œè‰²: {buttonImage.color}");
+            Debug.Log($"å›¾ç‰‡å¯ç”¨: {buttonImage.enabled}");
+            Debug.Log($"å›¾ç‰‡é€æ˜åº¦: {buttonImage.color.a}");
         }
         else
         {
-            Debug.LogWarning("Ã»ÓĞÕÒµ½ Image ×é¼ş");
+            Debug.LogWarning("æ²¡æœ‰æ‰¾åˆ° Image ç»„ä»¶");
         }
 
         if (buttonText != null)
         {
-            Debug.Log($"ÎÄ×ÖÑÕÉ«: {buttonText.color}");
-            Debug.Log($"ÎÄ×ÖÆôÓÃ: {buttonText.enabled}");
-            Debug.Log($"ÎÄ×ÖÄÚÈİ: {buttonText.text}");
+            Debug.Log($"æ–‡æœ¬é¢œè‰²: {buttonText.color}");
+            Debug.Log($"æ–‡æœ¬å¯ç”¨: {buttonText.enabled}");
+            Debug.Log($"æ–‡æœ¬å†…å®¹: {buttonText.text}");
         }
         else
         {
-            Debug.LogWarning("Ã»ÓĞÕÒµ½ TextMeshProUGUI ×é¼ş");
+            Debug.LogWarning("æ²¡æœ‰æ‰¾åˆ° TextMeshProUGUI ç»„ä»¶");
         }
     }
 }

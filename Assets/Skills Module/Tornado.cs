@@ -1,52 +1,52 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// Áú¾í·çÌå£º»ºÂýÇ°½ø£¬³ÖÐø¶Ô´¥ÅöµÄµÐÈËÔì³É·çÔªËØÉËº¦²¢»÷ÍË
-/// ÓÃ·¨£º×öÔ¤ÖÆÌå£¨´ó´¥·¢Æ÷£©£¬¹Ò´Ë½Å±¾£»¼¼ÄÜÊµÀý»¯ºó Launch()¡£
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å£ºï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½É·ï¿½Ôªï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+/// ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½å£¨ï¿½ó´¥·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò´Ë½Å±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Launch()ï¿½ï¿½
 /// </summary>
-[RequireComponent(typeof(Collider2D))] // ÐèÒª´¥·¢Æ÷
+[RequireComponent(typeof(Collider2D))] // ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 public class SM_Tornado : MonoBehaviour
 {
-    public float speed = 2f;          // Ç°½øËÙ¶È
-    public float lifetime = 6f;       // ´æ»îÊ±¼ä
-    public float tickDamage = 5f;     // Ã¿´Î´¥·¢ÉËº¦
-    public float tickInterval = 0.5f; // ´¥·¢¼ä¸ô£¨Ãë£©
-    public float knockback = 8f;      // »÷ÍËÁ¦¶È
+    public float speed = 2f;          // Ç°ï¿½ï¿½ï¿½Ù¶ï¿½
+    public float lifetime = 6f;       // ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    public float tickDamage = 5f;     // Ã¿ï¿½Î´ï¿½ï¿½ï¿½ï¿½Ëºï¿½
+    public float tickInterval = 0.5f; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë£©
+    public float knockback = 8f;      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    private float _t;                 // Éú´æ¼ÆÊ±
-    private float _tk;                // ¼ä¸ô¼ÆÊ±
-    private Vector2 _dir;             // Ç°½ø·½Ïò
+    private float _t;                 // ï¿½ï¿½ï¿½ï¿½ï¿½Ê±
+    private float _tk;                // ï¿½ï¿½ï¿½ï¿½Ê±
+    private Vector2 _dir;             // Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    public void Launch(Vector2 dir)   // ·¢Éä£¨¼¼ÄÜµ÷ÓÃ£©
+    public void Launch(Vector2 dir)   // ï¿½ï¿½ï¿½ä£¨ï¿½ï¿½ï¿½Üµï¿½ï¿½Ã£ï¿½
     {
-        _dir = dir.normalized;        // ¼ÇÂ¼·½Ïò
+        _dir = dir.normalized;        // ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½
     }
 
     private void Update()
     {
-        transform.position += (Vector3)(_dir * speed * Time.deltaTime); // ÒÆ¶¯
-        _t += Time.deltaTime;                                           // Éú´æ¼ÆÊ±
-        _tk += Time.deltaTime;                                          // tick ¼ÆÊ±
-        if (_t >= lifetime) Destroy(gameObject);                        // ³¬Ê±Ïú»Ù
+        transform.position += (Vector3)(_dir * speed * Time.deltaTime); // ï¿½Æ¶ï¿½
+        _t += Time.deltaTime;                                           // ï¿½ï¿½ï¿½ï¿½ï¿½Ê±
+        _tk += Time.deltaTime;                                          // tick ï¿½ï¿½Ê±
+        if (_t >= lifetime) Destroy(gameObject);                        // ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
     }
 
-    private void OnTriggerStay2D(Collider2D other) // ³ÖÐø½Ó´¥´¥·¢
+    private void OnTriggerStay2D(Collider2D other) // ï¿½ï¿½ï¿½ï¿½ï¿½Ó´ï¿½ï¿½ï¿½ï¿½ï¿½
     {
-        if (_tk < tickInterval) return;                                // Î´µ½´¥·¢¼ä¸ô²»½áËã
-        var dmg = other.GetComponent<SM_IDamageable>();                 // »ñÈ¡ÊÜÉË½Ó¿Ú
-        if (dmg != null)                                                // Èô¿ÉÊÜÉË
+        if (_tk < tickInterval) return;                                // Î´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        var dmg = other.GetComponent<SM_IDamageable>();                 // ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ë½Ó¿ï¿½
+        if (dmg != null)                                                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         {
-            _tk = 0f;                                                   // ÖØÖÃ¼ä¸ô
-            dmg.ApplyDamage(new SM_DamageInfo                           // Ôì³ÉÉËº¦
+            _tk = 0f;                                                   // ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½
+            dmg.ApplyDamage(new SM_DamageInfo                           // ï¿½ï¿½ï¿½ï¿½Ëºï¿½
             {
-                Amount = tickDamage,                                    // ÊýÖµ
-                Element = SM_Element.Wind,                              // ·çÔªËØ
-                IgnoreDefense = false,                                  // ²»ÎÞÊÓ·ÀÓù
-                CritChance = 0f,                                        // ÎÞ±©»÷
-                CritMultiplier = 1f                                     // ±¶ÂÊ
+                Amount = tickDamage,                                    // ï¿½ï¿½Öµ
+                Element = SM_Element.Wind,                              // ï¿½ï¿½Ôªï¿½ï¿½
+                IgnoreDefense = false,                                  // ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
+                CritChance = 0f,                                        // ï¿½Þ±ï¿½ï¿½ï¿½
+                CritMultiplier = 1f                                     // ï¿½ï¿½ï¿½ï¿½
             });
 
-            // »÷ÍË£¨ÈôÊµÏÖÁË»÷ÍË½Ó¿Ú£©
+            // ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½Ë»ï¿½ï¿½Ë½Ó¿Ú£ï¿½
             var kb = other.GetComponent<SM_IKnockbackable>();
             if (kb != null) kb.Knockback(_dir, knockback, 0.1f);
         }

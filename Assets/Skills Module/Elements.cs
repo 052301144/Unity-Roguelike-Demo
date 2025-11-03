@@ -1,26 +1,26 @@
-using UnityEngine; // Ê¹ÓÃ Unity ÒýÇæÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Ê¹ï¿½ï¿½ Unity ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 
 /// <summary>
-/// ÔªËØÀàÐÍ¶¨Òå£ºÎïÀí/»ð/·ç/±ù/À×
+/// Ôªï¿½ï¿½ï¿½ï¿½ï¿½Í¶ï¿½ï¿½å£ºï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½/ï¿½ï¿½/ï¿½ï¿½/ï¿½ï¿½
 /// </summary>
-public enum SM_Element // SM = Skills Module£¬±ÜÃâÓëÆäËûÄ£¿éÃüÃû³åÍ»
+public enum SM_Element // SM = Skills Moduleï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í»
 {
-    Physical,  // ÎïÀí£ºÎÞÊÓ·ÀÓù¡¢µÍ±©»÷
-    Fire,      // »ð£º³ÖÐøÉËº¦£¨È¼ÉÕ£©
-    Wind,      // ·ç£º»÷ÍËÐ§¹û
-    Ice,       // ±ù£º¶³½á¿ØÖÆ
-    Lightning  // À×£º·¶Î§/Á¬Ëø
+    Physical,  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ï¿½
+    Fire,      // ï¿½ð£º³ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½È¼ï¿½Õ£ï¿½
+    Wind,      // ï¿½ç£ºï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½
+    Ice,       // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    Lightning  // ï¿½×£ï¿½ï¿½ï¿½Î§/ï¿½ï¿½ï¿½ï¿½
 }
 
 /// <summary>
-/// ÉËº¦ÐÅÏ¢½á¹¹Ìå£º¼¼ÄÜÔì³ÉÉËº¦Ê±Ð¯´øµÄÐÅÏ¢
+/// ï¿½Ëºï¿½ï¿½ï¿½Ï¢ï¿½á¹¹ï¿½å£ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½Ê±Ð¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 /// </summary>
 public struct SM_DamageInfo
 {
-    public float Amount;        // ÉËº¦ÊýÖµ
-    public SM_Element Element;  // ÔªËØÀàÐÍ
-    public bool IgnoreDefense;  // ÊÇ·ñÎÞÊÓ·ÀÓù£¨ÎïÀí¼¼ÄÜÐèÒª£©
-    public float CritChance;    // ±©»÷ÂÊ£¨ÎïÀí¼¼ÄÜÎªµÍ±©»÷£¬ÆäËûÎª0£©
-    public float CritMultiplier;// ±©»÷±¶Êý£¨ÀýÈç1.5£©
+    public float Amount;        // ï¿½Ëºï¿½ï¿½ï¿½Öµ
+    public SM_Element Element;  // Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public bool IgnoreDefense;  // ï¿½Ç·ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½
+    public float CritChance;    // ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½Í±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0ï¿½ï¿½
+    public float CritMultiplier;// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1.5ï¿½ï¿½
 }

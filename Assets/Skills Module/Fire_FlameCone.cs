@@ -1,57 +1,57 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// »ðÑæ³å»÷£ºÏòÇ°·½ÉÈÐÎÅç³ö»ðÑæ£¬Ôì³ÉÉËº¦²¢¸ß¸ÅÂÊµãÈ¼
-/// ²»²úÉúÍ¶ÉäÎï£¬Ö±½ÓÓÃÉÈÐÎ·¶Î§¼ì²â
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ£¬ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ß¸ï¿½ï¿½Êµï¿½È¼
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¶ï¿½ï¿½ï¿½ï£¬Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î·ï¿½Î§ï¿½ï¿½ï¿½
 /// </summary>
 public class SM_Fire_FlameCone : SM_BaseSkill
 {
-    [Header("»ðÑæ³å»÷²ÎÊý")]
-    public float range = 4f;           // ÉÈÐÎ°ë¾¶
-    public float angle = 45f;          // °ë½Ç£¨×Ü½Ç¶È=2*°ë½Ç£©
-    public float damage = 15f;         // Ö±½ÓÉËº¦
-    public float burnDPS = 6f;         // È¼ÉÕÃ¿ÃëÉËº¦
-    public float burnTime = 5f;        // È¼ÉÕ³ÖÐøÊ±¼ä
-    public float burnChance = 0.8f;    // µãÈ¼¸ÅÂÊ£¨¸ß£©
-    public LayerMask enemyMask;        // µÐÈËÍ¼²ã
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public float range = 4f;           // ï¿½ï¿½ï¿½Î°ë¾¶
+    public float angle = 45f;          // ï¿½ï¿½Ç£ï¿½ï¿½Ü½Ç¶ï¿½=2*ï¿½ï¿½Ç£ï¿½
+    public float damage = 15f;         // Ö±ï¿½ï¿½ï¿½Ëºï¿½
+    public float burnDPS = 6f;         // È¼ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½Ëºï¿½
+    public float burnTime = 5f;        // È¼ï¿½Õ³ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    public float burnChance = 0.8f;    // ï¿½ï¿½È¼ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ß£ï¿½
+    public LayerMask enemyMask;        // ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 
     protected override bool DoCast()
     {
-        var origin = (Vector2)character.AimOrigin.position;            // ÊÍ·ÅÔ­µã
-        var dir = character.AimDirection.normalized;                   // ³¯Ïò
-        var hits = Physics2D.OverlapCircleAll(origin, range, enemyMask);// Ô²ÓòÄÚºòÑ¡
-        foreach (var h in hits)                                        // ±éÀú
+        var origin = (Vector2)character.AimOrigin.position;            // ï¿½Í·ï¿½Ô­ï¿½ï¿½
+        var dir = character.AimDirection.normalized;                   // ï¿½ï¿½ï¿½ï¿½
+        var hits = Physics2D.OverlapCircleAll(origin, range, enemyMask);// Ô²ï¿½ï¿½ï¿½Úºï¿½Ñ¡
+        foreach (var h in hits)                                        // ï¿½ï¿½ï¿½ï¿½
         {
-            var to = (Vector2)h.transform.position - origin;           // Ö¸ÏòÏòÁ¿
-            if (Vector2.Angle(dir, to) <= angle)                       // ÅÐ¶ÏÊÇ·ñÔÚÉÈÐÎÄÚ
+            var to = (Vector2)h.transform.position - origin;           // Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            if (Vector2.Angle(dir, to) <= angle)                       // ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             {
-                var dmg = h.GetComponent<SM_IDamageable>();            // ÊÜÉË½Ó¿Ú
+                var dmg = h.GetComponent<SM_IDamageable>();            // ï¿½ï¿½ï¿½Ë½Ó¿ï¿½
                 if (dmg != null)
                 {
                     dmg.ApplyDamage(new SM_DamageInfo
                     {
-                        Amount = damage,            // ÉËº¦
-                        Element = SM_Element.Fire,  // »ðÔªËØ
-                        IgnoreDefense = false,      // ²»ÎÞÊÓ·ÀÓù
-                        CritChance = 0f,            // ÎÞ±©»÷
-                        CritMultiplier = 1f         // ±¶ÂÊ
+                        Amount = damage,            // ï¿½Ëºï¿½
+                        Element = SM_Element.Fire,  // ï¿½ï¿½Ôªï¿½ï¿½
+                        IgnoreDefense = false,      // ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
+                        CritChance = 0f,            // ï¿½Þ±ï¿½ï¿½ï¿½
+                        CritMultiplier = 1f         // ï¿½ï¿½ï¿½ï¿½
                     });
                 }
-                if (Random.value < burnChance)                          // ÅÐ¶ÏµãÈ¼
-                    h.GetComponent<SM_BurnEffect>()?.Apply(burnDPS, burnTime); // Ê©¼ÓÈ¼ÉÕ£¨ÈôÄ¿±êÓÐ¸Ã×é¼þ£©
+                if (Random.value < burnChance)                          // ï¿½Ð¶Ïµï¿½È¼
+                    h.GetComponent<SM_BurnEffect>()?.Apply(burnDPS, burnTime); // Ê©ï¿½ï¿½È¼ï¿½Õ£ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½Ð¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             }
         }
-        return true;                                                    // ³É¹¦
+        return true;                                                    // ï¿½É¹ï¿½
     }
 
-    private void OnDrawGizmosSelected()                                 // ±à¼­Æ÷¿ÉÊÓ»¯
+    private void OnDrawGizmosSelected()                                 // ï¿½à¼­ï¿½ï¿½ï¿½ï¿½ï¿½Ó»ï¿½
     {
-        var o = transform.position;                                     // Ô­µã
-        var dir = Vector2.right;                                        // ÏÔÊ¾Ä¬ÈÏÓÒ
-        Gizmos.color = new Color(1, 0.5f, 0, 1);                        // ³ÈÉ«
-        var left = Quaternion.Euler(0, 0, -angle) * dir * range;        // ×ó±ß½ç
-        var right = Quaternion.Euler(0, 0, angle) * dir * range;        // ÓÒ±ß½ç
-        Gizmos.DrawLine(o, o + (Vector3)left);                          // »­Ïß
-        Gizmos.DrawLine(o, o + (Vector3)right);                         // »­Ïß
+        var o = transform.position;                                     // Ô­ï¿½ï¿½
+        var dir = Vector2.right;                                        // ï¿½ï¿½Ê¾Ä¬ï¿½ï¿½ï¿½ï¿½
+        Gizmos.color = new Color(1, 0.5f, 0, 1);                        // ï¿½ï¿½É«
+        var left = Quaternion.Euler(0, 0, -angle) * dir * range;        // ï¿½ï¿½ß½ï¿½
+        var right = Quaternion.Euler(0, 0, angle) * dir * range;        // ï¿½Ò±ß½ï¿½
+        Gizmos.DrawLine(o, o + (Vector3)left);                          // ï¿½ï¿½ï¿½ï¿½
+        Gizmos.DrawLine(o, o + (Vector3)right);                         // ï¿½ï¿½ï¿½ï¿½
     }
 }

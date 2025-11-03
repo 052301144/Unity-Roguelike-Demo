@@ -1,195 +1,195 @@
-using UnityEngine; // ÒıÈëUnityÒıÇæÃüÃû¿Õ¼ä
-using System.Collections; // ÒıÈëĞ­³ÌÏà¹ØÃüÃû¿Õ¼ä
-using System.Reflection; // ÒıÈë·´ÉäÏà¹ØÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // å¼•å…¥Unityå¼•æ“å‘½åç©ºé—´
+using System.Collections; // å¼•å…¥åç¨‹å‘½åç©ºé—´
+using System.Reflection; // å¼•å…¥åå°„å‘½åç©ºé—´
 
 /// <summary>
-/// ¶ÀÁ¢µĞÈËËÀÍö¼ì²âÆ÷ - Í¨¹ı·´Éä¼ì²âµĞÈËËÀÍö£¬²»ÒÀÀµÌØ¶¨×é¼ş
+/// æ•Œäººæ­»äº¡æ£€æµ‹å™¨ - é€šè¿‡åå°„æ£€æµ‹æ•Œäººç”Ÿå‘½å€¼å˜åŒ–å¹¶è§¦å‘æ‰è½
 /// </summary>
 public class EnemyDeathDetector : MonoBehaviour
 {
-    [Header("µôÂäÉèÖÃ")] // µôÂäÏà¹ØÉèÖÃ·Ö×é
-    public DropTable dropTable;                          // µĞÈËµÄµôÂä±íÅäÖÃ
-    public bool enableDrops = true;                      // ÊÇ·ñÆôÓÃµôÂä¹¦ÄÜ
-    public Vector3 dropOffset = new Vector3(0, 0.5f, 0); // µôÂäÎ»ÖÃÏà¶ÔÓÚµĞÈËµÄÆ«ÒÆ
+    [Header("æ‰è½è®¾ç½®")] // æ‰è½ç›¸å…³é…ç½®éƒ¨åˆ†
+    public DropTable dropTable;                          // æ•Œäººçš„æ‰è½è¡¨æ•°æ®
+    public bool enableDrops = true;                      // æ˜¯å¦å¯ç”¨æ‰è½åŠŸèƒ½
+    public Vector3 dropOffset = new Vector3(0, 0.5f, 0); // æ‰è½ä½ç½®ç›¸å¯¹äºæ•Œäººçš„åç§»
 
-    [Header("ËÀÍö¼ì²â")] // ËÀÍö¼ì²âÏà¹ØÉèÖÃ·Ö×é
-    public float healthCheckInterval = 0.5f;             // ½¡¿µÖµ¼ì²éµÄÊ±¼ä¼ä¸ô£¨Ãë£©
-    public string healthComponentName = "Attribute";     // ½¡¿µ×é¼şµÄÀàĞÍÃû³Æ
+    [Header("æ£€æµ‹è®¾ç½®")] // æ£€æµ‹ç›¸å…³çš„é…ç½®éƒ¨åˆ†
+    public float healthCheckInterval = 0.5f;             // ç”Ÿå‘½å€¼æ£€æµ‹æ—¶é—´é—´éš”ï¼ˆç§’ï¼‰
+    public string healthComponentName = "Attribute";     // ç”Ÿå‘½å€¼ç»„ä»¶çš„åç§°
 
-    // Ë½ÓĞ×Ö¶Î - ·´ÉäÏà¹Ø±äÁ¿
-    private MonoBehaviour healthComponent;               // ÕÒµ½µÄ½¡¿µ×é¼şÒıÓÃ
-    private PropertyInfo currentHealthProperty;          // µ±Ç°½¡¿µÖµµÄÊôĞÔĞÅÏ¢
-    private PropertyInfo maxHealthProperty;              // ×î´ó½¡¿µÖµµÄÊôĞÔĞÅÏ¢
-    private float lastHealth;                            // ÉÏÒ»Ö¡µÄ½¡¿µÖµ
-    private bool isDead = false;                         // ±ê¼ÇµĞÈËÊÇ·ñÒÑËÀÍö
+    // ç§æœ‰å­—æ®µ - å†…éƒ¨ç¼“å­˜å˜é‡
+    private MonoBehaviour healthComponent;               // æ‰¾åˆ°çš„ç”Ÿå‘½å€¼ç»„ä»¶å¼•ç”¨
+    private PropertyInfo currentHealthProperty;          // å½“å‰ç”Ÿå‘½å€¼å±æ€§çš„åå°„ä¿¡æ¯
+    private PropertyInfo maxHealthProperty;              // æœ€å¤§ç”Ÿå‘½å€¼å±æ€§çš„åå°„ä¿¡æ¯
+    private float lastHealth;                            // ä¸Šä¸€å¸§çš„ç”Ÿå‘½å€¼
+    private bool isDead = false;                         // æ ‡è®°æ•Œäººæ˜¯å¦å·²æ­»äº¡
 
     /// <summary>
-    /// Start·½·¨ - ÔÚ¶ÔÏóÊ×´ÎÆôÓÃÊ±µ÷ÓÃ
+    /// Startæ–¹æ³• - åœ¨å¯¹è±¡æ¿€æ´»æ—¶è°ƒç”¨
     /// </summary>
     void Start()
     {
-        // ²éÕÒ½¡¿µ×é¼ş
+        // æŸ¥æ‰¾ç”Ÿå‘½å€¼ç»„ä»¶
         FindHealthComponent();
-        // Æô¶¯½¡¿µ¼ì²éĞ­³Ì
+        // å¯åŠ¨ç”Ÿå‘½å€¼æ£€æµ‹åç¨‹
         StartCoroutine(HealthCheckCoroutine());
     }
 
     /// <summary>
-    /// ²éÕÒ½¡¿µ×é¼ş²¢Ê¹ÓÃ·´Éä»ñÈ¡½¡¿µÊôĞÔ
+    /// æŸ¥æ‰¾ç”Ÿå‘½å€¼ç»„ä»¶ï¼Œä½¿ç”¨åå°„è·å–å±æ€§å€¼
     /// </summary>
     void FindHealthComponent()
     {
-        // »ñÈ¡ÓÎÏ·¶ÔÏóÉÏµÄËùÓĞMonoBehaviour×é¼ş
+        // è·å–æ¸¸æˆå¯¹è±¡ä¸Šçš„æ‰€æœ‰MonoBehaviourç»„ä»¶
         MonoBehaviour[] components = GetComponents<MonoBehaviour>();
-        // ±éÀúËùÓĞ×é¼ş
+        // éå†æ‰€æœ‰ç»„ä»¶
         foreach (var component in components)
         {
-            // ¼ì²é×é¼şÀàĞÍÃû³ÆÊÇ·ñÆ¥Åä
+            // æ£€æŸ¥ç»„ä»¶ç±»å‹åç§°æ˜¯å¦åŒ¹é…
             if (component.GetType().Name == healthComponentName)
             {
-                // ÕÒµ½½¡¿µ×é¼ş£¬±£´æÒıÓÃ
+                // æ‰¾åˆ°åŒ¹é…çš„ç»„ä»¶ï¼Œä¿å­˜å¼•ç”¨
                 healthComponent = component;
-                break; // ÕÒµ½ºóÍË³öÑ­»·
+                break; // æ‰¾åˆ°åé€€å‡ºå¾ªç¯
             }
         }
 
-        // Èç¹ûÕÒµ½ÁË½¡¿µ×é¼ş
+        // å¦‚æœæ‰¾åˆ°äº†ç”Ÿå‘½å€¼ç»„ä»¶
         if (healthComponent != null)
         {
-            // »ñÈ¡×é¼şµÄÀàĞÍĞÅÏ¢
+            // è·å–ç»„ä»¶çš„ç±»å‹ä¿¡æ¯
             var type = healthComponent.GetType();
-            // Ê¹ÓÃ·´Éä»ñÈ¡CurrentHealthÊôĞÔ
+            // ä½¿ç”¨åå°„è·å–CurrentHealthå±æ€§
             currentHealthProperty = type.GetProperty("CurrentHealth");
-            // Ê¹ÓÃ·´Éä»ñÈ¡MaxHealthÊôĞÔ
+            // ä½¿ç”¨åå°„è·å–MaxHealthå±æ€§
             maxHealthProperty = type.GetProperty("MaxHealth");
 
-            // Èç¹û³É¹¦»ñÈ¡µ½µ±Ç°½¡¿µÖµÊôĞÔ
+            // å¦‚æœæˆåŠŸè·å–åˆ°å½“å‰ç”Ÿå‘½å€¼å±æ€§
             if (currentHealthProperty != null)
             {
-                // »ñÈ¡³õÊ¼½¡¿µÖµ²¢±£´æ
+                // è·å–åˆå§‹ç”Ÿå‘½å€¼å¹¶ä¿å­˜
                 lastHealth = (int)currentHealthProperty.GetValue(healthComponent);
             }
 
-            // Êä³öÕÒµ½×é¼şµÄÈÕÖ¾
-            Debug.Log("ÕÒµ½½¡¿µ×é¼ş: " + healthComponent.GetType().Name);
+            // å¦‚æœæ‰¾åˆ°ç»„ä»¶ï¼Œè¾“å‡ºæ—¥å¿—
+            Debug.Log("æ‰¾åˆ°ç”Ÿå‘½å€¼ç»„ä»¶: " + healthComponent.GetType().Name);
         }
-        else // Èç¹ûÃ»ÓĞÕÒµ½½¡¿µ×é¼ş
+        else // å¦‚æœæ²¡æœ‰æ‰¾åˆ°ç”Ÿå‘½å€¼ç»„ä»¶
         {
-            // Êä³ö¾¯¸æĞÅÏ¢
-            Debug.LogWarning("Î´ÕÒµ½½¡¿µ×é¼ş: " + healthComponentName);
+            // è¾“å‡ºè­¦å‘Šä¿¡æ¯
+            Debug.LogWarning("æœªæ‰¾åˆ°ç”Ÿå‘½å€¼ç»„ä»¶: " + healthComponentName);
         }
     }
 
     /// <summary>
-    /// ½¡¿µ¼ì²éĞ­³Ì - ¶¨ÆÚ¼ì²éµĞÈËÊÇ·ñËÀÍö
+    /// ç”Ÿå‘½å€¼æ£€æµ‹åç¨‹ - ç”¨äºæ£€æµ‹æ•Œäººæ˜¯å¦æ­»äº¡
     /// </summary>
     System.Collections.IEnumerator HealthCheckCoroutine()
     {
-        // Ñ­»·Ö´ĞĞ£¬Ö±µ½µĞÈËËÀÍö
+        // å¾ªç¯æ‰§è¡Œï¼Œç›´åˆ°æ•Œäººæ­»äº¡
         while (!isDead)
         {
-            // µÈ´ıÖ¸¶¨µÄÊ±¼ä¼ä¸ô
+            // ç­‰å¾…æŒ‡å®šçš„æ—¶é—´é—´éš”
             yield return new WaitForSeconds(healthCheckInterval);
 
-            // Èç¹û½¡¿µ×é¼şºÍµ±Ç°½¡¿µÖµÊôĞÔ¶¼´æÔÚ
+            // å¦‚æœç”Ÿå‘½å€¼ç»„ä»¶å’Œå½“å‰ç”Ÿå‘½å€¼å±æ€§éƒ½å­˜åœ¨ä¸”å¯ç”¨
             if (healthComponent != null && currentHealthProperty != null)
             {
-                // Ê¹ÓÃ·´Éä»ñÈ¡µ±Ç°½¡¿µÖµ
+                // ä½¿ç”¨åå°„è·å–å½“å‰ç”Ÿå‘½å€¼
                 float currentHealth = (int)currentHealthProperty.GetValue(healthComponent);
 
-                // ¼ì²âËÀÍöÌõ¼ş£ºµ±Ç°½¡¿µÖµ<=0ÇÒÉÏÒ»Ö¡½¡¿µÖµ>0
+                // å¦‚æœæ£€æµ‹åˆ°å½“å‰ç”Ÿå‘½å€¼<=0ä¸”ä¸Šä¸€å¸§ç”Ÿå‘½å€¼>0
                 if (currentHealth <= 0 && lastHealth > 0)
                 {
-                    // µ÷ÓÃËÀÍö´¦Àí·½·¨
+                    // è§¦å‘æ•Œäººæ­»äº¡äº‹ä»¶
                     OnEnemyDeath();
-                    // ±ê¼ÇÎªÒÑËÀÍö
+                    // æ ‡è®°ä¸ºå·²æ­»äº¡
                     isDead = true;
                 }
 
-                // ¸üĞÂÉÏÒ»Ö¡½¡¿µÖµ
+                // æ›´æ–°ä¸Šä¸€å¸§ç”Ÿå‘½å€¼
                 lastHealth = currentHealth;
             }
         }
     }
 
     /// <summary>
-    /// µĞÈËËÀÍöÊÂ¼ş´¦Àí
+    /// æ•Œäººæ­»äº¡äº‹ä»¶å¤„ç†
     /// </summary>
     void OnEnemyDeath()
     {
-        // ¼ì²éÊÇ·ñÆôÓÃµôÂäÇÒÓĞµôÂä±íÅäÖÃ
+        // æ£€æŸ¥æ˜¯å¦å¯ç”¨æ‰è½ä¸”æ‰è½è¡¨ä¸ä¸ºç©º
         if (enableDrops && dropTable != null)
         {
-            // Ö´ĞĞµôÂäÎïÆ·
+            // æ‰§è¡Œæ‰è½ç‰©å“ç”Ÿæˆ
             DropItems();
         }
     }
 
     /// <summary>
-    /// Ö´ĞĞÎïÆ·µôÂä
+    /// æ‰§è¡Œç‰©å“æ‰è½
     /// </summary>
     public void DropItems()
     {
-        // ¼ì²éµôÂä¹ÜÀíÆ÷ÊÇ·ñ´æÔÚ
+        // æ£€æŸ¥æ‰è½ç®¡ç†å™¨æ˜¯å¦å­˜åœ¨
         if (DropManager.Instance == null)
         {
-            // Êä³ö´íÎóĞÅÏ¢
-            Debug.LogError("µôÂä¹ÜÀíÆ÷Î´ÕÒµ½£¡ÇëÈ·±£³¡¾°ÖĞÓĞDropManager¶ÔÏó");
-            return; // ÍË³ö·½·¨
+            // è¾“å‡ºé”™è¯¯ä¿¡æ¯
+            Debug.LogError("æ‰è½ç®¡ç†å™¨æœªæ‰¾åˆ°ï¼Œè¯·ç¡®ä¿åœºæ™¯ä¸­æœ‰DropManagerå¯¹è±¡");
+            return; // é€€å‡ºæ–¹æ³•
         }
 
-        // ¼ÆËãµôÂäÎ»ÖÃ£ºµĞÈËÎ»ÖÃ + Æ«ÒÆÁ¿
+        // è®¡ç®—æ‰è½ä½ç½®ï¼Œæ•Œäººä½ç½® + åç§»é‡
         Vector3 dropPosition = transform.position + dropOffset;
-        // Í¨¹ıµôÂä¹ÜÀíÆ÷Éú³ÉÎïÆ·
+        // é€šè¿‡ç®¡ç†å™¨ç”Ÿæˆæ‰è½ç‰©å“
         DropManager.Instance.SpawnDropsFromTable(dropTable, dropPosition);
 
-        // Êä³öµôÂäÈÕÖ¾
-        Debug.Log("µĞÈËËÀÍöµôÂä: " + gameObject.name + " ÔÚÎ»ÖÃ: " + dropPosition);
+        // è¾“å‡ºæ‰è½æ—¥å¿—
+        Debug.Log("æ•Œäººæ­»äº¡æ‰è½: " + gameObject.name + " ä½ç½®: " + dropPosition);
     }
 
     /// <summary>
-    /// ²âÊÔµôÂäµÄÉÏÏÂÎÄ²Ëµ¥·½·¨
+    /// æµ‹è¯•æ‰è½çš„ä¸Šä¸‹æ–‡èœå•æ–¹æ³•
     /// </summary>
-    [ContextMenu("²âÊÔµôÂä")]
+    [ContextMenu("æµ‹è¯•æ‰è½")]
     public void TestDrop()
     {
-        // ¼ì²éÊÇ·ñÓĞµôÂä±íÅäÖÃ
+        // æ£€æŸ¥æ˜¯å¦æœ‰æ‰è½è¡¨æ•°æ®
         if (dropTable != null)
         {
-            // Ö´ĞĞµôÂä
+            // æ‰§è¡Œæ‰è½
             DropItems();
-            // Êä³ö²âÊÔÍê³ÉĞÅÏ¢
-            Debug.Log("²âÊÔµôÂäÍê³É");
+            // è¾“å‡ºæµ‹è¯•ä¿¡æ¯
+            Debug.Log("æµ‹è¯•æ‰è½å®Œæˆ");
         }
-        else // Èç¹ûÃ»ÓĞÉèÖÃµôÂä±í
+        else // å¦‚æœæ²¡æœ‰è®¾ç½®æ‰è½è¡¨
         {
-            // Êä³ö¾¯¸æĞÅÏ¢
-            Debug.LogWarning("ÎŞ·¨²âÊÔµôÂä£ºÎ´ÉèÖÃµôÂä±í");
+            // è¾“å‡ºè­¦å‘Šä¿¡æ¯
+            Debug.LogWarning("æ— æ³•æµ‹è¯•æ‰è½ï¼šæœªè®¾ç½®æ‰è½è¡¨");
         }
     }
 
     /// <summary>
-    /// ÏÔÊ¾µôÂäĞÅÏ¢µÄÉÏÏÂÎÄ²Ëµ¥·½·¨
+    /// æ˜¾ç¤ºæ‰è½ä¿¡æ¯çš„ä¸Šä¸‹æ–‡èœå•æ–¹æ³•
     /// </summary>
-    [ContextMenu("ÏÔÊ¾µôÂäĞÅÏ¢")]
+    [ContextMenu("æ˜¾ç¤ºæ‰è½ä¿¡æ¯")]
     public void ShowDropInfo()
     {
-        // ¼ì²éÊÇ·ñÓĞµôÂä±íÅäÖÃ
+        // æ£€æŸ¥æ˜¯å¦æœ‰æ‰è½è¡¨æ•°æ®
         if (dropTable != null)
         {
-            // Êä³öµôÂäĞÅÏ¢±êÌâ
-            Debug.Log("=== µĞÈËµôÂäĞÅÏ¢ ===");
-            // Êä³öµĞÈËÃû³Æ
-            Debug.Log("µĞÈËÃû³Æ: " + gameObject.name);
-            // Êä³öµôÂä±íÃû³Æ
-            Debug.Log("µôÂä±í: " + dropTable.enemyName);
-            // Êä³ö¿ÉµôÂäÎïÆ·ÊıÁ¿
-            Debug.Log("µôÂäÎïÆ·ÊıÁ¿: " + dropTable.possibleDrops.Count);
+            // è¾“å‡ºæ‰è½ä¿¡æ¯æ ‡é¢˜
+            Debug.Log("=== æ•Œäººæ‰è½ä¿¡æ¯ ===");
+            // è¾“å‡ºæ•Œäººåç§°
+            Debug.Log("æ•Œäººåç§°: " + gameObject.name);
+            // è¾“å‡ºæ‰è½è¡¨åç§°
+            Debug.Log("æ‰è½è¡¨: " + dropTable.enemyName);
+            // è¾“å‡ºå¯èƒ½æ‰è½ç‰©å“æ•°é‡
+            Debug.Log("å¯èƒ½æ‰è½ç‰©å“æ•°: " + dropTable.possibleDrops.Count);
         }
-        else // Èç¹ûÃ»ÓĞÉèÖÃµôÂä±í
+        else // å¦‚æœæ²¡æœ‰è®¾ç½®æ‰è½è¡¨
         {
-            // Êä³ö¾¯¸æĞÅÏ¢
-            Debug.LogWarning("Î´ÉèÖÃµôÂä±í");
+            // è¾“å‡ºè­¦å‘Šä¿¡æ¯
+            Debug.LogWarning("æœªè®¾ç½®æ‰è½è¡¨");
         }
     }
 }

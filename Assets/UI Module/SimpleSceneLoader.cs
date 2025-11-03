@@ -1,15 +1,15 @@
-using UnityEngine;
+锘縰sing UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SimpleSceneLoader : MonoBehaviour
 {
     public void LoadSampleScene()
     {
-        // 直接尝试加载SampleScene
+        // 鐩存帴鍔犺浇鑷繁璁惧畾鐨凷ampleScene
         SceneManager.LoadScene("Main Scenes");
     }
 
-    // 备用方法：按索引加载
+    // 鎻愪緵鎸夌储寮曞姞杞藉満鏅殑鏂规硶
     public void LoadSceneByIndex(int sceneIndex)
     {
         SceneManager.LoadScene(sceneIndex);

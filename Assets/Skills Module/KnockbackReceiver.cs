@@ -1,31 +1,31 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// »÷ÍË½ÓÊÕÆ÷£ºÈç¹ûµĞÈË¹ÒÁË Rigidbody2D£¬¾ÍÄÜÆ½»¬µØ±»»÷ÍË£»·ñÔò½öÉèÖÃËÙ¶È¿ÉÄÜÎŞ¸Ğ
+/// ï¿½ï¿½ï¿½Ë½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½ï¿½ï¿½ Rigidbody2Dï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½Ø±ï¿½ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È¿ï¿½ï¿½ï¿½ï¿½Ş¸ï¿½
 /// </summary>
-[RequireComponent(typeof(Collider2D))] // ÖÁÉÙĞèÒªÅö×²ÌåÀ´²ÎÓë¼¼ÄÜµÄÅö×²¼ì²â
+[RequireComponent(typeof(Collider2D))] // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë¼¼ï¿½Üµï¿½ï¿½ï¿½×²ï¿½ï¿½ï¿½
 public class SM_KnockbackReceiver : MonoBehaviour, SM_IKnockbackable
 {
-    private Rigidbody2D _rb;  // ¸ÕÌå
-    private float _timer;     // Ê£Óà»÷ÍËÊ±¼ä
-    private Vector2 _vel;     // »÷ÍËËÙ¶È
+    private Rigidbody2D _rb;  // ï¿½ï¿½ï¿½ï¿½
+    private float _timer;     // Ê£ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    private Vector2 _vel;     // ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½
 
     private void Awake()
     {
-        _rb = GetComponent<Rigidbody2D>(); // ³¢ÊÔ»ñÈ¡¸ÕÌå
+        _rb = GetComponent<Rigidbody2D>(); // ï¿½ï¿½ï¿½Ô»ï¿½È¡ï¿½ï¿½ï¿½ï¿½
     }
 
-    public void Knockback(Vector2 dir, float force, float duration) // ÊµÏÖ½Ó¿Ú
+    public void Knockback(Vector2 dir, float force, float duration) // Êµï¿½Ö½Ó¿ï¿½
     {
-        dir.Normalize();             // ·½Ïò¹éÒ»»¯
-        _vel = dir * force;          // ¼ÆËãËÙ¶ÈÏòÁ¿
-        _timer = duration;           // ¼ÇÂ¼³ÖĞøÊ±¼ä
+        dir.Normalize();             // ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
+        _vel = dir * force;          // ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½ï¿½ï¿½
+        _timer = duration;           // ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
     }
 
     private void FixedUpdate()
     {
-        if (_timer <= 0f) return;    // ·Ç»÷ÍËÖĞÔò·µ»Ø
-        _timer -= Time.fixedDeltaTime; // Ê±¼äµİ¼õ
-        if (_rb != null) _rb.velocity = _vel; // ¶Ô¸ÕÌåÊ©¼ÓËÙ¶È
+        if (_timer <= 0f) return;    // ï¿½Ç»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò·µ»ï¿½
+        _timer -= Time.fixedDeltaTime; // Ê±ï¿½ï¿½İ¼ï¿½
+        if (_rb != null) _rb.velocity = _vel; // ï¿½Ô¸ï¿½ï¿½ï¿½Ê©ï¿½ï¿½ï¿½Ù¶ï¿½
     }
 }

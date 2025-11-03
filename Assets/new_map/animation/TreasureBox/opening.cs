@@ -1,53 +1,53 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChestOpener : MonoBehaviour // ÀàÃû½¨Òé¸ÄÎª¸ü¾ßÓïÒåµÄÃû³Æ£¨ÈçChestOpener£©
+public class ChestOpener : MonoBehaviour // ç±»åå¯ä»¥æ”¹ä¸ºæ›´å…·ä½“çš„åç§°ï¼Œå¦‚ChestOpener
 {
-    private bool canInteract; // ¸üÇåÎúµÄÃüÃû£ºÊÇ·ñ¿É½»»¥
-    private bool isOpen;      // ¸ü¼ò½àµÄÃüÃû£ºÊÇ·ñÒÑ´ò¿ª
+    private bool canInteract; // æ ‡è®°ç©å®¶å½“å‰æ˜¯å¦å¯äº¤äº’
+    private bool isOpen;      // æ ‡è®°å®ç®±æ˜¯å¦å·²æ‰“å¼€
     private Animator anim;
 
     void Start()
     {
-        // ĞŞÕı×é¼ş»ñÈ¡·½·¨µÄ´óĞ¡Ğ´£¬²¢Ìí¼Ó°²È«ÅĞ¶Ï
+        // è·å–åŠ¨ç”»ç»„ä»¶ï¼Œä½¿ç”¨å¤§å°å†™æ•æ„Ÿï¼Œå®‰å…¨åˆ¤æ–­
         anim = GetComponent<Animator>();
         if (anim == null)
         {
-            Debug.LogError("±¦Ïä¶ÔÏóÉÏÎ´ÕÒµ½Animator×é¼ş£¡", this);
+            Debug.LogError("å®ç®±ç»„ä»¶æœªæ‰¾åˆ°Animatorç»„ä»¶ï¼", this);
         }
         isOpen = false;
-        canInteract = false; // ÏÔÊ½³õÊ¼»¯£¬Âß¼­¸üÇåÎú
+        canInteract = false; // æ­£å¼åˆå§‹åŒ–äº¤äº’é€»è¾‘å˜é‡
     }
 
     void Update()
     {
-        // Ö»ÓĞÔÚ¿É½»»¥¡¢Î´´ò¿ª¡¢ÇÒ»ñÈ¡µ½Animator×é¼şÊ±£¬²ÅÏìÓ¦F¼ü
+        // åªåœ¨å¯äº¤äº’ä¸”æœªæ‰“å¼€ä¸”æœ‰Animatorç»„ä»¶æ—¶æ‰å“åº”Fé”®
         if (Input.GetKeyDown(KeyCode.F) && canInteract && !isOpen && anim != null)
         {
             anim.SetTrigger("opening");
             isOpen = true;
-            Debug.Log("±¦Ïä¿ªÊ¼´ò¿ª¶¯»­"); // µ÷ÊÔÈÕÖ¾
+            Debug.Log("å®ç®±å¼€å§‹æ‰“å¼€åŠ¨ç”»"); // æ·»åŠ æ—¥å¿—
         }
     }
 
-    // Íæ¼Ò½øÈë½»»¥·¶Î§£¨½öÍ¨¹ı±êÇ©ÅĞ¶Ï£¬¼æÈİÈÎÒâÍæ¼ÒÅö×²Æ÷£©
+    // ç©å®¶è¿›å…¥äº¤äº’èŒƒå›´æ—¶ï¼Œé€šè¿‡æ ‡ç­¾åˆ¤æ–­ï¼ˆç¡®ä¿ç©å®¶æœ‰ç¢°æ’ä½“ï¼‰
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
             canInteract = true;
-            Debug.Log("Íæ¼Ò½øÈë±¦Ïä½»»¥·¶Î§"); // µ÷ÊÔÈÕÖ¾
+            Debug.Log("ç©å®¶è¿›å…¥å®ç®±äº¤äº’èŒƒå›´"); // æ·»åŠ æ—¥å¿—
         }
     }
 
-    // Íæ¼ÒÀë¿ª½»»¥·¶Î§
+    // ç©å®¶ç¦»å¼€äº¤äº’èŒƒå›´
     void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
             canInteract = false;
-            Debug.Log("Íæ¼ÒÀë¿ª±¦Ïä½»»¥·¶Î§"); // µ÷ÊÔÈÕÖ¾
+            Debug.Log("ç©å®¶ç¦»å¼€å®ç®±äº¤äº’èŒƒå›´"); // æ·»åŠ æ—¥å¿—
         }
     }
 }

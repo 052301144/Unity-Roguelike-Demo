@@ -1,121 +1,121 @@
-using UnityEngine; // ÒýÈëUnityÒýÇæÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // å¼•å…¥Unityå¼•æ“Žå‘½åç©ºé—´
 
 /// <summary>
-/// µôÂäÏµÍ³²âÊÔ½Å±¾ - Ìá¹©¿ì½Ý¼ü²âÊÔµôÂäÏµÍ³¹¦ÄÜ
+/// æŽ‰è½ç³»ç»Ÿæµ‹è¯•è„šæœ¬ - æä¾›å¿«æ·é”®æµ‹è¯•æŽ‰è½ç³»ç»ŸåŠŸèƒ½
 /// </summary>
 public class DropSystemTester : MonoBehaviour
 {
     /// <summary>
-    /// Update·½·¨ - Ã¿Ö¡µ÷ÓÃ£¬¼ì²â°´¼üÊäÈë
+    /// Updateæ–¹æ³• - æ¯å¸§è°ƒç”¨ï¼Œæ£€æµ‹æŒ‰é”®è¾“å…¥
     /// </summary>
     void Update()
     {
-        // °´T¼ü²âÊÔµÐÈËµôÂä
+        // æŒ‰Té”®æµ‹è¯•æ•ŒäººæŽ‰è½
         if (Input.GetKeyDown(KeyCode.T))
         {
-            TestEnemyDrop(); // µ÷ÓÃ²âÊÔµôÂä·½·¨
+            TestEnemyDrop(); // è°ƒç”¨æµ‹è¯•æŽ‰è½æ–¹æ³•
         }
 
-        // °´C¼üÇåÀíËùÓÐµôÂäÎï
+        // æŒ‰Cé”®æ¸…é™¤æ‰€æœ‰æŽ‰è½
         if (Input.GetKeyDown(KeyCode.C))
         {
-            // ¼ì²éµôÂä¹ÜÀíÆ÷ÊÇ·ñ´æÔÚ
+            // æ£€æŸ¥æŽ‰è½ç®¡ç†å™¨æ˜¯å¦å­˜åœ¨
             if (DropManager.Instance != null)
             {
-                // ÇåÀíËùÓÐµôÂäÎïÆ·
+                // æ¸…é™¤æ‰€æœ‰çš„æŽ‰è½ç‰©å“
                 DropManager.Instance.ClearAllDrops();
-                // Êä³öÇåÀíÐÅÏ¢
-                Debug.Log("ÒÑÇåÀíËùÓÐµôÂäÎïÆ·");
+                // è¾“å‡ºæ¸…é™¤ä¿¡æ¯
+                Debug.Log("å·²æ¸…é™¤æ‰€æœ‰çš„æŽ‰è½ç‰©å“");
             }
         }
 
-        // °´I¼üÏÔÊ¾µôÂäÐÅÏ¢
+        // æŒ‰Ié”®æ˜¾ç¤ºæŽ‰è½ä¿¡æ¯
         if (Input.GetKeyDown(KeyCode.I))
         {
-            ShowDropInfo(); // µ÷ÓÃÏÔÊ¾ÐÅÏ¢·½·¨
+            ShowDropInfo(); // è°ƒç”¨æ˜¾ç¤ºä¿¡æ¯æ–¹æ³•
         }
 
-        // °´G¼üÏÔÊ¾½ð±Ò×ÜÊý
+        // æŒ‰Gé”®æ˜¾ç¤ºé‡‘å¸ä¿¡æ¯
         if (Input.GetKeyDown(KeyCode.G))
         {
-            ShowGoldInfo(); // µ÷ÓÃÏÔÊ¾½ð±ÒÐÅÏ¢·½·¨
+            ShowGoldInfo(); // è°ƒç”¨æ˜¾ç¤ºé‡‘å¸ä¿¡æ¯æ–¹æ³•
         }
     }
 
     /// <summary>
-    /// ²âÊÔµÐÈËµôÂä¹¦ÄÜ
+    /// æµ‹è¯•æ•ŒäººæŽ‰è½åŠŸèƒ½
     /// </summary>
     void TestEnemyDrop()
     {
-        // ²éÕÒ³¡¾°ÖÐ´øÓÐ"Enemy"±êÇ©µÄµÐÈË¶ÔÏó
+        // æŸ¥æ‰¾åœºæ™¯ä¸­å­˜åœ¨"Enemy"æ ‡ç­¾çš„æ•Œäººå¯¹è±¡
         GameObject enemy = GameObject.FindGameObjectWithTag("Enemy");
-        // Èç¹ûÃ»ÓÐÕÒµ½µÐÈË
+        // å¦‚æžœæ²¡æœ‰æ‰¾åˆ°æ•Œäºº
         if (enemy == null)
         {
-            // Ê¹ÓÃµ±Ç°ÓÎÏ·¶ÔÏó×÷Îª²âÊÔÄ¿±ê
+            // ä½¿ç”¨å½“å‰æ¸¸æˆå¯¹è±¡ä½œä¸ºæµ‹è¯•ç›®æ ‡
             enemy = gameObject;
-            // Êä³öÊ¹ÓÃµ±Ç°¶ÔÏóµÄÌáÊ¾
-            Debug.Log("Î´ÕÒµ½´øEnemy±êÇ©µÄ¶ÔÏó£¬Ê¹ÓÃµ±Ç°¶ÔÏó½øÐÐ²âÊÔ");
+            // æç¤ºä½¿ç”¨å½“å‰å¯¹è±¡è¿›è¡Œæµ‹è¯•
+            Debug.Log("æœªæ‰¾åˆ°å¸¦Enemyæ ‡ç­¾çš„å¯¹è±¡ï¼Œä½¿ç”¨å½“å‰å¯¹è±¡è¿›è¡Œæµ‹è¯•");
         }
 
-        // »ñÈ¡µÐÈËµÄµôÂä¿ØÖÆÆ÷×é¼þ
+        // èŽ·å–æ•Œäººçš„æŽ‰è½æŽ§åˆ¶å™¨ç»„ä»¶
         EnemyDeathDetector dropController = enemy.GetComponent<EnemyDeathDetector>();
-        // Èç¹ûÕÒµ½ÁËµôÂä¿ØÖÆÆ÷
+        // å¦‚æžœæ‰¾åˆ°äº†æŽ‰è½æŽ§åˆ¶å™¨
         if (dropController != null)
         {
-            // Ö´ÐÐ²âÊÔµôÂä
+            // æ‰§è¡Œæµ‹è¯•æŽ‰è½
             dropController.TestDrop();
         }
-        else // Èç¹ûÃ»ÓÐÕÒµ½µôÂä¿ØÖÆÆ÷
+        else // å¦‚æžœæ²¡æœ‰æ‰¾åˆ°æŽ‰è½æŽ§åˆ¶å™¨
         {
-            // Êä³ö¾¯¸æÐÅÏ¢
-            Debug.LogWarning("Î´ÕÒµ½EnemyDeathDetector×é¼þ£¬ÇëÎªµÐÈËÌí¼Ó¸Ã×é¼þ");
+            // è¾“å‡ºè­¦å‘Šä¿¡æ¯
+            Debug.LogWarning("æœªæ‰¾åˆ°EnemyDeathDetectorç»„ä»¶ï¼Œè¯·ä¸ºå¯¹è±¡æ·»åŠ è¯¥ç»„ä»¶");
         }
     }
 
     /// <summary>
-    /// ÏÔÊ¾µôÂäÐÅÏ¢
+    /// æ˜¾ç¤ºæŽ‰è½ä¿¡æ¯
     /// </summary>
     void ShowDropInfo()
     {
-        // ²éÕÒ³¡¾°ÖÐµÄµÐÈË¶ÔÏó
+        // æŸ¥æ‰¾åœºæ™¯ä¸­çš„æ•Œäººå¯¹è±¡
         GameObject enemy = GameObject.FindGameObjectWithTag("Enemy");
-        // Èç¹ûÃ»ÓÐÕÒµ½µÐÈË£¬Ê¹ÓÃµ±Ç°¶ÔÏó
+        // å¦‚æžœæ²¡æœ‰æ‰¾åˆ°æ•Œäººï¼Œä½¿ç”¨å½“å‰å¯¹è±¡
         if (enemy == null)
         {
             enemy = gameObject;
         }
 
-        // »ñÈ¡µôÂä¿ØÖÆÆ÷×é¼þ
+        // èŽ·å–æŽ‰è½æŽ§åˆ¶å™¨ç»„ä»¶
         EnemyDeathDetector dropController = enemy.GetComponent<EnemyDeathDetector>();
-        // Èç¹ûÕÒµ½ÁËµôÂä¿ØÖÆÆ÷
+        // å¦‚æžœæ‰¾åˆ°äº†æŽ‰è½æŽ§åˆ¶å™¨
         if (dropController != null)
         {
-            // ÏÔÊ¾µôÂäÐÅÏ¢
+            // æ˜¾ç¤ºæŽ‰è½ä¿¡æ¯
             dropController.ShowDropInfo();
         }
-        else // Èç¹ûÃ»ÓÐÕÒµ½µôÂä¿ØÖÆÆ÷
+        else // å¦‚æžœæ²¡æœ‰æ‰¾åˆ°æŽ‰è½æŽ§åˆ¶å™¨
         {
-            // Êä³ö¾¯¸æÐÅÏ¢
-            Debug.LogWarning("Î´ÕÒµ½EnemyDeathDetector×é¼þ");
+            // è¾“å‡ºè­¦å‘Šä¿¡æ¯
+            Debug.LogWarning("æœªæ‰¾åˆ°EnemyDeathDetectorç»„ä»¶");
         }
     }
 
     /// <summary>
-    /// ÏÔÊ¾½ð±ÒÐÅÏ¢
+    /// æ˜¾ç¤ºé‡‘å¸ä¿¡æ¯
     /// </summary>
     void ShowGoldInfo()
     {
-        // ¼ì²éµôÂä¹ÜÀíÆ÷ÊÇ·ñ´æÔÚ
+        // æ£€æŸ¥æŽ‰è½ç®¡ç†å™¨æ˜¯å¦å­˜åœ¨
         if (DropManager.Instance != null)
         {
-            // »ñÈ¡²¢ÏÔÊ¾×Ü½ð±ÒÊý - ÕâÀïÓ¦¸Ãµ÷ÓÃGetTotalCoins()·½·¨
-            Debug.Log("µ±Ç°×Ü½ð±Ò: " + DropManager.Instance.GetTotalCoins());
+            // èŽ·å–å¹¶æ˜¾ç¤ºæ€»é‡‘å¸æ•° - å®žé™…åº”è¯¥è°ƒç”¨GetTotalCoins()æ–¹æ³•
+            Debug.Log("å½“å‰æ€»é‡‘å¸: " + DropManager.Instance.GetTotalCoins());
         }
-        else // Èç¹ûµôÂä¹ÜÀíÆ÷²»´æÔÚ
+        else // å¦‚æžœæŽ‰è½ç®¡ç†å™¨ä¸å­˜åœ¨
         {
-            // Êä³ö¾¯¸æÐÅÏ¢
-            Debug.LogWarning("µôÂä¹ÜÀíÆ÷Î´ÕÒµ½");
+            // è¾“å‡ºè­¦å‘Šä¿¡æ¯
+            Debug.LogWarning("æŽ‰è½ç®¡ç†å™¨æœªæ‰¾åˆ°");
         }
     }
 

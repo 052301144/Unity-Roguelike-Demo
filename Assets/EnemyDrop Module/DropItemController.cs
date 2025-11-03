@@ -1,197 +1,228 @@
-using System.Collections; // ÒıÈëĞ­³ÌÏà¹ØÃüÃû¿Õ¼ä
-using UnityEngine; // ÒıÈëUnityÒıÇæÃüÃû¿Õ¼ä
+ï»¿using System.Collections; // å¼•å…¥åç¨‹å‘½åç©ºé—´
+using UnityEngine; // å¼•å…¥Unityå¼•æ“å‘½åç©ºé—´
 
 /// <summary>
-/// µôÂäÎïÆ·¿ØÖÆÆ÷ - ¿ØÖÆµ¥¸öµôÂäÎïÆ·µÄĞĞÎªºÍ×´Ì¬
+/// æ‰è½ç‰©å“æ§åˆ¶å™¨ - æ§åˆ¶æ‰è½åœ¨åœ°é¢ä¸Šçš„ç‰©å“è¡Œä¸ºçŠ¶æ€
 /// </summary>
 public class DropItemController : MonoBehaviour
 {
-    [Header("ÎïÆ·ĞÅÏ¢")] // ÎïÆ·»ù±¾ĞÅÏ¢·Ö×é
-    public DropItem itemData;            // ÎïÆ·µÄÊı¾İÅäÖÃ
-    public DropItemType itemType;        // ÎïÆ·µÄÀàĞÍ
+    [Header("ç‰©å“ä¿¡æ¯")] // ç‰©å“ç›¸å…³ä¿¡æ¯éƒ¨åˆ†
+    public DropItem itemData;            // ç‰©å“æ•°æ®å¯¹è±¡å¼•ç”¨
+    public DropItemType itemType;        // ç‰©å“ç±»å‹æšä¸¾
 
-    [Header("ÊÓ¾õĞ§¹û")] // ÊÓ¾õ±íÏÖÏà¹Ø·Ö×é
-    public SpriteRenderer spriteRenderer; // äÖÈ¾ÎïÆ·Í¼±êµÄ¾«ÁéäÖÈ¾Æ÷
-    public float hoverHeight = 0.2f;     // Ğü¸¡¶¯»­µÄ¸ß¶È·ù¶È
-    public float hoverSpeed = 2f;        // Ğü¸¡¶¯»­µÄËÙ¶È
+    [Header("è§†è§‰æ•ˆæœ")] // è§†è§‰æ•ˆæœç›¸å…³éƒ¨åˆ†
+    public SpriteRenderer spriteRenderer; // æ¸²æŸ“ç‰©å“å›¾åƒçš„ç²¾çµæ¸²æŸ“å™¨
+    public float hoverHeight = 0.2f;     // æ‚¬æµ®æ•ˆæœçš„é«˜åº¦èŒƒå›´
+    public float hoverSpeed = 2f;        // æ‚¬æµ®æ•ˆæœçš„ç§»åŠ¨é€Ÿåº¦
 
-    [Header("Ê°È¡ÉèÖÃ")] // Ê°È¡Ïà¹ØÉèÖÃ·Ö×é
-    public float pickupDelay = 0.5f;     // Éú³Éºó¿ÉÒÔÊ°È¡µÄÑÓ³ÙÊ±¼ä
+    [Header("æ‹¾å–è®¾ç½®")] // æ‹¾å–ç›¸å…³é…ç½®éƒ¨åˆ†
+    public float pickupDelay = 0.5f;     // ç”Ÿæˆåå…è®¸æ‹¾å–çš„å»¶è¿Ÿæ—¶é—´
 
-    // ¹«¹²ÊôĞÔ - Íâ²¿¿ÉÒÔ¶ÁÈ¡µ«²»ÄÜÉèÖÃ
-    public bool CanBePickedUp { get; private set; } = false; // ±ê¼ÇÎïÆ·ÊÇ·ñ¿ÉÒÔ±»Ê°È¡
+    // å…¬å…±å±æ€§ - å¤–éƒ¨å¯ä»¥é€šè¿‡æ­¤å±æ€§è·å–æ‹¾å–çŠ¶æ€
+    public bool CanBePickedUp { get; private set; } = false; // æ ‡è®°ç‰©å“æ˜¯å¦å¯ä»¥è¢«æ‹¾å–
 
-    // Ë½ÓĞ×Ö¶Î - ÄÚ²¿×´Ì¬¹ÜÀí
-    private float lifetime;              // ÎïÆ·Ê£Óà´æÔÚÊ±¼ä
-    private Vector3 startPosition;       // ÎïÆ·µÄ³õÊ¼Î»ÖÃ£¨ÓÃÓÚĞü¸¡¶¯»­£©
-    private bool isPickedUp = false;     // ±ê¼ÇÎïÆ·ÊÇ·ñÒÑ±»Ê°È¡
+    // ç§æœ‰å­—æ®µ - å†…éƒ¨çŠ¶æ€ç®¡ç†
+    private float lifetime;              // ç‰©å“å‰©ä½™å­˜æ´»æ—¶é—´
+    private Vector3 startPosition;       // ç‰©å“çš„åˆå§‹ä½ç½®ï¼Œç”¨äºæ‚¬æµ®åŠ¨ç”»è®¡ç®—
+    private bool isPickedUp = false;     // æ ‡è®°ç‰©å“æ˜¯å¦å·²è¢«æ‹¾å–
 
+    void Awake()
+    {
+        // å¦‚æœæ²¡æœ‰æ‰‹åŠ¨æŒ‡å®šSpriteRendererï¼Œè‡ªåŠ¨æŸ¥æ‰¾
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            
+            // å¦‚æœæ²¡æ‰¾åˆ°ï¼Œå°è¯•ä»å­å¯¹è±¡ä¸­æŸ¥æ‰¾
+            if (spriteRenderer == null)
+            {
+                spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            }
+            
+            // å¦‚æœè¿˜æ˜¯æ²¡æ‰¾åˆ°ï¼Œè®°å½•è­¦å‘Š
+            if (spriteRenderer == null)
+            {
+                Debug.LogWarning($"[DropItemController] {gameObject.name} æœªæ‰¾åˆ°SpriteRendererç»„ä»¶ã€‚è¯·ç¡®ä¿é¢„åˆ¶ä½“ä¸Šæœ‰SpriteRendererç»„ä»¶ã€‚");
+            }
+        }
+    }
+    
     /// <summary>
-    /// Start·½·¨ - ÔÚ¶ÔÏóÊ×´ÎÆôÓÃÊ±µ÷ÓÃ
+    /// Startæ–¹æ³• - åœ¨å¯¹è±¡æ¿€æ´»æ—¶è°ƒç”¨
     /// </summary>
     void Start()
     {
-        // ¼ÇÂ¼³õÊ¼Î»ÖÃ
+        // ç¡®ä¿SpriteRendererå·²åˆå§‹åŒ–ï¼ˆå¦‚æœAwakeä¸­æœªæ‰¾åˆ°ï¼Œå†æ¬¡å°è¯•ï¼‰
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            if (spriteRenderer == null)
+            {
+                spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            }
+        }
+    
+        // è®°å½•åˆå§‹ä½ç½®
         startPosition = transform.position;
-        // Æô¶¯ÑÓ³ÙÆôÓÃÊ°È¡µÄĞ­³Ì
+        // å¯åŠ¨å»¶è¿Ÿå…è®¸æ‹¾å–çš„åç¨‹
         StartCoroutine(EnablePickupAfterDelay());
 
-        // ÉèÖÃÎïÆ·µÄÍ¼±ê
+        // è®¾ç½®ç‰©å“çš„å›¾æ ‡
         if (spriteRenderer != null && itemData != null && itemData.itemIcon != null)
         {
-            // ½«ÎïÆ·Êı¾İÖĞµÄÍ¼±êÉèÖÃµ½¾«ÁéäÖÈ¾Æ÷
+            // å°†ç‰©å“æ•°æ®ä¸­çš„å›¾æ ‡è®¾ç½®åˆ°ç²¾çµæ¸²æŸ“å™¨
             spriteRenderer.sprite = itemData.itemIcon;
         }
     }
 
     /// <summary>
-    /// Update·½·¨ - Ã¿Ö¡µ÷ÓÃ
+    /// Updateæ–¹æ³• - æ¯å¸§è°ƒç”¨
     /// </summary>
     void Update()
     {
-        // Èç¹ûÎïÆ·ÒÑ±»Ê°È¡£¬²»ÔÙÖ´ĞĞÈÎºÎ¸üĞÂÂß¼­
+        // å¦‚æœç‰©å“å·²è¢«æ‹¾å–ï¼Œä¸æ‰§è¡Œä»»ä½•æ›´æ–°é€»è¾‘
         if (isPickedUp) return;
 
-        // Ğü¸¡¶¯»­ - Ö»ÓĞÔÚ¿ÉÒÔÊ°È¡Ê±²ÅÖ´ĞĞ
+        // æ‚¬æµ®åŠ¨ç”» - åªåœ¨å¯ä»¥æ‹¾å–æ—¶æ‰§è¡Œ
         if (CanBePickedUp)
         {
-            // Ê¹ÓÃÕıÏÒº¯Êı¼ÆËãYÖáÆ«ÒÆ£¬´´½¨ÉÏÏÂ¸¡¶¯µÄĞ§¹û
+            // ä½¿ç”¨æ­£å¼¦å‡½æ•°è®¡ç®—Yè½´åç§»ï¼Œäº§ç”Ÿä¸Šä¸‹æµ®åŠ¨æ•ˆæœ
             float newY = startPosition.y + Mathf.Sin(Time.time * hoverSpeed) * hoverHeight;
-            // ¸üĞÂÎïÆ·Î»ÖÃ£¬Ö»¸Ä±äYÖá
+            // æ›´æ–°ç‰©å“ä½ç½®ï¼Œåªæ”¹å˜Yè½´
             transform.position = new Vector3(transform.position.x, newY, transform.position.z);
         }
 
-        // ÉúÃüÖÜÆÚ¹ÜÀí - Èç¹ûÉèÖÃÁË´æÔÚÊ±¼ä
+        // ç”Ÿå‘½å‘¨æœŸç®¡ç† - å¦‚æœè®¾ç½®äº†æœ€å¤§å­˜æ´»æ—¶é—´
         if (lifetime > 0)
         {
-            // ¼õÉÙÊ£ÓàÊ±¼ä
+            // å‡å°‘å‰©ä½™æ—¶é—´
             lifetime -= Time.deltaTime;
-            // Èç¹ûÊ±¼äºÄ¾¡£¬Ïú»ÙÎïÆ·
+            // å¦‚æœæ—¶é—´åˆ°äº†ï¼Œé”€æ¯ç‰©å“
             if (lifetime <= 0)
             {
-                DestroyItem(); // µ÷ÓÃÏú»Ù·½·¨
+                DestroyItem(); // é”€æ¯æ‰è½ç‰©å“
             }
         }
     }
 
     /// <summary>
-    /// ³õÊ¼»¯ÎïÆ·
+    /// åˆå§‹åŒ–æ‰è½ç‰©å“
     /// </summary>
-    /// <param name="data">ÎïÆ·Êı¾İÅäÖÃ</param>
-    /// <param name="lifeTime">ÎïÆ·´æÔÚÊ±¼ä</param>
+    /// <param name="data">ç‰©å“æ•°æ®å¯¹è±¡</param>
+    /// <param name="lifeTime">ç‰©å“å­˜æ´»æ—¶é—´</param>
     public void Initialize(DropItem data, float lifeTime)
     {
-        itemData = data;         // ÉèÖÃÎïÆ·Êı¾İ
-        lifetime = lifeTime;     // ÉèÖÃ´æÔÚÊ±¼ä
-        itemType = data.itemType; // ÉèÖÃÎïÆ·ÀàĞÍ
+        itemData = data;         // è®¾ç½®ç‰©å“æ•°æ®
+        lifetime = lifeTime;     // è®¾ç½®å­˜æ´»æ—¶é—´
+        itemType = data.itemType; // è®¾ç½®ç‰©å“ç±»å‹
 
-        // ÉèÖÃÓÎÏ·¶ÔÏóÃû³Æ£¬±ãÓÚÔÚ³¡¾°ÖĞÊ¶±ğ
+        // è®¾ç½®æ¸¸æˆå¯¹è±¡åç§°ï¼Œä¾¿äºåœ¨åœºæ™¯ä¸­è¯†åˆ«
         gameObject.name = data.itemName + " (Drop)";
     }
 
     /// <summary>
-    /// ÑÓ³ÙÆôÓÃÊ°È¡µÄĞ­³Ì
+    /// å»¶è¿Ÿå…è®¸æ‹¾å–çš„åç¨‹
     /// </summary>
     private IEnumerator EnablePickupAfterDelay()
     {
-        // µÈ´ıÖ¸¶¨µÄÑÓ³ÙÊ±¼ä
+        // ç­‰å¾…æŒ‡å®šçš„å»¶è¿Ÿæ—¶é—´
         yield return new WaitForSeconds(pickupDelay);
-        // ÆôÓÃÊ°È¡¹¦ÄÜ
+        // å¯ç”¨æ‹¾å–åŠŸèƒ½
         CanBePickedUp = true;
     }
 
     /// <summary>
-    /// Ê°È¡ÎïÆ·
+    /// æ‹¾å–ç‰©å“
     /// </summary>
-    /// <param name="picker">Ê°È¡ÕßµÄÓÎÏ·¶ÔÏó</param>
+    /// <param name="picker">æ‹¾å–è€…çš„æ¸¸æˆå¯¹è±¡</param>
     public void Pickup(GameObject picker)
     {
-        // ¼ì²éÎïÆ·ÊÇ·ñ¿ÉÒÔ±»Ê°È¡ÇÒÉĞÎ´±»Ê°È¡
+        // æ£€æŸ¥ç‰©å“æ˜¯å¦å¯ä»¥è¢«æ‹¾å–ä¸”æœªè¢«æ‹¾å–
         if (!CanBePickedUp || isPickedUp) return;
 
-        // ±ê¼ÇÎªÒÑÊ°È¡£¬·ÀÖ¹ÖØ¸´Ê°È¡
+        // æ ‡è®°ä¸ºå·²æ‹¾å–ï¼Œé˜²æ­¢é‡å¤æ‹¾å–
         isPickedUp = true;
 
-        // Ó¦ÓÃÎïÆ·Ğ§¹û£¨»Ö¸´ÉúÃü¡¢Ä§·¨»òÔö¼Ó½ğ±Ò£©
+        // åº”ç”¨ç‰©å“æ•ˆæœï¼ˆæ¢å¤ç”Ÿå‘½å€¼ã€é­”æ³•å€¼ã€å¢åŠ é‡‘å¸ç­‰ï¼‰
         ApplyItemEffect();
 
-        // Ïú»ÙÎïÆ·¶ÔÏó
+        // é”€æ¯æ‰è½ç‰©å“å¯¹è±¡
         DestroyItem();
 
-        // Êä³öÊ°È¡ÈÕÖ¾
-        Debug.Log("Ê°È¡ÎïÆ·: " + itemData.itemName);
+        // è¾“å‡ºæ‹¾å–æ—¥å¿—
+        Debug.Log("æ‹¾å–ç‰©å“: " + itemData.itemName);
     }
 
     /// <summary>
-    /// Ó¦ÓÃÎïÆ·Ğ§¹û
+    /// åº”ç”¨ç‰©å“æ•ˆæœ
     /// </summary>
     private void ApplyItemEffect()
     {
-        // ¼ì²éµôÂä¹ÜÀíÆ÷ÊÇ·ñ´æÔÚ
+        // æ£€æŸ¥æ‰è½ç®¡ç†å™¨æ˜¯å¦å­˜åœ¨
         if (DropManager.Instance == null) return;
 
-        // »ñÈ¡µôÂäÊıÁ¿
+        // è·å–æ‰è½æ•°é‡
         int amount = itemData.GetDropQuantity();
 
-        // ¸ù¾İÎïÆ·ÀàĞÍ´¥·¢²»Í¬µÄÊÂ¼ş
+        // æ ¹æ®ç‰©å“ç±»å‹è§¦å‘ä¸åŒçš„äº‹ä»¶
         switch (itemType)
         {
             case DropItemType.Health:
-                // ´¥·¢ÉúÃü»Ö¸´ÊÂ¼ş
+                // è§¦å‘ç”Ÿå‘½å€¼æ¢å¤äº‹ä»¶
                 DropManager.Instance.TriggerHealthRestored(amount);
                 break;
 
             case DropItemType.Mana:
-                // ´¥·¢Ä§·¨»Ö¸´ÊÂ¼ş
+                // è§¦å‘é­”æ³•å€¼æ¢å¤äº‹ä»¶
                 DropManager.Instance.TriggerManaRestored(amount);
                 break;
 
             case DropItemType.Coin:
-                // ´¥·¢½ğ±ÒÊÕ¼¯ÊÂ¼ş
+                // è§¦å‘é‡‘å¸æ”¶é›†äº‹ä»¶
                 DropManager.Instance.TriggerCoinCollected(amount);
                 break;
         }
     }
 
     /// <summary>
-    /// Ïú»ÙÎïÆ·
+    /// é”€æ¯æ‰è½ç‰©å“
     /// </summary>
     private void DestroyItem()
     {
-        // ´ÓµôÂä¹ÜÀíÆ÷µÄ»î¶¯ÁĞ±íÖĞÒÆ³ı
+        // ä»ç®¡ç†å™¨çš„æ´»åŠ¨åˆ—è¡¨ä¸­ç§»é™¤
         if (DropManager.Instance != null)
         {
             DropManager.Instance.RemoveFromActiveDrops(gameObject);
         }
 
-        // Ïú»ÙÓÎÏ·¶ÔÏó
+        // é”€æ¯æ¸¸æˆå¯¹è±¡
         Destroy(gameObject);
     }
 
     /// <summary>
-    /// 2DÅö×²Ìå´¥·¢½øÈëÊÂ¼ş
+    /// 2Dç¢°æ’å™¨è§¦å‘è¿›å…¥äº‹ä»¶
     /// </summary>
-    /// <param name="other">´¥·¢Åö×²µÄÆäËûÅö×²Ìå</param>
+    /// <param name="other">è§¦å‘ç¢°æ’çš„å¦ä¸€ä¸ªç¢°æ’å™¨</param>
     void OnTriggerEnter2D(Collider2D other)
     {
-        // ¼ì²éÊÇ·ñ¿ÉÒÔÊ°È¡¡¢ÉĞÎ´±»Ê°È¡ÇÒÅö×²¶ÔÏóÊÇÍæ¼Ò
+        // æ£€æŸ¥æ˜¯å¦å¯ä»¥è¢«æ‹¾å–ä¸”æœªè¢«æ‹¾å–ä¸”ç¢°æ’å¯¹è±¡æ˜¯ç©å®¶
         if (CanBePickedUp && !isPickedUp && other.CompareTag("Player"))
         {
-            // Ö´ĞĞÊ°È¡²Ù×÷
+            // æ‰§è¡Œæ‹¾å–æ“ä½œ
             Pickup(other.gameObject);
         }
     }
 
     /// <summary>
-    /// ÔÚSceneÊÓÍ¼ÖĞ»æÖÆGizmos£¨µ÷ÊÔ¿ÉÊÓ»¯£©
+    /// åœ¨Sceneè§†å›¾ä¸­ç»˜åˆ¶Gizmosï¼Œç”¨äºå¯è§†åŒ–è°ƒè¯•
     /// </summary>
     void OnDrawGizmos()
     {
-        // Èç¹ûÎïÆ·¿ÉÒÔ±»Ê°È¡ÇÒÉĞÎ´±»Ê°È¡£¬»æÖÆÀ¶É«Ïß¿òÇòÌå
+        // å¦‚æœç‰©å“å¯ä»¥è¢«æ‹¾å–ä¸”æœªè¢«æ‹¾å–ï¼Œç»˜åˆ¶è“è‰²çº¿æ¡†çƒä½“
         if (CanBePickedUp && !isPickedUp)
         {
-            Gizmos.color = Color.blue; // ÉèÖÃGizmosÑÕÉ«ÎªÀ¶É«
-            // ÔÚÎïÆ·Î»ÖÃ»æÖÆÏß¿òÇòÌå£¬°ë¾¶0.3µ¥Î»
+            Gizmos.color = Color.blue; // è®¾ç½®Gizmosé¢œè‰²ä¸ºè“è‰²
+            // åœ¨ç‰©å“ä½ç½®ç»˜åˆ¶çº¿æ¡†çƒä½“ï¼ŒåŠå¾„0.3å•ä½
             Gizmos.DrawWireSphere(transform.position, 0.3f);
         }
     }

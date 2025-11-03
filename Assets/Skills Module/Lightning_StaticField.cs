@@ -1,73 +1,73 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// ¾²µç³¡£ºÒÔ×ÔÉíÎªÖÐÐÄ³ÖÐø¶Ô·¶Î§ÄÚµÄµÐÈËÔì³ÉÀ×ÔªËØÉËº¦£¨°´Ê±¼äÀÛ¼Æ£©
-/// ËµÃ÷£º¸Ã¼¼ÄÜÎª¡°³ÖÐøÐ§¹û¡±£¬ÔÚÊ©·ÅºóµÄÒ»¶ÎÊ±¼äÄÚ£¬Ã¿Ö¡¶Ô·¶Î§ÄÚµÄµÐÈËµþ¼ÓÉËº¦£¬
-///      ÉËº¦Îª damagePerSecond * dt£»ÀäÈ´¼ÆÊ±Óë³ÖÐø¼ÆÊ±±Ë´Ë¶ÀÁ¢¡£
+/// ï¿½ï¿½ï¿½ç³¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½Ä³ï¿½ï¿½ï¿½ï¿½Ô·ï¿½Î§ï¿½ÚµÄµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Û¼Æ£ï¿½
+/// Ëµï¿½ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê©ï¿½Åºï¿½ï¿½Ò»ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ú£ï¿½Ã¿Ö¡ï¿½Ô·ï¿½Î§ï¿½ÚµÄµï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½
+///      ï¿½Ëºï¿½Îª damagePerSecond * dtï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ë´Ë¶ï¿½ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 public class SM_Lightning_StaticField : SM_BaseSkill
 {
-    [Header("¾²µç³¡²ÎÊý")]
-    public float radius = 3f;              // ¹¥»÷°ë¾¶£¨ÒÔÊ©·¨ÕßÎªÔ²ÐÄ£©
-    public float damagePerSecond = 5f;     // Ã¿Ãë×ÜÉËº¦£¨»á³ËÒÔ dt£©
-    public float duration = 6f;            // ³ÖÐøÊ±¼ä£¨Ãë£©
-    public LayerMask enemyMask;            // µÐÈËÍ¼²ã£¨½¨ÒéÉèÖÃÎªÄãÃÇµÄ Enemy ²ã£©
+    [Header("ï¿½ï¿½ï¿½ç³¡ï¿½ï¿½ï¿½ï¿½")]
+    public float radius = 3f;              // ï¿½ï¿½ï¿½ï¿½ï¿½ë¾¶ï¿½ï¿½ï¿½ï¿½Ê©ï¿½ï¿½ï¿½ï¿½ÎªÔ²ï¿½Ä£ï¿½
+    public float damagePerSecond = 5f;     // Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ dtï¿½ï¿½
+    public float duration = 6f;            // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä£¨ï¿½ë£©
+    public LayerMask enemyMask;            // ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ã£¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½Çµï¿½ Enemy ï¿½ã£©
 
-    private float _timer = 0f;             // ¼¼ÄÜÒÑ³ÖÐøÊ±¼ä
-    private bool _active = false;          // ÊÇ·ñ´¦ÔÚ³ÖÐø½×¶Î
+    private float _timer = 0f;             // ï¿½ï¿½ï¿½ï¿½ï¿½Ñ³ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    private bool _active = false;          // ï¿½Ç·ï¿½ï¿½Ú³ï¿½ï¿½ï¿½ï¿½×¶ï¿½
 
     /// <summary>
-    /// Ê©·Å¾²µç³¡£º½øÈë¡°³ÖÐø½×¶Î¡±
+    /// Ê©ï¿½Å¾ï¿½ï¿½ç³¡ï¿½ï¿½ï¿½ï¿½ï¿½ë¡°ï¿½ï¿½ï¿½ï¿½ï¿½×¶Î¡ï¿½
     /// </summary>
     protected override bool DoCast()
     {
-        _timer = 0f;       // ÖØÖÃ³ÖÐø¼ÆÊ±
-        _active = true;    // ±ê¼ÇÎª¼¤»î×´Ì¬
-        return true;       // ·µ»ØÊ©·Å³É¹¦
+        _timer = 0f;       // ï¿½ï¿½ï¿½Ã³ï¿½ï¿½ï¿½ï¿½ï¿½Ê±
+        _active = true;    // ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½×´Ì¬
+        return true;       // ï¿½ï¿½ï¿½ï¿½Ê©ï¿½Å³É¹ï¿½
     }
 
     /// <summary>
-    /// Ã¿Ö¡¸üÐÂ£ºÈô¼¤»îÖÐ£¬Ôò¶Ô·¶Î§ÄÚµÐÈËÔì³É°´Ê±¼äÔöÁ¿µÄÉËº¦
+    /// Ã¿Ö¡ï¿½ï¿½ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½Ô·ï¿½Î§ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½É°ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
     /// </summary>
     public override void Tick(float dt)
     {
-        base.Tick(dt);                     // ´¦ÀíÀäÈ´¼ÆÊ±
-        if (!_active) return;              // Î´¼¤»î¼´·µ»Ø
+        base.Tick(dt);                     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½Ê±
+        if (!_active) return;              // Î´ï¿½ï¿½ï¿½î¼´ï¿½ï¿½ï¿½ï¿½
 
-        _timer += dt;                      // ³ÖÐøÊ±¼äÀÛ¼Æ
-        if (_timer >= duration)            // Èô³¬¹ý³ÖÐøÊ±¼ä
+        _timer += dt;                      // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Û¼ï¿½
+        if (_timer >= duration)            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
         {
-            _active = false;               // ½áÊø³ÖÐø
-            return;                        // ·µ»Ø£¨µÈ´ýÀäÈ´½áÊø¼´¿ÉÔÙ´ÎÊ©·Å£©
+            _active = false;               // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            return;                        // ï¿½ï¿½ï¿½Ø£ï¿½ï¿½È´ï¿½ï¿½ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù´ï¿½Ê©ï¿½Å£ï¿½
         }
 
-        // ÔÚ°ë¾¶·¶Î§ÄÚÑ°ÕÒµÐÈË£¨Åö×²ÌåÐèÔÚ enemyMask Ö¸¶¨µÄ²ã£©
+        // ï¿½Ú°ë¾¶ï¿½ï¿½Î§ï¿½ï¿½Ñ°ï¿½Òµï¿½ï¿½Ë£ï¿½ï¿½ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ enemyMask Ö¸ï¿½ï¿½ï¿½Ä²ã£©
         var hits = Physics2D.OverlapCircleAll(character.AimOrigin.position, radius, enemyMask);
-        // ¶ÔÃ¿¸öµÐÈË°´¡°Ã¿ÃëÉËº¦ * dt¡±½áËãÉËº¦£¬ÐÎ³ÉÆ½»¬µÄ³ÖÐøÉËº¦
-        float tickDamage = damagePerSecond * dt; // ±¾Ö¡ÉËº¦
+        // ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Ë°ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½Ëºï¿½ * dtï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½Î³ï¿½Æ½ï¿½ï¿½ï¿½Ä³ï¿½ï¿½ï¿½ï¿½Ëºï¿½
+        float tickDamage = damagePerSecond * dt; // ï¿½ï¿½Ö¡ï¿½Ëºï¿½
         foreach (var h in hits)
         {
-            var dmg = h.GetComponent<SM_IDamageable>(); // »ñÈ¡¡°¿ÉÊÜÉË½Ó¿Ú¡±
+            var dmg = h.GetComponent<SM_IDamageable>(); // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë½Ó¿Ú¡ï¿½
             if (dmg != null)
             {
                 dmg.ApplyDamage(new SM_DamageInfo
                 {
-                    Amount = tickDamage,                // ±¾Ö¡ÉËº¦Öµ
-                    Element = SM_Element.Lightning,     // À×ÔªËØ
-                    IgnoreDefense = false,              // ²»ÎÞÊÓ·ÀÓù
-                    CritChance = 0f,                    // ÎÞ±©»÷
-                    CritMultiplier = 1f                 // ÆÕÍ¨±¶ÂÊ
+                    Amount = tickDamage,                // ï¿½ï¿½Ö¡ï¿½Ëºï¿½Öµ
+                    Element = SM_Element.Lightning,     // ï¿½ï¿½Ôªï¿½ï¿½
+                    IgnoreDefense = false,              // ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
+                    CritChance = 0f,                    // ï¿½Þ±ï¿½ï¿½ï¿½
+                    CritMultiplier = 1f                 // ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½
                 });
             }
         }
     }
 
     /// <summary>
-    /// £¨¿ÉÑ¡£©ÔÚ Scene ÊÓÍ¼ÖÐ»æÖÆÒ»¸öÏß¿òÔ²£¬°ïÖúÄã¿ÉÊÓ»¯·¶Î§
+    /// ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ Scene ï¿½ï¿½Í¼ï¿½Ð»ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ß¿ï¿½Ô²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó»ï¿½ï¿½ï¿½Î§
     /// </summary>
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.yellow;                                // Ê¹ÓÃ»ÆÉ«
-        Gizmos.DrawWireSphere(transform.position, radius);          // »æÖÆÏß¿òÔ²
+        Gizmos.color = Color.yellow;                                // Ê¹ï¿½Ã»ï¿½É«
+        Gizmos.DrawWireSphere(transform.position, radius);          // ï¿½ï¿½ï¿½ï¿½ï¿½ß¿ï¿½Ô²
     }
 }

@@ -1,74 +1,74 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// Í¨ÓÃÍ¶ÉäÎï£ºÓÃÓÚ»ðÇò/±ù×¶/·çÑ¹µ¯µÈÒ»´ÎÐÔµ¯µÀ
-/// Ê¹ÓÃ·½·¨£º×öÒ»¸öÔ¤ÖÆÌå£¨º¬ SpriteRenderer + Collider2D isTrigger£©£¬¹Ò´Ë½Å±¾£»¼¼ÄÜÊµÀý»¯ºóµ÷ÓÃ Launch()
+/// Í¨ï¿½ï¿½Í¶ï¿½ï¿½ï¿½ï£ºï¿½ï¿½ï¿½Ú»ï¿½ï¿½ï¿½/ï¿½ï¿½×¶/ï¿½ï¿½Ñ¹ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ôµï¿½ï¿½ï¿½
+/// Ê¹ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½å£¨ï¿½ï¿½ SpriteRenderer + Collider2D isTriggerï¿½ï¿½ï¿½ï¿½ï¿½Ò´Ë½Å±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Launch()
 /// </summary>
-[RequireComponent(typeof(Collider2D))]      // ÐèÒª´¥·¢Æ÷À´¼ì²âÃüÖÐ
+[RequireComponent(typeof(Collider2D))]      // ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 public class SM_Projectile : MonoBehaviour
 {
-    [Header("»ù´¡²ÎÊý")]
-    public float speed = 10f;               // ·ÉÐÐËÙ¶È
-    public float lifetime = 3f;             // ´æ»îÊ±¼ä£¨³¬Ê±×Ô»Ù£©
-    public float damage = 10f;              // ÃüÖÐÉËº¦
-    public SM_Element element = SM_Element.Physical; // ÔªËØÀàÐÍ
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public float speed = 10f;               // ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½
+    public float lifetime = 3f;             // ï¿½ï¿½ï¿½Ê±ï¿½ä£¨ï¿½ï¿½Ê±ï¿½Ô»Ù£ï¿½
+    public float damage = 10f;              // ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
+    public SM_Element element = SM_Element.Physical; // Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    [Header("·çÔªËØ£¨¿ÉÑ¡£©")]
-    public float knockbackForce = 0f;       // »÷ÍËÁ¦¶È
-    public float knockbackTime = 0.1f;      // »÷ÍË³ÖÐøÊ±¼ä
+    [Header("ï¿½ï¿½Ôªï¿½Ø£ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½")]
+    public float knockbackForce = 0f;       // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public float knockbackTime = 0.1f;      // ï¿½ï¿½ï¿½Ë³ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
 
-    [Header("»ðÔªËØ£¨¿ÉÑ¡£©")]
-    public float burnDPS = 0f;              // È¼ÉÕÃ¿ÃëÉËº¦
-    public float burnTime = 0f;             // È¼ÉÕ³ÖÐøÊ±¼ä
+    [Header("ï¿½ï¿½Ôªï¿½Ø£ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½")]
+    public float burnDPS = 0f;              // È¼ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½Ëºï¿½
+    public float burnTime = 0f;             // È¼ï¿½Õ³ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
 
-    [Header("±ùÔªËØ£¨¿ÉÑ¡£©")]
-    public float freezeChance = 0f;         // ¶³½á¸ÅÂÊ£¨0~1£©
-    public float freezeTime = 0f;           // ¶³½á³ÖÐøÊ±¼ä
+    [Header("ï¿½ï¿½Ôªï¿½Ø£ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½")]
+    public float freezeChance = 0f;         // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½0~1ï¿½ï¿½
+    public float freezeTime = 0f;           // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
 
-    private Vector2 _dir;                   // ·ÉÐÐ·½Ïò
-    private float _t;                       // ´æ»î¼ÆÊ±
+    private Vector2 _dir;                   // ï¿½ï¿½ï¿½Ð·ï¿½ï¿½ï¿½
+    private float _t;                       // ï¿½ï¿½ï¿½ï¿½Ê±
 
-    public void Launch(Vector2 dir)         // ·¢Éä£¨ÓÉ¼¼ÄÜµ÷ÓÃ£©
+    public void Launch(Vector2 dir)         // ï¿½ï¿½ï¿½ä£¨ï¿½É¼ï¿½ï¿½Üµï¿½ï¿½Ã£ï¿½
     {
-        _dir = dir.normalized;              // ¼ÇÂ¼¹éÒ»»¯·½Ïò
+        _dir = dir.normalized;              // ï¿½ï¿½Â¼ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 
     private void Update()
     {
-        transform.position += (Vector3)(_dir * speed * Time.deltaTime); // Ã¿Ö¡Î»ÒÆ
-        _t += Time.deltaTime;                                            // ¼ÆÊ±
-        if (_t >= lifetime) Destroy(gameObject);                         // ³¬Ê±Ïú»Ù
+        transform.position += (Vector3)(_dir * speed * Time.deltaTime); // Ã¿Ö¡Î»ï¿½ï¿½
+        _t += Time.deltaTime;                                            // ï¿½ï¿½Ê±
+        if (_t >= lifetime) Destroy(gameObject);                         // ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
     }
 
-    private void OnTriggerEnter2D(Collider2D other) // ÃüÖÐ´¥·¢
+    private void OnTriggerEnter2D(Collider2D other) // ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½
     {
-        var dmg = other.GetComponent<SM_IDamageable>();  // ÄÃµ½¿ÉÊÜÉË½Ó¿Ú
-        if (dmg != null)                                 // Èç¹û¿ÉÊÜÉË
+        var dmg = other.GetComponent<SM_IDamageable>();  // ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë½Ó¿ï¿½
+        if (dmg != null)                                 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         {
-            // ÉËº¦£¨ÎïÀíÄ¬ÈÏµÍ±©»÷²¢ÎÞÊÓ·ÀÓù£©
+            // ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ÏµÍ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½
             dmg.ApplyDamage(new SM_DamageInfo
             {
-                Amount = damage,                         // ÉËº¦
-                Element = element,                       // ÔªËØ
-                IgnoreDefense = (element == SM_Element.Physical),     // ÎïÀíÎÞÊÓ·ÀÓù
-                CritChance = (element == SM_Element.Physical ? 0.1f : 0f), // ÎïÀíµÍ±©»÷
-                CritMultiplier = 1.5f                    // ±©»÷±¶ÂÊ
+                Amount = damage,                         // ï¿½Ëºï¿½
+                Element = element,                       // Ôªï¿½ï¿½
+                IgnoreDefense = (element == SM_Element.Physical),     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
+                CritChance = (element == SM_Element.Physical ? 0.1f : 0f), // ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ï¿½
+                CritMultiplier = 1.5f                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             });
 
-            // »÷ÍË£¨½öµ±Ä¿±êÓÐÊµÏÖ»÷ÍË½Ó¿Ú£©
+            // ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½Êµï¿½Ö»ï¿½ï¿½Ë½Ó¿Ú£ï¿½
             var kb = other.GetComponent<SM_IKnockbackable>();
             if (kb != null && knockbackForce > 0f)
                 kb.Knockback(_dir, knockbackForce, knockbackTime);
 
-            // È¼ÉÕ£¨ÐèÒªÄ¿±ê¹Ò SM_BurnEffect ²ÅÄÜ´¥·¢³ÖÐøÉËº¦£©
+            // È¼ï¿½Õ£ï¿½ï¿½ï¿½ÒªÄ¿ï¿½ï¿½ï¿½ SM_BurnEffect ï¿½ï¿½ï¿½Ü´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½
             if (burnDPS > 0f && burnTime > 0f)
                 other.GetComponent<SM_BurnEffect>()?.Apply(burnDPS, burnTime);
 
-            // ¶³½á£¨ÐèÒªÄ¿±ê¹Ò SM_FreezeEffect ²ÅÄÜÏÔÊ¾¶³½á×´Ì¬£©
+            // ï¿½ï¿½ï¿½á£¨ï¿½ï¿½ÒªÄ¿ï¿½ï¿½ï¿½ SM_FreezeEffect ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½
             if (freezeChance > 0f && Random.value < freezeChance)
                 other.GetComponent<SM_FreezeEffect>()?.Freeze(freezeTime);
         }
 
-        Destroy(gameObject); // ÃüÖÐºó×Ô»Ù£¨Ò»´ÎÐÔµ¯µÀ£©
+        Destroy(gameObject); // ï¿½ï¿½ï¿½Ðºï¿½ï¿½Ô»Ù£ï¿½Ò»ï¿½ï¿½ï¿½Ôµï¿½ï¿½ï¿½ï¿½ï¿½
     }
 }

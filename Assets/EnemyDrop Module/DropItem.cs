@@ -1,75 +1,75 @@
-using UnityEngine; // ÒıÈëUnityÒıÇæÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // å¼•å…¥Unityå¼•æ“å‘½åç©ºé—´
 
 /// <summary>
-/// µôÂäÎïÆ·Êı¾İÀà - ¶¨Òåµ¥¸öµôÂäÎïÆ·µÄËùÓĞÊôĞÔ
+/// æ‰è½ç‰©å“æ•°æ®ç±» - ç”¨äºå®šä¹‰å•ä¸ªæ‰è½ç‰©å“çš„æ•°æ®ä¿¡æ¯
 /// </summary>
-[System.Serializable] // ÈÃÕâ¸öÀà¿ÉÒÔÔÚInspectorÃæ°åÖĞÏÔÊ¾ºÍ±à¼­
+[System.Serializable] // å…è®¸è¯¥ç±»åœ¨Inspectorçª—å£ä¸­æ˜¾ç¤ºå’Œç¼–è¾‘
 public class DropItem
 {
-    [Header("ÎïÆ·ĞÅÏ¢")] // ÔÚInspectorÖĞ´´½¨·Ö×é±êÌâ
-    public string itemName;              // ÎïÆ·µÄÏÔÊ¾Ãû³Æ
-    public GameObject itemPrefab;        // ÎïÆ·µÄÔ¤ÖÆÌåÒıÓÃ
-    public Sprite itemIcon;              // ÎïÆ·µÄÍ¼±ê¾«Áé
+    [Header("ç‰©å“ä¿¡æ¯")] // åœ¨Inspectorä¸­æ˜¾ç¤ºåˆ†ç»„æ ‡é¢˜
+    public string itemName;              // ç‰©å“æ˜¾ç¤ºåç§°
+    public GameObject itemPrefab;        // ç‰©å“çš„é¢„åˆ¶ä½“å¯¹è±¡å¼•ç”¨
+    public Sprite itemIcon;              // ç‰©å“çš„å›¾æ ‡ç²¾çµ
 
-    [Header("µôÂäÉèÖÃ")] // µôÂäÏà¹ØÉèÖÃµÄ·Ö×é
-    [Range(0, 1)] // ÔÚInspectorÖĞÏÔÊ¾Îª0-1µÄ»¬¶¯Ìõ
-    public float dropChance = 0.5f;      // ÎïÆ·µôÂä¸ÅÂÊ£¬0-1Ö®¼ä
-    public int minQuantity = 1;          // ×îĞ¡µôÂäÊıÁ¿
-    public int maxQuantity = 1;          // ×î´óµôÂäÊıÁ¿
+    [Header("æ‰è½æ¦‚ç‡")] // æ‰è½æ¦‚ç‡ç›¸å…³çš„éƒ¨åˆ†
+    [Range(0, 1)] // åœ¨Inspectorä¸­æ˜¾ç¤ºä¸º0-1çš„æ»‘åŠ¨æ¡
+    public float dropChance = 0.5f;      // ç‰©å“æ‰è½æ¦‚ç‡ï¼ˆ0-1ä¹‹é—´ï¼‰
+    public int minQuantity = 1;          // æœ€å°æ‰è½æ•°é‡
+    public int maxQuantity = 1;          // æœ€å¤§æ‰è½æ•°é‡
 
-    [Header("µôÂäĞ§¹û")] // ÎïÀíĞ§¹ûÏà¹ØµÄ·Ö×é
-    public bool applyForce = true;       // ÊÇ·ñÔÚÉú³ÉÊ±Ê©¼ÓÎïÀíÁ¦
-    public float forceMultiplier = 1f;   // Á¦µÄÇ¿¶È±¶Êı
+    [Header("ç‰©ç†æ•ˆæœ")] // ç‰©ç†æ•ˆæœç›¸å…³çš„éƒ¨åˆ†
+    public bool applyForce = true;       // æ˜¯å¦åœ¨æ‰è½æ—¶æ–½åŠ ç‰©ç†åŠ›
+    public float forceMultiplier = 1f;   // åŠ›çš„å¼ºåº¦å€æ•°
 
-    [Header("ÎïÆ·ÀàĞÍ")] // ÎïÆ·ÀàĞÍ·ÖÀà
-    public DropItemType itemType;        // ÎïÆ·µÄÀàĞÍÃ¶¾Ù
+    [Header("ç‰©å“ç±»å‹")] // ç‰©å“ç±»å‹åˆ†ç±»
+    public DropItemType itemType;        // ç‰©å“ç±»å‹æšä¸¾
 
     /// <summary>
-    /// ¼ì²éÊÇ·ñÓ¦¸ÃµôÂäÕâ¸öÎïÆ·
+    /// åˆ¤æ–­æ˜¯å¦åº”è¯¥æ‰è½æ­¤ç‰©å“
     /// </summary>
-    /// <returns>true±íÊ¾Ó¦¸ÃµôÂä£¬false±íÊ¾²»µôÂä</returns>
+    /// <returns>trueè¡¨ç¤ºåº”è¯¥æ‰è½ï¼Œfalseè¡¨ç¤ºä¸æ‰è½</returns>
     public bool ShouldDrop()
     {
-        // Éú³É0-1µÄËæ»úÊı£¬Èç¹ûĞ¡ÓÚµÈÓÚµôÂä¸ÅÂÊÔò·µ»Øtrue
+        // ç”Ÿæˆ0-1éšæœºæ•°ï¼Œå¦‚æœå°äºç­‰äºæ‰è½æ¦‚ç‡åˆ™è¿”å›true
         return Random.value <= dropChance;
     }
 
     /// <summary>
-    /// »ñÈ¡Ëæ»úµôÂäÊıÁ¿
+    /// è·å–éšæœºæ‰è½æ•°é‡
     /// </summary>
-    /// <returns>ÔÚ×îĞ¡ºÍ×î´óÊıÁ¿Ö®¼äµÄËæ»úÕûÊı</returns>
+    /// <returns>æœ€å°æ•°é‡å’Œæœ€å¤§æ•°é‡ä¹‹é—´çš„éšæœºæ•°</returns>
     public int GetDropQuantity()
     {
-        // ·µ»Ø×îĞ¡ÊıÁ¿µ½×î´óÊıÁ¿£¨°üº¬£©Ö®¼äµÄËæ»úÕûÊı
+        // è¿”å›æœ€å°æ•°é‡å’Œæœ€å¤§æ•°é‡ä¹‹é—´çš„éšæœºæ•°
         return Random.Range(minQuantity, maxQuantity + 1);
     }
 
     /// <summary>
-    /// »ñÈ¡ÎïÆ·µÄÍêÕûÃèÊöĞÅÏ¢
+    /// è·å–ç‰©å“çš„è¯¦ç»†æè¿°ä¿¡æ¯
     /// </summary>
-    /// <returns>°üº¬ËùÓĞĞÅÏ¢µÄÃèÊö×Ö·û´®</returns>
+    /// <returns>æ ¼å¼åŒ–åçš„æè¿°ä¿¡æ¯ï¼ŒåŒ…å«ç‰©å“åç§°ã€æ‰è½æ¦‚ç‡ã€æ‰è½æ•°é‡å’Œç‰©å“ç±»å‹</returns>
     public string GetDescription()
     {
-        // ½«¸ÅÂÊ×ª»»Îª°Ù·Ö±È×Ö·û´®£¬±£Áô1Î»Ğ¡Êı
+        // å°†æ¦‚ç‡è½¬æ¢ä¸ºç™¾åˆ†æ¯”å­—ç¬¦ä¸²ï¼Œä¿ç•™1ä½å°æ•°
         string chanceText = (dropChance * 100).ToString("F1") + "%";
-        // Èç¹û×îĞ¡×î´óÊıÁ¿ÏàÍ¬£¬Ö»ÏÔÊ¾Ò»¸öÊı×Ö£¬·ñÔòÏÔÊ¾·¶Î§
+        // å¦‚æœæœ€å°æ•°é‡å’Œæœ€å¤§æ•°é‡ç›¸åŒï¼Œåªæ˜¾ç¤ºä¸€ä¸ªæ•°å­—ï¼Œå¦åˆ™æ˜¾ç¤ºèŒƒå›´
         string quantityText = minQuantity == maxQuantity ?
             minQuantity.ToString() : minQuantity + "-" + maxQuantity;
 
-        // ·µ»Ø¸ñÊ½»¯µÄÃèÊöĞÅÏ¢
-        return itemName + "\n" +                    // ÎïÆ·Ãû³Æ
-               "µôÂä¸ÅÂÊ: " + chanceText + "\n" +   // µôÂä¸ÅÂÊ
-               "µôÂäÊıÁ¿: " + quantityText + "\n" + // µôÂäÊıÁ¿
-               "ÀàĞÍ: " + itemType.ToString();      // ÎïÆ·ÀàĞÍ
+        // è¿”å›æ ¼å¼åŒ–çš„æè¿°ä¿¡æ¯
+        return itemName + "\n" +                    // ç‰©å“åç§°
+               "æ‰è½æ¦‚ç‡: " + chanceText + "\n" +   // æ‰è½æ¦‚ç‡
+               "æ‰è½æ•°é‡: " + quantityText + "\n" + // æ‰è½æ•°é‡
+               "ç±»å‹: " + itemType.ToString();      // ç‰©å“ç±»å‹
     }
 }
 
 /// <summary>
-/// µôÂäÎïÆ·ÀàĞÍÃ¶¾Ù - ¶¨ÒåËùÓĞ¿ÉÄÜµÄÎïÆ·ÀàĞÍ
+/// æ‰è½ç‰©å“ç±»å‹æšä¸¾ - å®šä¹‰æ‰€æœ‰å¯èƒ½çš„ç‰©å“ç±»å‹
 /// </summary>
 public enum DropItemType
 {
-    Health,         // ÉúÃü»Ö¸´ÀàÎïÆ·
-    Mana,           // Ä§·¨»Ö¸´ÀàÎïÆ·  
-    Coin            // ½ğ±ÒÀàÎïÆ·
+    Health,         // ç”Ÿå‘½å€¼æ¢å¤ç‰©å“
+    Mana,           // é­”æ³•å€¼æ¢å¤ç‰©å“  
+    Coin            // é‡‘å¸ç‰©å“
 }

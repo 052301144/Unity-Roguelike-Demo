@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 
 public class EnemyDrop : MonoBehaviour
@@ -6,18 +6,18 @@ public class EnemyDrop : MonoBehaviour
     [Header("Loot")]
     public LootTable lootTable;
 
-    [Tooltip("µôÂäÊ±µÄ¸¸ÎïÌå£¨¿ÉÑ¡£©£¬Îª¿ÕÔòÖ±½Ó·Åµ½³¡¾°¸ù½Úµã")]
+    [Tooltip("æ‰è½æ—¶çš„çˆ¶å¯¹è±¡ï¼ˆå¯é€‰ï¼Œç•™ç©ºåˆ™ç›´æ¥æ”¾åˆ°åœºæ™¯æ ¹ç›®å½•ï¼‰")]
     public Transform dropParent;
 
-    [Tooltip("µôÂäÉú³ÉÊ±µÄ z ×ø±êÀ´Ô´£ºUseEnemyZ = Ê¹ÓÃµĞÈËµ±Ç° z£»UseFixedZ = Ê¹ÓÃ fixedZValue")]
+    [Tooltip("æ‰è½ä½ç½®æ—¶çš„ z åæ ‡æ¥æºã€‚UseEnemyZ = ä½¿ç”¨æ•Œäººçš„å½“å‰ zï¼ŒUseFixedZ = ä½¿ç”¨ fixedZValue")]
     public bool useEnemyZ = true;
     public float fixedZValue = 0f;
 
-    [Header("ÆäËû")]
-    [Tooltip("ÊÇ·ñÔÚµĞÈËËÀÍöÊ±×Ô¶¯Ö´ĞĞ Drop (Èç¹ûÄãÏëÊÖ¶¯µ÷ÓÃ DropAtPosition(false) ¿ÉÒÔÈ¡Ïû¹´Ñ¡)")]
+    [Header("è‡ªåŠ¨")]
+    [Tooltip("æ˜¯å¦åœ¨æ•Œäººæ­»äº¡æ—¶è‡ªåŠ¨æ‰§è¡Œ Dropï¼ˆå¦‚æœä¸å‹¾é€‰ï¼Œéœ€è¦æ‰‹åŠ¨è°ƒç”¨ DropAtPosition(false) æˆ–ä½¿ç”¨å…¶ä»–è§¦å‘æ–¹å¼ï¼‰")]
     public bool autoDropOnDeath = true;
 
-    // Õâ¸ö·½·¨ÔÚµĞÈË¡°ËÀÍö¡±Ê±±»µ÷ÓÃ£¨Äã¿ÉÒÔÔÚÄãµÄµĞÈËÑªÁ¿½Å±¾Àïµ÷ÓÃ£©
+    // ç®€å•æ¥å£ï¼šåœ¨æ•Œäººæ­»äº¡æ—¶è°ƒç”¨ï¼Œé€šå¸¸åœ¨æ•Œäººç”Ÿå‘½å€¼è„šæœ¬ä¸­è®¾ç½®
     public void Drop()
     {
         Vector3 spawnPos = transform.position;
@@ -27,7 +27,7 @@ public class EnemyDrop : MonoBehaviour
         DoDropAtPosition(spawnPos);
     }
 
-    // Ìá¹©Ò»¸öÍâ²¿¿Éµ÷ÓÃµÄ½Ó¿Ú£ºÔÚÈÎÒâÎ»ÖÃ×öµôÂä£¨µ«ÄãÒªÇó x,y = µĞÈËÎ»ÖÃ£¬ÕâÀïÄ¬ÈÏÊ¹ÓÃ´«ÈëÎ»ÖÃ£©
+    // æä¾›ä¸€ä¸ªå¤–éƒ¨å¯è°ƒç”¨çš„æ¥å£ï¼ŒæŒ‡å®šä½ç½®è¿›è¡Œæ‰è½ï¼ˆå¦‚æœéœ€è¦æŒ‡å®š x,y = æŸä¸ªä½ç½®ï¼Œå¦åˆ™é»˜è®¤ä½¿ç”¨æ•Œäººä½ç½®ï¼‰
     public void DropAtPosition(Vector2 xyPosition)
     {
         float z = useEnemyZ ? transform.position.z : fixedZValue;
@@ -35,12 +35,12 @@ public class EnemyDrop : MonoBehaviour
         DoDropAtPosition(spawnPos);
     }
 
-    // ÄÚ²¿ÊµÏÖ
+    // å†…éƒ¨å®ç°
     private void DoDropAtPosition(Vector3 spawnPos)
     {
         if (lootTable == null)
         {
-            Debug.LogWarning($"[{name}] Ã»ÓĞÖ¸¶¨ LootTable£¬ÎŞ·¨µôÂä¡£");
+            Debug.LogWarning($"[{name}] æ²¡æœ‰æŒ‡å®š LootTableï¼Œæ— æ³•æ‰è½ã€‚");
             return;
         }
 
@@ -48,7 +48,7 @@ public class EnemyDrop : MonoBehaviour
 
         if (drops == null || drops.Count == 0)
         {
-            // Î´µôÂäÈÎºÎÎïÆ·£¨¿ÉÊÓÎªÎŞµôÂä£©
+            // æœªæ‰è½ä»»ä½•ç‰©å“ï¼ˆè§†ä¸ºæ— æ‰è½ï¼‰
             return;
         }
 
@@ -58,17 +58,17 @@ public class EnemyDrop : MonoBehaviour
 
             for (int i = 0; i < drop.amount; i++)
             {
-                // ×ø±êµÄ x, y ÓëµĞÈËÎ»ÖÃÏàÍ¬£»Èç¹ûÄãĞèÒª×öĞ¡·¶Î§¶¶¶¯£¨±ÈÈçÎ¢Æ«ÒÆ£©£¬¿ÉÒÔÔÚÕâÀïÔö¼ÓÆ«ÒÆÁ¿¡£
+                // å¦‚æœéœ€è¦ x, y çš„æ‰è½ä½ç½®ç›¸åŒï¼Œå¦‚æœéœ€è¦å¯ä»¥æ·»åŠ å°èŒƒå›´éšæœºåç§»ï¼Œè¿™é‡Œå…ˆä¿æŒç®€å•ï¼Œç»Ÿä¸€ä½¿ç”¨ç›¸åŒä½ç½®
                 Vector3 pos = new Vector3(spawnPos.x, spawnPos.y, spawnPos.z);
 
                 GameObject go = Instantiate(drop.prefab, pos, Quaternion.identity, dropParent);
-                // ¿É¸ù¾İĞèÒª×ö¶îÍâ³õÊ¼»¯£¬ÀıÈçÉèÖÃÊ°È¡ ID¡¢Ëæ»úĞı×ª¡¢Ìí¼ÓÉúÃüÊ±³¤µÈ
+                // å¯æ ¹æ®éœ€è¦åˆå§‹åŒ–æ‰è½ç‰©å“ï¼ˆå¦‚æ·»åŠ æ‹¾å– IDã€è®¾ç½®æ—‹è½¬è§’åº¦ã€æ·»åŠ æ‰è½æ—¶é—´ç­‰ï¼‰
             }
         }
     }
 
-    // ¹©Íâ²¿£¨ÀıÈçµĞÈËÑªÁ¿½Å±¾£©µ÷ÓÃ£ºµ±µĞÈËËÀÍöÊ±´¥·¢
-    // Ê¾Àı£ºGetComponent<EnemyDrop>().OnDeath(); »òÕßÔÚÄãµ±Ç°µÄËÀÍöÂß¼­ÀïÖ±½Óµ÷ÓÃ Drop()
+    // å¤–éƒ¨è°ƒç”¨æ¥å£ï¼Œé€šå¸¸ç”±ç”Ÿå‘½å€¼è„šæœ¬è°ƒç”¨ï¼Œåœ¨æ­»äº¡æ—¶è°ƒç”¨
+    // ç¤ºä¾‹ï¼šGetComponent<EnemyDrop>().OnDeath(); æˆ–è€…æ ¹æ®ä½ å½“å‰çš„æ­»äº¡é€»è¾‘ï¼Œç›´æ¥è°ƒç”¨ Drop()
     public void OnDeath()
     {
         if (autoDropOnDeath) Drop();

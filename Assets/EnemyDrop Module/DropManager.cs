@@ -1,204 +1,204 @@
-using System.Collections; // ÒıÈëĞ­³ÌÏà¹ØÃüÃû¿Õ¼ä
-using System.Collections.Generic; // ÒıÈë¼¯ºÏÀàÃüÃû¿Õ¼ä
-using UnityEngine; // ÒıÈëUnityÒıÇæÃüÃû¿Õ¼ä
+ï»¿using System.Collections; // å¼•å…¥åç¨‹å‘½åç©ºé—´
+using System.Collections.Generic; // å¼•å…¥é›†åˆå‘½åç©ºé—´
+using UnityEngine; // å¼•å…¥Unityå¼•æ“å‘½åç©ºé—´
 
 /// <summary>
-/// µôÂä¹ÜÀíÆ÷ - ´¦ÀíÈ«¾ÖµôÂäÂß¼­µÄµ¥ÀıÀà
+/// æ‰è½ç®¡ç†å™¨ - è´Ÿè´£å…¨å±€æ‰è½ç³»ç»Ÿçš„ç®¡ç†å™¨
 /// </summary>
 /// 
 public class DropManager : MonoBehaviour
 {
-    [Header("È«¾ÖÉèÖÃ")] // È«¾ÖÉèÖÃ·Ö×é
-    public bool enableDrops = true;                      // ÊÇ·ñÆôÓÃµôÂäÏµÍ³
-    public float autoPickupRange = 1.5f;                 // ×Ô¶¯Ê°È¡·¶Î§°ë¾¶
-    public float itemLifetime = 30f;                     // ÎïÆ·´æÔÚÊ±¼ä£¨Ãë£©
+    [Header("å…¨å±€è®¾ç½®")] // å…¨å±€é…ç½®éƒ¨åˆ†
+    public bool enableDrops = true;                      // æ˜¯å¦å¯ç”¨æ‰è½ç³»ç»Ÿ
+    public float autoPickupRange = 1.5f;                 // è‡ªåŠ¨æ‹¾å–èŒƒå›´åŠå¾„
+    public float itemLifetime = 30f;                     // ç‰©å“å­˜æ´»æ—¶é—´ï¼ˆç§’ï¼‰
 
-    [Header("µ÷ÊÔÉèÖÃ")] // µ÷ÊÔÏà¹ØÉèÖÃ·Ö×é
-    public bool showDebugInfo = true;                    // ÊÇ·ñÏÔÊ¾µ÷ÊÔĞÅÏ¢
-    public bool logDropEvents = true;                    // ÊÇ·ñ¼ÇÂ¼µôÂäÊÂ¼şÈÕÖ¾
+    [Header("è°ƒè¯•è®¾ç½®")] // è°ƒè¯•ç›¸å…³é…ç½®éƒ¨åˆ†
+    public bool showDebugInfo = true;                    // æ˜¯å¦æ˜¾ç¤ºè°ƒè¯•ä¿¡æ¯
+    public bool logDropEvents = true;                    // æ˜¯å¦è®°å½•æ‰è½äº‹ä»¶æ—¥å¿—
 
-    // µ¥ÀıÊµÀıÊôĞÔ - ±£Ö¤Õû¸öÓÎÏ·ÖĞÖ»ÓĞÒ»¸öµôÂä¹ÜÀíÆ÷
+    // å•ä¾‹å®ä¾‹å¼•ç”¨ - ç¡®ä¿åœ¨æ•´ä¸ªæ¸¸æˆä¸­åªæœ‰ä¸€ä¸ªæ‰è½ç®¡ç†å™¨
     public static DropManager Instance { get; private set; }
 
-    // »î¶¯ÖĞµÄµôÂäÎïÆ·ÁĞ±í - ¸ú×ÙËùÓĞµ±Ç°´æÔÚµÄµôÂäÎïÆ·
+    // æ´»åŠ¨ä¸­çš„æ‰è½ç‰©å“åˆ—è¡¨ - ç®¡ç†æ‰€æœ‰å½“å‰å­˜åœ¨çš„æ‰è½ç‰©å“
     private List<GameObject> activeDrops = new List<GameObject>();
 
-    // Íæ¼Ò¶ÔÏóÒıÓÃ - ÓÃÓÚ×Ô¶¯Ê°È¡¼ì²â
+    // ç©å®¶å¯¹è±¡å¼•ç”¨ - ç”¨äºè‡ªåŠ¨æ‹¾å–æ£€æµ‹
     private GameObject player;
 
-    //½ğ±Ò¼ÆÊı×Ö¶Î
+    //ç©å®¶é‡‘å¸å­—æ®µ
     private int totalCoins = 0;
 
-    // ¶ÀÁ¢µÄÊÂ¼şÏµÍ³ - ÓÃÓÚÓëÆäËûÄ£¿éÍ¨ĞÅ£¬²»Ö±½ÓÒÀÀµÆäËûÄ£¿é
-    public System.Action<int> OnCoinCollected;           // ½ğ±ÒÊÕ¼¯ÊÂ¼ş
-    public System.Action<int> OnHealthRestored;          // ÉúÃü»Ö¸´ÊÂ¼ş  
-    public System.Action<int> OnManaRestored;            // Ä§·¨»Ö¸´ÊÂ¼ş
+    // äº‹ä»¶ç³»ç»Ÿ - ç”¨äºä¸å…¶ä»–æ¨¡å—é€šä¿¡ï¼Œé¿å…ç›´æ¥ä¾èµ–å…¶ä»–æ¨¡å—
+    public System.Action<int> OnCoinCollected;           // é‡‘å¸æ”¶é›†äº‹ä»¶
+    public System.Action<int> OnHealthRestored;          // ç”Ÿå‘½å€¼æ¢å¤äº‹ä»¶  
+    public System.Action<int> OnManaRestored;            // é­”æ³•å€¼æ¢å¤äº‹ä»¶
 
     /// <summary>
-    /// Awake·½·¨ - ÔÚ¶ÔÏó´´½¨Ê±µ÷ÓÃ
+    /// Awakeæ–¹æ³• - åœ¨å¯¹è±¡åˆ›å»ºæ—¶è°ƒç”¨
     /// </summary>
     void Awake()
     {
-        // µ¥ÀıÄ£Ê½ÊµÏÖ
-        if (Instance == null) // Èç¹ûÊµÀı²»´æÔÚ
+        // å•ä¾‹æ¨¡å¼å®ç°
+        if (Instance == null) // å¦‚æœå®ä¾‹ä¸å­˜åœ¨
         {
-            Instance = this; // ÉèÖÃµ±Ç°¶ÔÏóÎªÊµÀı
+            Instance = this; // è®¾ç½®å½“å‰å¯¹è±¡ä¸ºå®ä¾‹
         }
-        else // Èç¹ûÊµÀıÒÑ´æÔÚ
+        else // å¦‚æœå®ä¾‹å·²å­˜åœ¨
         {
-            Destroy(gameObject); // Ïú»ÙÖØ¸´µÄ¶ÔÏó
-            return; // Ö±½Ó·µ»Ø£¬²»Ö´ĞĞºóĞø´úÂë
+            Destroy(gameObject); // é”€æ¯é‡å¤çš„å¯¹è±¡
+            return; // ç›´æ¥è¿”å›ï¼Œä¸æ‰§è¡Œåç»­ä»£ç 
         }
 
-        // ²éÕÒ³¡¾°ÖĞµÄÍæ¼Ò¶ÔÏó
+        // æŸ¥æ‰¾åœºæ™¯ä¸­çš„ç©å®¶å¯¹è±¡
         player = GameObject.FindGameObjectWithTag("Player");
-        // ¼ì²éÊÇ·ñÕÒµ½Íæ¼Ò
+        // æ£€æŸ¥æ˜¯å¦æ‰¾åˆ°ç©å®¶
         if (player == null)
         {
-            // Êä³ö¾¯¸æĞÅÏ¢
-            Debug.LogWarning("µôÂä¹ÜÀíÆ÷: Î´ÕÒµ½Íæ¼Ò¶ÔÏó£¬ÇëÈ·±£Íæ¼ÒÓĞPlayer±êÇ©");
+            // è¾“å‡ºè­¦å‘Šä¿¡æ¯
+            Debug.LogWarning("æ‰è½ç®¡ç†å™¨: æœªæ‰¾åˆ°ç©å®¶å¯¹è±¡ï¼Œè¯·ç¡®ä¿åœºæ™¯ä¸­æœ‰Playeræ ‡ç­¾");
         }
     }
 
     /// <summary>
-    /// Update·½·¨ - Ã¿Ö¡µ÷ÓÃ
+    /// Updateæ–¹æ³• - æ¯å¸§è°ƒç”¨
     /// </summary>
     void Update()
     {
-        // Èç¹ûÍæ¼Ò´æÔÚ£¬½øĞĞ×Ô¶¯Ê°È¡¼ì²â
+        // å¦‚æœç©å®¶å­˜åœ¨ï¼Œæ‰§è¡Œè‡ªåŠ¨æ‹¾å–æ£€æµ‹
         if (player != null)
         {
-            CheckAutoPickup(); // µ÷ÓÃ×Ô¶¯Ê°È¡¼ì²â·½·¨
+            CheckAutoPickup(); // è°ƒç”¨è‡ªåŠ¨æ‹¾å–æ£€æµ‹æ–¹æ³•
         }
     }
 
     /// <summary>
-    /// Éú³ÉµôÂäÎïÆ·
+    /// ç”Ÿæˆæ‰è½ç‰©å“
     /// </summary>
-    /// <param name="dropItem">ÒªÉú³ÉµÄÎïÆ·Êı¾İ</param>
-    /// <param name="dropPosition">Éú³ÉÎ»ÖÃ</param>
+    /// <param name="dropItem">è¦ç”Ÿæˆçš„ç‰©å“æ•°æ®</param>
+    /// <param name="dropPosition">æ‰è½ä½ç½®</param>
     public void SpawnDropItem(DropItem dropItem, Vector3 dropPosition)
     {
-        // ¼ì²éÊÇ·ñÆôÓÃµôÂäÏµÍ³ÇÒÎïÆ·Ô¤ÖÆÌå´æÔÚ
+        // æ£€æŸ¥æ˜¯å¦å¯ç”¨æ‰è½ç³»ç»Ÿä¸”ç‰©å“é¢„åˆ¶ä½“ä¸ä¸ºç©º
         if (!enableDrops || dropItem.itemPrefab == null) return;
 
 
-        // »ñÈ¡µôÂäÊıÁ¿
+        // è·å–æ‰è½æ•°é‡
         int quantity = dropItem.GetDropQuantity();
 
-        // Éú³ÉÖ¸¶¨ÊıÁ¿µÄÎïÆ·
+        // ç”ŸæˆæŒ‡å®šæ•°é‡çš„æ‰è½ç‰©å“
         for (int i = 0; i < quantity; i++)
         {
-            // Ê¹ÓÃĞ­³ÌÉú³Éµ¥¸öÎïÆ·£¬Ìí¼ÓÑÓ³Ù±ÜÃâÍ¬Ê±Éú³É
+            // ä½¿ç”¨åç¨‹ç”Ÿæˆæ‰è½ç‰©å“ï¼Œå¸¦æœ‰å»¶è¿Ÿé¿å…åŒæ—¶ç”Ÿæˆ
             StartCoroutine(SpawnSingleDrop(dropItem, dropPosition, i * 0.1f));
         }
 
-        // Èç¹ûÆôÓÃÈÕÖ¾¼ÇÂ¼£¬Êä³öÉú³ÉĞÅÏ¢
+        // å¦‚æœå¯ç”¨æ—¥å¿—ï¼Œè®°å½•æ‰è½ä¿¡æ¯
         if (logDropEvents)
         {
-            Debug.Log("Éú³ÉµôÂäÎïÆ·: " + dropItem.itemName + " x" + quantity);
+            Debug.Log("ç”Ÿæˆæ‰è½ç‰©å“: " + dropItem.itemName + " x" + quantity);
         }
     }
 
     /// <summary>
-    /// Éú³Éµ¥¸öµôÂäÎïÆ·µÄĞ­³Ì
+    /// ç”Ÿæˆå•ä¸ªæ‰è½ç‰©å“çš„åç¨‹
     /// </summary>
-    /// <param name="dropItem">ÎïÆ·Êı¾İ</param>
-    /// <param name="position">Éú³ÉÎ»ÖÃ</param>
-    /// <param name="delay">Éú³ÉÑÓ³Ù</param>
+    /// <param name="dropItem">ç‰©å“æ•°æ®</param>
+    /// <param name="position">æ‰è½ä½ç½®</param>
+    /// <param name="delay">ç”Ÿæˆå»¶è¿Ÿ</param>
     private IEnumerator SpawnSingleDrop(DropItem dropItem, Vector3 position, float delay)
     {
-        // µÈ´ıÖ¸¶¨µÄÑÓ³ÙÊ±¼ä
+        // ç­‰å¾…æŒ‡å®šçš„å»¶è¿Ÿæ—¶é—´
         yield return new WaitForSeconds(delay);
 
-        // ÊµÀı»¯ÎïÆ·Ô¤ÖÆÌå
+        // å®ä¾‹åŒ–æ‰è½ç‰©å“é¢„åˆ¶ä½“
         GameObject dropObject = Instantiate(dropItem.itemPrefab, position, Quaternion.identity);
-        // Ìí¼Óµ½»î¶¯ÎïÆ·ÁĞ±í
+        // æ·»åŠ åˆ°æ´»åŠ¨ç‰©å“åˆ—è¡¨
         activeDrops.Add(dropObject);
 
-        // »ñÈ¡ÎïÆ·¿ØÖÆÆ÷×é¼ş
+        // è·å–ç‰©å“æ§åˆ¶å™¨ç»„ä»¶
         DropItemController itemController = dropObject.GetComponent<DropItemController>();
-        // Èç¹û¿ØÖÆÆ÷´æÔÚ£¬³õÊ¼»¯ÎïÆ·
+        // å¦‚æœæ§åˆ¶å™¨å­˜åœ¨ï¼Œåˆå§‹åŒ–ç‰©å“
         if (itemController != null)
         {
             itemController.Initialize(dropItem, itemLifetime);
         }
 
-        // ¼ì²éÊÇ·ñĞèÒªÓ¦ÓÃÎïÀíÁ¦
+        // æ£€æŸ¥æ˜¯å¦éœ€è¦åº”ç”¨ç‰©ç†åŠ›
         if (dropItem.applyForce)
         {
-            // »ñÈ¡¸ÕÌå×é¼ş
+            // è·å–åˆšä½“ç»„ä»¶
             Rigidbody2D rb = dropObject.GetComponent<Rigidbody2D>();
-            // Èç¹û¸ÕÌå´æÔÚ
+            // å¦‚æœåˆšä½“å­˜åœ¨
             if (rb != null)
             {
-                // Éú³ÉËæ»ú·½ÏòÏòÁ¿
+                // è®¡ç®—éšæœºæ–¹å‘å‘é‡
                 Vector2 randomDirection = new Vector2(
-                    Random.Range(-1f, 1f),     // X·½ÏòËæ»úÖµ
-                    Random.Range(0.5f, 1f)     // Y·½ÏòËæ»úÖµ£¨Æ«ÉÏ£©
-                ).normalized; // ±ê×¼»¯ÏòÁ¿³¤¶È
+                    Random.Range(-1f, 1f),     // Xè½´éšæœºå€¼
+                    Random.Range(0.5f, 1f)     // Yè½´éšæœºå€¼ï¼Œåå‘ä¸Šæ–¹
+                ).normalized; // æ ‡å‡†åŒ–æ–¹å‘å‘é‡
 
-                // ¼ÆËãÁ¦µÄ´óĞ¡
+                // è®¡ç®—åŠ›çš„å¤§å°
                 float force = Random.Range(2f, 5f) * dropItem.forceMultiplier;
-                // Ê©¼Ó³åÁ¦
+                // æ–½åŠ å†²åŠ›
                 rb.AddForce(randomDirection * force, ForceMode2D.Impulse);
             }
         }
     }
 
     /// <summary>
-    /// ´ÓµôÂä±íÉú³É¶à¸öÎïÆ·
+    /// ä»æ‰è½è¡¨ç”Ÿæˆå¤šä¸ªç‰©å“
     /// </summary>
-    /// <param name="dropTable">µôÂä±íÅäÖÃ</param>
-    /// <param name="dropPosition">Éú³ÉÎ»ÖÃ</param>
+    /// <param name="dropTable">æ‰è½è¡¨æ•°æ®</param>
+    /// <param name="dropPosition">æ‰è½ä½ç½®</param>
     public void SpawnDropsFromTable(DropTable dropTable, Vector3 dropPosition)
     {
-        // ¼ì²éÊÇ·ñÆôÓÃµôÂäÏµÍ³ÇÒµôÂä±í´æÔÚ
+        // æ£€æŸ¥æ˜¯å¦å¯ç”¨æ‰è½ç³»ç»Ÿä¸”æ‰è½è¡¨ä¸ä¸ºç©º
         if (!enableDrops || dropTable == null) return;
 
-        Debug.Log("¿ªÊ¼Éú³ÉµôÂäÎï£¬µôÂä±í: " + dropTable.enemyName);
-        Debug.Log("¿ÉÄÜµôÂäµÄÎïÆ·ÊıÁ¿: " + dropTable.possibleDrops.Count);
+        Debug.Log("å¼€å§‹ç”Ÿæˆæ‰è½ï¼Œæ•Œäºº: " + dropTable.enemyName);
+        Debug.Log("å¯èƒ½çš„æ‰è½ç‰©å“æ•°: " + dropTable.possibleDrops.Count);
 
-        // ´ÓµôÂä±í»ñÈ¡Ëæ»úµôÂäÎïÆ·ÁĞ±í
+        // ä»æ‰è½è¡¨è·å–éšæœºæ‰è½ç‰©å“åˆ—è¡¨
         List<DropItem> drops = dropTable.GetRandomDrops();
 
-        // Èç¹ûÆôÓÃÈÕÖ¾¼ÇÂ¼£¬Êä³öÉú³ÉĞÅÏ¢
+        // å¦‚æœå¯ç”¨æ—¥å¿—ï¼Œè®°å½•æ‰è½ä¿¡æ¯
         if (logDropEvents)
         {
-            Debug.Log("´ÓµôÂä±íÉú³ÉÎïÆ·£¬µĞÈË: " + dropTable.enemyName + ", µôÂäÊıÁ¿: " + drops.Count);
+            Debug.Log("ä»æ‰è½è¡¨ç”Ÿæˆç‰©å“ï¼Œæ•Œäºº: " + dropTable.enemyName + ", æ‰è½æ•°é‡: " + drops.Count);
         }
 
-        // ±éÀúËùÓĞµôÂäÎïÆ·²¢Éú³É
+        // ç”Ÿæˆæ‰€æœ‰æ‰è½çš„ç‰©å“å¯¹è±¡
         foreach (var drop in drops)
         {
-            SpawnDropItem(drop, dropPosition); // µ÷ÓÃµ¥¸öÎïÆ·Éú³É·½·¨
+            SpawnDropItem(drop, dropPosition); // è°ƒç”¨ç”Ÿæˆæ‰è½ç‰©å“æ–¹æ³•
         }
     }
 
     /// <summary>
-    /// ×Ô¶¯Ê°È¡¼ì²â
+    /// è‡ªåŠ¨æ‹¾å–æ£€æµ‹
     /// </summary>
     private void CheckAutoPickup()
     {
-        // ´ÓºóÍùÇ°±éÀú»î¶¯ÎïÆ·ÁĞ±í£¨±ÜÃâÉ¾³ıÊ±µÄË÷ÒıÎÊÌâ£©
+        // ä»åå¾€å‰éå†æ´»åŠ¨ç‰©å“åˆ—è¡¨ï¼ˆé¿å…åˆ é™¤æ—¶äº§ç”Ÿé—®é¢˜ï¼‰
         for (int i = activeDrops.Count - 1; i >= 0; i--)
         {
-            // »ñÈ¡ÎïÆ·¶ÔÏó
+            // è·å–ç‰©å“å¯¹è±¡
             GameObject drop = activeDrops[i];
-            // Èç¹ûÎïÆ·ÒÑ±»Ïú»Ù£¬Ìø¹ı
+            // å¦‚æœç‰©å“å·²è¢«é”€æ¯ï¼Œè·³è¿‡
             if (drop == null) continue;
 
-            // »ñÈ¡ÎïÆ·¿ØÖÆÆ÷×é¼ş
+            // è·å–ç‰©å“æ§åˆ¶å™¨ç»„ä»¶
             DropItemController itemController = drop.GetComponent<DropItemController>();
-            // ¼ì²éÎïÆ·ÊÇ·ñ¿ÉÒÔÊ°È¡
+            // æ£€æŸ¥ç‰©å“æ˜¯å¦å¯ä»¥è¢«æ‹¾å–
             if (itemController != null && itemController.CanBePickedUp)
             {
-                // ¼ÆËãÍæ¼ÒÓëÎïÆ·µÄ¾àÀë
+                // è®¡ç®—ç©å®¶ä¸ç‰©å“çš„è·ç¦»
                 float distance = Vector3.Distance(player.transform.position, drop.transform.position);
-                // Èç¹û¾àÀëÔÚÊ°È¡·¶Î§ÄÚ
+                // æ£€æŸ¥è·ç¦»æ˜¯å¦åœ¨æ‹¾å–èŒƒå›´å†…
                 if (distance <= autoPickupRange)
                 {
-                    // Ö´ĞĞÊ°È¡²Ù×÷
+                    // æ‰§è¡Œæ‹¾å–æ“ä½œ
                     itemController.Pickup(player);
                 }
             }
@@ -207,98 +207,98 @@ public class DropManager : MonoBehaviour
 
 
     /// <summary>
-    /// ´¥·¢½ğ±ÒÊÕ¼¯ÊÂ¼ş
+    /// è§¦å‘é‡‘å¸æ”¶é›†äº‹ä»¶
     /// </summary>
-    /// <param name="amount">½ğ±ÒÊıÁ¿</param>
+    /// <param name="amount">é‡‘å¸æ•°é‡</param>
     public void TriggerCoinCollected(int amount)
     {
         totalCoins += amount;
-        // µ÷ÓÃËùÓĞ×¢²áµÄ½ğ±ÒÊÕ¼¯ÊÂ¼ş
+        // è§¦å‘æ‰€æœ‰æ³¨å†Œçš„é‡‘å¸æ”¶é›†äº‹ä»¶
         OnCoinCollected?.Invoke(amount);
-        // Êä³öÈÕÖ¾ĞÅÏ¢
-        Debug.Log("»ñµÃ½ğ±Ò: " + amount);
+        // è¾“å‡ºæ—¥å¿—ä¿¡æ¯
+        Debug.Log("è·å¾—é‡‘å¸: " + amount);
     }
 
     /// <summary>
-    /// ´¥·¢ÉúÃü»Ö¸´ÊÂ¼ş
+    /// è§¦å‘ç”Ÿå‘½å€¼æ¢å¤äº‹ä»¶
     /// </summary>
-    /// <param name="amount">»Ö¸´ÊıÁ¿</param>
+    /// <param name="amount">æ¢å¤æ•°é‡</param>
     public void TriggerHealthRestored(int amount)
     {
-        // µ÷ÓÃËùÓĞ×¢²áµÄÉúÃü»Ö¸´ÊÂ¼ş
+        // è§¦å‘æ‰€æœ‰æ³¨å†Œçš„ç”Ÿå‘½å€¼æ¢å¤äº‹ä»¶
         OnHealthRestored?.Invoke(amount);
-        // Êä³öÈÕÖ¾ĞÅÏ¢
-        Debug.Log("»Ö¸´ÉúÃüÖµ: " + amount);
+        // è¾“å‡ºæ—¥å¿—ä¿¡æ¯
+        Debug.Log("æ¢å¤ç”Ÿå‘½å€¼: " + amount);
     }
 
     /// <summary>
-    /// ´¥·¢Ä§·¨»Ö¸´ÊÂ¼ş
+    /// è§¦å‘é­”æ³•å€¼æ¢å¤äº‹ä»¶
     /// </summary>
-    /// <param name="amount">»Ö¸´ÊıÁ¿</param>
+    /// <param name="amount">æ¢å¤æ•°é‡</param>
     public void TriggerManaRestored(int amount)
     {
-        // µ÷ÓÃËùÓĞ×¢²áµÄÄ§·¨»Ö¸´ÊÂ¼ş
+        // è§¦å‘æ‰€æœ‰æ³¨å†Œçš„é­”æ³•å€¼æ¢å¤äº‹ä»¶
         OnManaRestored?.Invoke(amount);
-        // Êä³öÈÕÖ¾ĞÅÏ¢
-        Debug.Log("»Ö¸´Ä§·¨Öµ: " + amount);
+        // è¾“å‡ºæ—¥å¿—ä¿¡æ¯
+        Debug.Log("æ¢å¤é­”æ³•å€¼: " + amount);
     }
 
     /// <summary>
-    /// ÇåÀíËùÓĞµôÂäÎïÆ·
+    /// æ¸…é™¤æ‰€æœ‰æ‰è½ç‰©å“
     /// </summary>
     public void ClearAllDrops()
     {
-        // ±éÀúËùÓĞ»î¶¯ÎïÆ·
+        // é”€æ¯æ‰€æœ‰æ´»åŠ¨ç‰©å“
         foreach (var drop in activeDrops)
         {
-            // Èç¹ûÎïÆ·´æÔÚ£¬Ïú»ÙËü
+            // å¦‚æœç‰©å“å­˜åœ¨ï¼Œé”€æ¯å®ƒ
             if (drop != null)
             {
                 Destroy(drop);
             }
         }
-        // Çå¿Õ»î¶¯ÎïÆ·ÁĞ±í
+        // æ¸…ç©ºæ´»åŠ¨ç‰©å“åˆ—è¡¨
         activeDrops.Clear();
 
-        // Èç¹ûÆôÓÃÈÕÖ¾¼ÇÂ¼£¬Êä³öÇåÀíĞÅÏ¢
+        // å¦‚æœå¯ç”¨æ—¥å¿—ï¼Œè®°å½•æ¸…é™¤ä¿¡æ¯
         if (logDropEvents)
         {
-            Debug.Log("ÒÑÇåÀíËùÓĞµôÂäÎïÆ·");
+            Debug.Log("å·²æ¸…é™¤æ‰€æœ‰çš„æ‰è½ç‰©å“");
         }
     }
 
     /// <summary>
-    /// ´Ó»î¶¯ÁĞ±íÖĞÒÆ³ıÎïÆ·
+    /// ä»æ´»åŠ¨åˆ—è¡¨ä¸­ç§»é™¤ç‰©å“
     /// </summary>
-    /// <param name="dropObject">ÒªÒÆ³ıµÄÎïÆ·¶ÔÏó</param>
+    /// <param name="dropObject">è¦ç§»é™¤çš„æ‰è½ç‰©å“å¯¹è±¡</param>
     public void RemoveFromActiveDrops(GameObject dropObject)
     {
-        // ´ÓÁĞ±íÖĞÒÆ³ıÖ¸¶¨µÄÎïÆ·¶ÔÏó
+        // ä»åˆ—è¡¨ç§»é™¤æŒ‡å®šçš„æ‰è½ç‰©å“å¯¹è±¡
         activeDrops.Remove(dropObject);
     }
 
     /// <summary>
-    /// »ñÈ¡×Ü½ğ±ÒÊı
+    /// è·å–æ€»é‡‘å¸æ•°
     /// </summary>
-    /// <returns>µ±Ç°×Ü½ğ±ÒÊıÁ¿</returns>
+    /// <returns>å½“å‰æ€»é‡‘å¸æ•°é‡</returns>
     public int GetTotalCoins()
     {
-        // ·µ»Ø´æ´¢µÄ×Ü½ğ±ÒÊı
+        // è¿”å›å­˜å‚¨çš„æ€»é‡‘å¸æ•°é‡
         return totalCoins;
     }
 
     /// <summary>
-    /// ²âÊÔµôÂäÏµÍ³µÄÉÏÏÂÎÄ²Ëµ¥·½·¨
+    /// æµ‹è¯•æ‰è½ç³»ç»Ÿçš„ä¸Šä¸‹æ–‡èœå•æ–¹æ³•
     /// </summary>
-    [ContextMenu("²âÊÔµôÂäÏµÍ³")]
+    [ContextMenu("æµ‹è¯•æ‰è½ç³»ç»Ÿ")]
     public void TestDropSystem()
     {
-        // Èç¹ûÏÔÊ¾µ÷ÊÔĞÅÏ¢£¬Êä³öÏµÍ³×´Ì¬
+        // å¦‚æœå¯ç”¨æ˜¾ç¤ºè°ƒè¯•ä¿¡æ¯ï¼Œè¾“å‡ºç³»ç»ŸçŠ¶æ€
         if (showDebugInfo)
         {
-            Debug.Log("=== µôÂäÏµÍ³²âÊÔ ===");
-            Debug.Log("»î¶¯ÖĞµÄµôÂäÎïÆ·: " + activeDrops.Count);
-            Debug.Log("×Ô¶¯Ê°È¡·¶Î§: " + autoPickupRange);
+            Debug.Log("=== æ‰è½ç³»ç»ŸçŠ¶æ€ ===");
+            Debug.Log("æ´»åŠ¨ä¸­çš„æ‰è½ç‰©å“: " + activeDrops.Count);
+            Debug.Log("è‡ªåŠ¨æ‹¾å–èŒƒå›´: " + autoPickupRange);
         }
     }
 }

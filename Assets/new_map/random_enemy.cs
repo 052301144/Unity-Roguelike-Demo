@@ -1,39 +1,39 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class GrassSpawner : MonoBehaviour
 {
-    [Header("ºËĞÄÒıÓÃ£¨±ØĞëÉèÖÃ£©")]
-    [Tooltip("²İ¿éËùÔÚµÄTilemap£¨³¡¾°ÖĞ»æÖÆ²İ¿éµÄTilemap¶ÔÏó£©")]
+    [Header("ç”Ÿæˆè®¾ç½®ï¼ˆé‡è¦è®¾ç½®ï¼‰")]
+    [Tooltip("è‰å—æ‰€åœ¨çš„Tilemapï¼Œè·å–æ‰€æœ‰ç»˜åˆ¶è‰å—Tilemapçš„å¼•ç”¨")]
     public Tilemap grassTilemap;
 
-    [Tooltip("²İ¿é¶ÔÓ¦µÄTile×ÊÔ´£¨ÓÃÓÚÊ¶±ğ²İ¿é£©")]
+    [Tooltip("è‰å—å¯¹åº”çš„Tileèµ„æºï¼ˆç”¨äºè¯†åˆ«è‰å—ï¼‰")]
     public TileBase grassTile;
 
-    [Tooltip("ÒªÉú³ÉµÄÔ¤ÖÆÌå£¨Èç±¦Ïä£©")]
+    [Tooltip("è¦ç”Ÿæˆçš„é¢„åˆ¶ä½“ï¼ˆå¦‚å®ç®±ï¼‰")]
     public GameObject spawnPrefab;
 
-    [Header("Éú³É¹æÔò")]
-    [Tooltip("Éú³É¼ä¸ô£¨Ãë£©")]
+    [Header("ç”Ÿæˆè§„åˆ™")]
+    [Tooltip("ç”Ÿæˆé—´éš”ï¼ˆç§’ï¼‰")]
     public float spawnInterval = 5f;
 
-    [Tooltip("×î´óÍ¬Ê±´æÔÚÊıÁ¿")]
+    [Tooltip("æœ€å¤šåŒæ—¶å­˜åœ¨çš„æ•°é‡")]
     public int maxCount = 5;
 
-    [Tooltip("Åö×²¼ì²â°ë¾¶£¨½¨Òé0.5-1£¬Ô½´ó¼ì²âÔ½ÑÏ¸ñ£©")]
-    public float checkRadius = 0.6f;  // Ôö´ó¼ì²â°ë¾¶£¬¸²¸Ç¸ü¶àÅö×²·¶Î§
+    [Tooltip("ç¢°æ’æ£€æµ‹åŠå¾„ï¼ˆå»ºè®®0.5-1ï¼Œè¶Šå¤§è¶Šå®½æ¾ï¼‰")]
+    public float checkRadius = 0.6f;  // æ£€æµ‹åŠå¾„ï¼ˆä¸æ˜¯å®é™…ç¢°æ’èŒƒå›´ï¼‰
 
-    [Tooltip("ĞèÒª±Ü¿ªµÄÍ¼²ã£¨±ØĞë°üº¬²İ¿éÅö×²ÌåËùÔÚÍ¼²ã£¡£©")]
-    public LayerMask obstacleLayers;  // ¹Ø¼ü£ºĞè¹´Ñ¡²İ¿éµÄÅö×²Í¼²ã£¨Èç"Ground"£©
+    [Tooltip("éœ€è¦é¿å¼€çš„å›¾å±‚ï¼ˆé¿å…ä¸è‰å—ç¢°æ’ä½“ç¢°æ’çš„å›¾å±‚ï¼ï¼‰")]
+    public LayerMask obstacleLayers;  // å…³é”®è®¾ç½®ï¼šå‹¾é€‰è‰å—ç¢°æ’å›¾å±‚ï¼ˆå¦‚"Ground"ï¼‰
 
-    [Header("Î»ÖÃÎ¢µ÷£¨½â¾ö¿¨Èë²İÆº£©")]
-    [Tooltip("¶îÍâÏòÉÏÆ«ÒÆÁ¿£¨½¨Òé0.3-0.5£¬È·±£Ô¶Àë²İ¿éÅö×²Ìå£©")]
-    public float extraYOffset = 0.35f;  // ÊÊµ±Ôö´ó»ù´¡Æ«ÒÆ
+    [Header("ä½ç½®å¾®è°ƒï¼ˆé˜²æ­¢ä¸è‰å—é‡å ï¼‰")]
+    [Tooltip("é¢å¤–çš„Yåç§»é‡ï¼ˆå»ºè®®0.3-0.5ï¼Œç¡®ä¿è¿œç¦»è‰å—ç¢°æ’ä½“ï¼‰")]
+    public float extraYOffset = 0.35f;  // é€‚å½“å¢åŠ Yåç§»
 
-    [Tooltip("Éú³ÉÊ§°ÜÊ±µÄÖØÊÔ´ÎÊı£¨±ÜÃâ¸ö±ğÎ»ÖÃ¿¨Èë£©")]
-    public int maxRetryCount = 3;  // ĞÂÔö£ºÖØÊÔ»úÖÆ
+    [Tooltip("ç”Ÿæˆå¤±è´¥æ—¶çš„é‡è¯•æ¬¡æ•°ï¼ˆé¿å…åŠ¨æ€ç¢°æ’å¯¼è‡´ä½ç½®ä¸å¯ç”¨ï¼‰")]
+    public int maxRetryCount = 3;  // å¤šæ¬¡ç”Ÿæˆå°è¯•
 
     private List<Vector3> validSpawnPositions = new List<Vector3>();
     private int currentCount = 0;
@@ -49,30 +49,30 @@ public class GrassSpawner : MonoBehaviour
         }
         else
         {
-            Debug.LogError("ºËĞÄÒıÓÃÈ±Ê§£¬Çë¼ì²égrassTilemapºÍgrassTile£¡");
+            Debug.LogError("å…³é”®å¼•ç”¨ç¼ºå¤±ï¼šéœ€è¦grassTilemapå’ŒgrassTile");
         }
     }
 
     /// <summary>
-    /// ¼ì²é±ØÒªÒıÓÃ²¢ÌáÊ¾
+    /// æ£€æŸ¥å¿…è¦è®¾ç½®å¹¶æç¤º
     /// </summary>
     private void CheckReferences()
     {
         if (grassTilemap == null)
-            Debug.LogWarning("?? Î´ÉèÖÃGrass Tilemap£¬ÇëÍÏÈë²İ¿éTilemap¶ÔÏó£¡");
+            Debug.LogWarning("âš ï¸ æœªè®¾ç½®Grass Tilemapï¼Œè¯·æ‹–å…¥è‰å—Tilemapå¼•ç”¨");
 
         if (grassTile == null)
-            Debug.LogWarning("?? Î´ÉèÖÃGrass Tile£¬ÇëÍÏÈë²İ¿éTile×ÊÔ´£¡");
+            Debug.LogWarning("âš ï¸ æœªè®¾ç½®Grass Tileï¼Œè¯·æ‹–å…¥è‰å—Tileèµ„æº");
 
         if (spawnPrefab == null)
-            Debug.LogWarning("?? Î´ÉèÖÃSpawn Prefab£¬ÇëÍÏÈë±¦ÏäÔ¤ÖÆÌå£¡");
+            Debug.LogWarning("âš ï¸ æœªè®¾ç½®Spawn Prefabï¼Œè¯·æ‹–å…¥å®ç®±é¢„åˆ¶ä½“ï¼");
 
         if (obstacleLayers == 0)
-            Debug.LogWarning("?? Î´ÉèÖÃObstacle Layers£¬Çë¹´Ñ¡²İ¿éÅö×²ÌåËùÔÚÍ¼²ã£¨ÈçGround£©£¡");
+            Debug.LogWarning("âš ï¸ æœªè®¾ç½®Obstacle Layersï¼Œè¯·å‹¾é€‰è‰å—ç¢°æ’ä½“æ‰€åœ¨å›¾å±‚ï¼ˆå¦‚Groundï¼‰");
     }
 
     /// <summary>
-    /// ÊÕ¼¯²İ¿éÉÏ·½µÄÓĞĞ§Éú³Éµã£¨Ç¿»¯Åö×²¼ì²â£©
+    /// æ”¶é›†è‰å—ä¸Šæ–¹æ‰€æœ‰æœ‰æ•ˆç”Ÿæˆç‚¹ï¼ˆå¼ºåˆ¶ç¢°æ’æ£€æµ‹ï¼‰
     /// </summary>
     private void CollectValidSpawnPositions()
     {
@@ -87,7 +87,7 @@ public class GrassSpawner : MonoBehaviour
                 Vector3Int gridPos = new Vector3Int(x, y, 0);
                 if (grassTilemap.GetTile(gridPos) == grassTile)
                 {
-                    // ¼ÆËã²İ¿éÉÏ·½Ò»¸ñµÄÊÀ½ç×ø±ê£¨´øÆ«ÒÆ£©
+                    // åœ¨è‰å—ä¸Šæ–¹ä¸€æ ¼è®¡ç®—ä¸–ç•Œåæ ‡ï¼ˆå¸¦åç§»ï¼‰
                     Vector3Int aboveGrid = new Vector3Int(x, y + 1, 0);
                     Vector3 worldPos = grassTilemap.CellToWorld(aboveGrid);
                     Vector3 centerOffset = new Vector3(
@@ -97,7 +97,7 @@ public class GrassSpawner : MonoBehaviour
                     );
                     worldPos += centerOffset + new Vector3(0, extraYOffset, 0);
 
-                    // Ê×´ÎÉ¸Ñ¡£ºÈ·±£Î»ÖÃÎŞÅö×²
+                    // åˆæ¬¡ç­›é€‰ï¼šç¡®ä¿ä½ç½®æ²¡æœ‰ç¢°æ’
                     if (IsPositionValid(worldPos))
                     {
                         validSpawnPositions.Add(worldPos);
@@ -106,21 +106,21 @@ public class GrassSpawner : MonoBehaviour
             }
         }
 
-        Debug.Log($"ÒÑÊÕ¼¯ {validSpawnPositions.Count} ¸öÓĞĞ§Éú³Éµã£¨²İ¿éÉÏ·½£©");
+        Debug.Log($"å·²æ”¶é›† {validSpawnPositions.Count} ä¸ªæœ‰æ•ˆç”Ÿæˆç‚¹ï¼ˆè‰å—ä¸Šæ–¹ï¼‰");
     }
 
     /// <summary>
-    /// ÑÏ¸ñ¼ì²éÎ»ÖÃÊÇ·ñÓĞÅö×²Ìå£¨°üÀ¨²İ¿é×ÔÉí£©
+    /// ä¸¥æ ¼æ£€æŸ¥ä½ç½®æ˜¯å¦æœ‰ç¢°æ’ä½“ï¼ˆé¿å¼€è‰å—ç¢°æ’ï¼‰
     /// </summary>
     private bool IsPositionValid(Vector3 pos)
     {
-        // ¼ì²â·¶Î§ÄÚÊÇ·ñÓĞÈÎºÎÕÏ°­Îï£¨°üÀ¨²İ¿éÅö×²Ìå£©
+        // æ£€æµ‹èŒƒå›´å†…æ˜¯å¦æœ‰ä»»ä½•éšœç¢ç‰©ï¼ˆåŒ…æ‹¬è‰å—ç¢°æ’ä½“ï¼‰
         Collider2D[] hits = Physics2D.OverlapCircleAll(pos, checkRadius, obstacleLayers);
-        return hits.Length == 0;  // ÎŞÈÎºÎÅö×²Ìå²ÅÊÓÎªÓĞĞ§
+        return hits.Length == 0;  // æ²¡æœ‰ä»»ä½•ç¢°æ’ä½“æ‰ä¸ºæœ‰æ•ˆ
     }
 
     /// <summary>
-    /// Éú³ÉĞ­³Ì£¨ĞÂÔöÖØÊÔ»úÖÆ£¬½â¾ö¸ö±ğÎ»ÖÃ¿¨Èë£©
+    /// ç”Ÿæˆåç¨‹ï¼ˆå¸¦é‡è¯•æœºåˆ¶ï¼Œé¿å…åŠ¨æ€ç¢°æ’å¯¼è‡´ä½ç½®ä¸å¯ç”¨ï¼‰
     /// </summary>
     private IEnumerator SpawnCoroutine()
     {
@@ -131,19 +131,19 @@ public class GrassSpawner : MonoBehaviour
             if (currentCount >= maxCount || validSpawnPositions.Count == 0)
                 continue;
 
-            // ³¢ÊÔ¶à´ÎÉú³É£¬±ÜÃâ¸ö±ğÎ»ÖÃ¿¨Èë
+            // å°è¯•å¤šæ¬¡ç”Ÿæˆï¼ˆé¿å…åŠ¨æ€ç¢°æ’å¯¼è‡´ä½ç½®ä¸å¯ç”¨ï¼‰
             bool spawnSuccess = false;
             int retry = 0;
             while (retry < maxRetryCount && !spawnSuccess)
             {
-                // Ëæ»úÑ¡ÔñÉú³Éµã
+                // éšæœºé€‰æ‹©ç”Ÿæˆç‚¹
                 int randomIndex = Random.Range(0, validSpawnPositions.Count);
                 Vector3 spawnPos = validSpawnPositions[randomIndex];
 
-                // ÔÙ´ÎÑÏ¸ñ¼ì²éÎ»ÖÃ£¨·ÀÖ¹¶¯Ì¬Åö×²£©
+                // å†æ¬¡ä¸¥æ ¼æ£€æŸ¥ä½ç½®ï¼Œé˜²æ­¢åŠ¨æ€ç¢°æ’
                 if (IsPositionValid(spawnPos))
                 {
-                    // Éú³ÉÔ¤ÖÆÌå
+                    // ç”Ÿæˆé¢„åˆ¶ä½“
                     GameObject instance = Instantiate(spawnPrefab, spawnPos, Quaternion.identity);
                     currentCount++;
                     StartCoroutine(WaitForInstanceDestroy(instance));
@@ -152,19 +152,19 @@ public class GrassSpawner : MonoBehaviour
                 else
                 {
                     retry++;
-                    Debug.LogWarning($"Éú³ÉÎ»ÖÃ[{spawnPos}]ÓĞÅö×²Ìå£¬ÖØÊÔµÚ{retry}´Î...");
+                    Debug.LogWarning($"ç”Ÿæˆä½ç½®[{spawnPos}]æœ‰ç¢°æ’ä½“ï¼Œé‡è¯•ç¬¬{retry}æ¬¡...");
                 }
             }
 
             if (!spawnSuccess)
             {
-                Debug.LogWarning($"Á¬Ğø{maxRetryCount}´ÎÉú³ÉÊ§°Ü£¬Ìø¹ı±¾´ÎÉú³É");
+                Debug.LogWarning($"å°è¯•{maxRetryCount}æ¬¡åå¤±è´¥ï¼Œè·³è¿‡æœ¬æ¬¡ç”Ÿæˆ");
             }
         }
     }
 
     /// <summary>
-    /// µÈ´ıÔ¤ÖÆÌåÏú»Ùºó¸üĞÂ¼ÆÊı
+    /// ç­‰å¾…é¢„åˆ¶ä½“é”€æ¯åå‡å°‘è®¡æ•°
     /// </summary>
     private IEnumerator WaitForInstanceDestroy(GameObject instance)
     {
@@ -176,7 +176,7 @@ public class GrassSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// SceneÊÓÍ¼»æÖÆÉú³ÉµãºÍ¼ì²â·¶Î§£¨·½±ãµ÷ÊÔ£©
+    /// Sceneè§†å›¾ä¸‹ç»˜åˆ¶ç”Ÿæˆç‚¹å›¾ç¤ºèŒƒå›´ï¼ˆè°ƒè¯•ç”¨ï¼‰
     /// </summary>
     private void OnDrawGizmosSelected()
     {
@@ -185,7 +185,7 @@ public class GrassSpawner : MonoBehaviour
         Gizmos.color = Color.green;
         foreach (var pos in validSpawnPositions)
         {
-            Gizmos.DrawWireSphere(pos, checkRadius);  // ÏÔÊ¾¼ì²â·¶Î§
+            Gizmos.DrawWireSphere(pos, checkRadius);  // æ˜¾ç¤ºæ£€æµ‹èŒƒå›´
         }
     }
 }

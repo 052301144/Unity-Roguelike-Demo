@@ -1,58 +1,58 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// Í»´Ì£ºÏòÇ°¶Ì¾àÀë¿ìËÙÎ»ÒÆ£¬¶ÔÂ·¾¶ÉÏµÄµÐÈËÔì³ÉÎïÀíÉËº¦
-/// ÎªÁË²»¸ÉÈÅÄãÃÇµÄÒÆ¶¯¿ØÖÆ£¬ÕâÀïÖ±½ÓÐÞ¸Ä transform.position£¨¼«¶ÌÊ±¼ä£©
+/// Í»ï¿½Ì£ï¿½ï¿½ï¿½Ç°ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½Æ£ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ÏµÄµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
+/// Îªï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Çµï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½Þ¸ï¿½ transform.positionï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä£©
 /// </summary>
 public class SM_Physical_DashStab : SM_BaseSkill
 {
-    [Header("Í»´Ì²ÎÊý")]
-    public float dashDistance = 4f;    // Î»ÒÆ¾àÀë
-    public float dashTime = 0.15f;     // Î»ÒÆºÄÊ±
-    public float damage = 20f;         // ÉËº¦ÊýÖµ
-    public LayerMask enemyMask;        // µÐÈËÍ¼²ã
+    [Header("Í»ï¿½Ì²ï¿½ï¿½ï¿½")]
+    public float dashDistance = 4f;    // Î»ï¿½Æ¾ï¿½ï¿½ï¿½
+    public float dashTime = 0.15f;     // Î»ï¿½Æºï¿½Ê±
+    public float damage = 20f;         // ï¿½Ëºï¿½ï¿½ï¿½Öµ
+    public LayerMask enemyMask;        // ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 
-    private float _timer;              // ¼ÆÊ±
-    private Vector2 _start;            // Æðµã
-    private Vector2 _end;              // ÖÕµã
-    private bool _dashing;             // ÊÇ·ñÍ»´ÌÖÐ
+    private float _timer;              // ï¿½ï¿½Ê±
+    private Vector2 _start;            // ï¿½ï¿½ï¿½
+    private Vector2 _end;              // ï¿½Õµï¿½
+    private bool _dashing;             // ï¿½Ç·ï¿½Í»ï¿½ï¿½ï¿½ï¿½
 
     protected override bool DoCast()
     {
-        _start = character.AimOrigin.position;                          // ¼ÇÂ¼Æðµã
-        _end = _start + character.AimDirection.normalized * dashDistance; // ¼ÆËãÖÕµã
-        _timer = 0f;                                                    // ÖØÖÃ¼ÆÊ±
-        _dashing = true;                                                // ¿ªÊ¼Í»´Ì
-        return true;                                                    // ³É¹¦
+        _start = character.AimOrigin.position;                          // ï¿½ï¿½Â¼ï¿½ï¿½ï¿½
+        _end = _start + character.AimDirection.normalized * dashDistance; // ï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½
+        _timer = 0f;                                                    // ï¿½ï¿½ï¿½Ã¼ï¿½Ê±
+        _dashing = true;                                                // ï¿½ï¿½Ê¼Í»ï¿½ï¿½
+        return true;                                                    // ï¿½É¹ï¿½
     }
 
     public override void Tick(float dt)
     {
-        base.Tick(dt);                                                  // ÀäÈ´¼ÆÊ±
-        if (!_dashing) return;                                          // ·ÇÍ»´ÌÖÐ
-        _timer += dt;                                                   // ¸üÐÂÊ±¼ä
-        float t = Mathf.Clamp01(_timer / dashTime);                     // ¹éÒ»»¯½ø¶È
-        var pos = Vector2.Lerp(_start, _end, t);                        // ²åÖµÎ»ÖÃ
-        transform.position = pos;                                       // Ö±½ÓÉèÖÃÎ»ÖÃ£¨ÇáÁ¿×ö·¨£©
+        base.Tick(dt);                                                  // ï¿½ï¿½È´ï¿½ï¿½Ê±
+        if (!_dashing) return;                                          // ï¿½ï¿½Í»ï¿½ï¿½ï¿½ï¿½
+        _timer += dt;                                                   // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+        float t = Mathf.Clamp01(_timer / dashTime);                     // ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        var pos = Vector2.Lerp(_start, _end, t);                        // ï¿½ï¿½ÖµÎ»ï¿½ï¿½
+        transform.position = pos;                                       // Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-        // ÔÚµ±Ç°Î»ÖÃµÄÒ»¸öÐ¡Ô²ÄÚ¼ì²âµÐÈË£¨Ä£Äâ¡°Â·¾¶ÉËº¦¡±£©
+        // ï¿½Úµï¿½Ç°Î»ï¿½Ãµï¿½Ò»ï¿½ï¿½Ð¡Ô²ï¿½Ú¼ï¿½ï¿½ï¿½ï¿½Ë£ï¿½Ä£ï¿½â¡°Â·ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½
         var hits = Physics2D.OverlapCircleAll(pos, 0.6f, enemyMask);
         foreach (var h in hits)
         {
-            var dmg = h.GetComponent<SM_IDamageable>();                 // ÊÜÉË½Ó¿Ú
+            var dmg = h.GetComponent<SM_IDamageable>();                 // ï¿½ï¿½ï¿½Ë½Ó¿ï¿½
             if (dmg != null)
             {
                 dmg.ApplyDamage(new SM_DamageInfo
                 {
-                    Amount = damage,                                    // ÉËº¦
-                    Element = SM_Element.Physical,                      // ÎïÀí
-                    IgnoreDefense = true,                               // ÎÞÊÓ·ÀÓù
-                    CritChance = 0.1f,                                  // µÍ±©»÷
-                    CritMultiplier = 1.5f                               // ±©»÷±¶Êý
+                    Amount = damage,                                    // ï¿½Ëºï¿½
+                    Element = SM_Element.Physical,                      // ï¿½ï¿½ï¿½ï¿½
+                    IgnoreDefense = true,                               // ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
+                    CritChance = 0.1f,                                  // ï¿½Í±ï¿½ï¿½ï¿½
+                    CritMultiplier = 1.5f                               // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 });
             }
         }
 
-        if (t >= 1f) _dashing = false;                                  // ½áÊøÍ»´Ì
+        if (t >= 1f) _dashing = false;                                  // ï¿½ï¿½ï¿½ï¿½Í»ï¿½ï¿½
     }
 }

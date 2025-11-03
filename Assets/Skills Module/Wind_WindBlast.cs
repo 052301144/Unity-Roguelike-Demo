@@ -1,49 +1,49 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// ·çÑ¹ÅÚ£ºÖ±Ïß¿íºÐÅÐ¶¨£¬¶ÔÂ·¾¶µÐÈËÔì³ÉÉËº¦²¢»÷ÍË
-/// ²»²úÉúÍ¶ÉäÎï£¬Ö±½ÓÓÃ OverlapBoxAll
+/// ï¿½ï¿½Ñ¹ï¿½Ú£ï¿½Ö±ï¿½ß¿ï¿½ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¶ï¿½ï¿½ï¿½ï£¬Ö±ï¿½ï¿½ï¿½ï¿½ OverlapBoxAll
 /// </summary>
 public class SM_Wind_WindBlast : SM_BaseSkill
 {
-    [Header("·çÑ¹ÅÚ²ÎÊý")]
-    public float width = 0.7f;        // Ö±Ïß¿í¶È
-    public float length = 6f;         // Ö±Ïß³¤¶È
-    public float damage = 12f;        // ÉËº¦
-    public float knockbackForce = 12f;// »÷ÍËÁ¦
-    public float knockbackTime = 0.15f;// »÷ÍËÊ±¼ä
-    public LayerMask enemyMask;       // µÐÈËÍ¼²ã
+    [Header("ï¿½ï¿½Ñ¹ï¿½Ú²ï¿½ï¿½ï¿½")]
+    public float width = 0.7f;        // Ö±ï¿½ß¿ï¿½ï¿½
+    public float length = 6f;         // Ö±ï¿½ß³ï¿½ï¿½ï¿½
+    public float damage = 12f;        // ï¿½Ëºï¿½
+    public float knockbackForce = 12f;// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public float knockbackTime = 0.15f;// ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    public LayerMask enemyMask;       // ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 
     protected override bool DoCast()
     {
-        var o = (Vector2)character.AimOrigin.position;                  // Æðµã
-        var d = character.AimDirection.normalized;                      // ·½Ïò
-        var center = o + d * (length * 0.5f);                           // ºÐÖÐÐÄ
-        float angleZ = Vector2.SignedAngle(Vector2.right, d);           // Ðý×ª½Ç
-        var hits = Physics2D.OverlapBoxAll(center, new Vector2(length, width), angleZ, enemyMask); // ºÐÌå¼ì²â
+        var o = (Vector2)character.AimOrigin.position;                  // ï¿½ï¿½ï¿½
+        var d = character.AimDirection.normalized;                      // ï¿½ï¿½ï¿½ï¿½
+        var center = o + d * (length * 0.5f);                           // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        float angleZ = Vector2.SignedAngle(Vector2.right, d);           // ï¿½ï¿½×ªï¿½ï¿½
+        var hits = Physics2D.OverlapBoxAll(center, new Vector2(length, width), angleZ, enemyMask); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
         foreach (var h in hits)
         {
-            var dmg = h.GetComponent<SM_IDamageable>();                 // ÊÜÉË½Ó¿Ú
+            var dmg = h.GetComponent<SM_IDamageable>();                 // ï¿½ï¿½ï¿½Ë½Ó¿ï¿½
             if (dmg != null)
             {
                 dmg.ApplyDamage(new SM_DamageInfo
                 {
-                    Amount = damage,             // ÉËº¦
-                    Element = SM_Element.Wind,   // ·çÔªËØ
-                    IgnoreDefense = false,       // ²»ÎÞÊÓ·ÀÓù
-                    CritChance = 0f,             // ÎÞ±©»÷
-                    CritMultiplier = 1f          // ±¶ÂÊ
+                    Amount = damage,             // ï¿½Ëºï¿½
+                    Element = SM_Element.Wind,   // ï¿½ï¿½Ôªï¿½ï¿½
+                    IgnoreDefense = false,       // ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
+                    CritChance = 0f,             // ï¿½Þ±ï¿½ï¿½ï¿½
+                    CritMultiplier = 1f          // ï¿½ï¿½ï¿½ï¿½
                 });
             }
-            h.GetComponent<SM_IKnockbackable>()?.Knockback(d, knockbackForce, knockbackTime); // Èô¿É»÷ÍËÔò»÷ÍË
+            h.GetComponent<SM_IKnockbackable>()?.Knockback(d, knockbackForce, knockbackTime); // ï¿½ï¿½É»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         }
-        return true;                                                    // ³É¹¦
+        return true;                                                    // ï¿½É¹ï¿½
     }
 
-    private void OnDrawGizmosSelected()                                 // ±à¼­Æ÷¿ÉÊÓ»¯
+    private void OnDrawGizmosSelected()                                 // ï¿½à¼­ï¿½ï¿½ï¿½ï¿½ï¿½Ó»ï¿½
     {
-        Gizmos.color = Color.cyan;                                      // ÇàÉ«
+        Gizmos.color = Color.cyan;                                      // ï¿½ï¿½É«
         Gizmos.DrawWireCube(transform.position + Vector3.right * (length * 0.5f), new Vector3(length, width, 0.1f));
     }
 }

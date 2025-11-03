@@ -1,89 +1,89 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class SimplePauseMenu : MonoBehaviour
 {
-    [Header("UI×é¼ş")]
+    [Header("UIç»„ä»¶")]
     public GameObject menuPanel;
-    public GameObject settingsPanel; // ĞÂÔö£ºÉèÖÃÃæ°å
+    public GameObject settingsPanel; // è®¾ç½®é¢æ¿ï¼ˆå¯é€‰ï¼‰
     public Button menuButton;
-    public Button resumeButton; // ·µ»ØÓÎÏ·°´Å¥
-    public Button settingsButton; // ĞÂÔö£ºÉèÖÃ°´Å¥
-    public Button mainMenuButton; // ·µ»ØÖ÷²Ëµ¥°´Å¥
-    public Button backFromSettingsButton; // ĞÂÔö£º´ÓÉèÖÃ·µ»Ø°´Å¥
+    public Button resumeButton; // ç»§ç»­æ¸¸æˆæŒ‰é’®
+    public Button settingsButton; // æ‰“å¼€è®¾ç½®æŒ‰é’®
+    public Button mainMenuButton; // è¿”å›ä¸»èœå•æŒ‰é’®
+    public Button backFromSettingsButton; // ä»è®¾ç½®é¢æ¿è¿”å›æŒ‰é’®
 
-    [Header("³¡¾°ÉèÖÃ")]
-    public string mainMenuScene = "StartMenuScene"; // Ö÷²Ëµ¥³¡¾°Ãû³Æ
+    [Header("åœºæ™¯è®¾ç½®")]
+    public string mainMenuScene = "StartMenuScene"; // ä¸»èœå•åœºæ™¯åç§°
 
     void Start()
     {
-        // È·±£²Ëµ¥Ãæ°åÒş²Ø
+        // ç¡®ä¿èœå•åˆå§‹å…³é—­
         if (menuPanel != null)
         {
             menuPanel.SetActive(false);
         }
 
-        // È·±£ÉèÖÃÃæ°åÒş²Ø
+        // ç¡®ä¿è®¾ç½®é¢æ¿å…³é—­
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(false);
         }
 
-        // °ó¶¨²Ëµ¥°´Å¥ÊÂ¼ş
+        // ç»‘å®šèœå•æŒ‰é’®äº‹ä»¶
         if (menuButton != null)
         {
             menuButton.onClick.AddListener(ToggleMenu);
         }
 
-        // °ó¶¨·µ»ØÓÎÏ·°´Å¥ÊÂ¼ş
+        // ç»‘å®šç»§ç»­æ¸¸æˆæŒ‰é’®äº‹ä»¶
         if (resumeButton != null)
         {
             resumeButton.onClick.AddListener(ResumeGame);
         }
         else
         {
-            // ×Ô¶¯²éÕÒ·µ»ØÓÎÏ·°´Å¥
+            // è‡ªåŠ¨æŸ¥æ‰¾ç»§ç»­æ¸¸æˆæŒ‰é’®
             FindResumeButton();
         }
 
-        // °ó¶¨ÉèÖÃ°´Å¥ÊÂ¼ş
+        // ç»‘å®šè®¾ç½®æŒ‰é’®äº‹ä»¶
         if (settingsButton != null)
         {
             settingsButton.onClick.AddListener(OpenSettings);
         }
         else
         {
-            // ×Ô¶¯²éÕÒÉèÖÃ°´Å¥
+            // è‡ªåŠ¨æŸ¥æ‰¾è®¾ç½®æŒ‰é’®
             FindSettingsButton();
         }
 
-        // °ó¶¨·µ»ØÖ÷²Ëµ¥°´Å¥ÊÂ¼ş
+        // ç»‘å®šè¿”å›ä¸»èœå•æŒ‰é’®äº‹ä»¶
         if (mainMenuButton != null)
         {
             mainMenuButton.onClick.AddListener(ReturnToMainMenu);
         }
         else
         {
-            // ×Ô¶¯²éÕÒ·µ»ØÖ÷²Ëµ¥°´Å¥
+            // è‡ªåŠ¨æŸ¥æ‰¾è¿”å›ä¸»èœå•æŒ‰é’®
             FindMainMenuButton();
         }
 
-        // °ó¶¨´ÓÉèÖÃ·µ»Ø°´Å¥ÊÂ¼ş
+        // ç»‘å®šä»è®¾ç½®è¿”å›æŒ‰é’®äº‹ä»¶
         if (backFromSettingsButton != null)
         {
             backFromSettingsButton.onClick.AddListener(CloseSettings);
         }
         else
         {
-            // ×Ô¶¯²éÕÒ´ÓÉèÖÃ·µ»Ø°´Å¥
+            // è‡ªåŠ¨æŸ¥æ‰¾ä»è®¾ç½®è¿”å›æŒ‰é’®
             FindBackFromSettingsButton();
         }
     }
 
     void FindResumeButton()
     {
-        // ÔÚ²Ëµ¥Ãæ°åÄÚ²éÕÒ·µ»ØÓÎÏ·°´Å¥
+        // åœ¨èœå•é¢æ¿å†…éƒ¨æŸ¥æ‰¾ç»§ç»­æ¸¸æˆæŒ‰é’®
         if (menuPanel != null)
         {
             Transform resumeBtnTransform = menuPanel.transform.Find("ResumeButton");
@@ -95,14 +95,14 @@ public class SimplePauseMenu : MonoBehaviour
             if (resumeButton != null)
             {
                 resumeButton.onClick.AddListener(ResumeGame);
-                Debug.Log("×Ô¶¯ÕÒµ½·µ»ØÓÎÏ·°´Å¥: " + resumeButton.name);
+                Debug.Log("è‡ªåŠ¨æ‰¾åˆ°ç»§ç»­æ¸¸æˆæŒ‰é’®: " + resumeButton.name);
             }
         }
     }
 
     void FindSettingsButton()
     {
-        // ÔÚ²Ëµ¥Ãæ°åÄÚ²éÕÒÉèÖÃ°´Å¥
+        // åœ¨èœå•é¢æ¿å†…éƒ¨æŸ¥æ‰¾è®¾ç½®æŒ‰é’®
         if (menuPanel != null)
         {
             Transform settingsBtnTransform = menuPanel.transform.Find("SettingsButton");
@@ -119,14 +119,14 @@ public class SimplePauseMenu : MonoBehaviour
             if (settingsButton != null)
             {
                 settingsButton.onClick.AddListener(OpenSettings);
-                Debug.Log("×Ô¶¯ÕÒµ½ÉèÖÃ°´Å¥: " + settingsButton.name);
+                Debug.Log("è‡ªåŠ¨æ‰¾åˆ°è®¾ç½®æŒ‰é’®: " + settingsButton.name);
             }
         }
     }
 
     void FindMainMenuButton()
     {
-        // ÔÚ²Ëµ¥Ãæ°åÄÚ²éÕÒ·µ»ØÖ÷²Ëµ¥°´Å¥
+        // åœ¨èœå•é¢æ¿å†…éƒ¨æŸ¥æ‰¾è¿”å›ä¸»èœå•æŒ‰é’®
         if (menuPanel != null)
         {
             Transform mainMenuBtnTransform = menuPanel.transform.Find("MainMenuButton");
@@ -147,14 +147,14 @@ public class SimplePauseMenu : MonoBehaviour
             if (mainMenuButton != null)
             {
                 mainMenuButton.onClick.AddListener(ReturnToMainMenu);
-                Debug.Log("×Ô¶¯ÕÒµ½·µ»ØÖ÷²Ëµ¥°´Å¥: " + mainMenuButton.name);
+                Debug.Log("è‡ªåŠ¨æ‰¾åˆ°è¿”å›ä¸»èœå•æŒ‰é’®: " + mainMenuButton.name);
             }
         }
     }
 
     void FindBackFromSettingsButton()
     {
-        // ÔÚÉèÖÃÃæ°åÄÚ²éÕÒ·µ»Ø°´Å¥
+        // åœ¨è®¾ç½®é¢æ¿å†…éƒ¨æŸ¥æ‰¾è¿”å›æŒ‰é’®
         if (settingsPanel != null)
         {
             Transform backBtnTransform = settingsPanel.transform.Find("BackButton");
@@ -175,7 +175,7 @@ public class SimplePauseMenu : MonoBehaviour
             if (backFromSettingsButton != null)
             {
                 backFromSettingsButton.onClick.AddListener(CloseSettings);
-                Debug.Log("×Ô¶¯ÕÒµ½ÉèÖÃ·µ»Ø°´Å¥: " + backFromSettingsButton.name);
+                Debug.Log("è‡ªåŠ¨æ‰¾åˆ°è®¾ç½®è¿”å›æŒ‰é’®: " + backFromSettingsButton.name);
             }
         }
     }
@@ -192,7 +192,7 @@ public class SimplePauseMenu : MonoBehaviour
         }
     }
 
-    // ÔİÍ£ÓÎÏ·²¢ÏÔÊ¾²Ëµ¥
+    // æš‚åœæ¸¸æˆå¹¶æ˜¾ç¤ºèœå•
     void PauseGame()
     {
         if (menuPanel != null)
@@ -200,19 +200,19 @@ public class SimplePauseMenu : MonoBehaviour
             menuPanel.SetActive(true);
         }
 
-        // È·±£ÉèÖÃÃæ°åÒş²Ø
+        // ç¡®ä¿è®¾ç½®é¢æ¿å…³é—­
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(false);
         }
 
-        Time.timeScale = 0f; // ÔİÍ£ÓÎÏ·
+        Time.timeScale = 0f; // æš‚åœæ¸¸æˆ
         AudioListener.pause = true;
 
-        Debug.Log("ÓÎÏ·ÒÑÔİÍ£");
+        Debug.Log("æ¸¸æˆå·²æš‚åœ");
     }
 
-    // ¼ÌĞøÓÎÏ·²¢Òş²Ø²Ëµ¥
+    // ç»§ç»­æ¸¸æˆå¹¶å…³é—­èœå•
     public void ResumeGame()
     {
         if (menuPanel != null)
@@ -220,77 +220,77 @@ public class SimplePauseMenu : MonoBehaviour
             menuPanel.SetActive(false);
         }
 
-        // È·±£ÉèÖÃÃæ°åÒş²Ø
+        // ç¡®ä¿è®¾ç½®é¢æ¿å…³é—­
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(false);
         }
 
-        Time.timeScale = 1f; // »Ö¸´ÓÎÏ·
+        Time.timeScale = 1f; // æ¢å¤æ¸¸æˆ
         AudioListener.pause = false;
 
-        Debug.Log("ÓÎÏ·ÒÑ¼ÌĞø");
+        Debug.Log("æ¸¸æˆå·²ç»§ç»­");
     }
 
-    // ´ò¿ªÉèÖÃÃæ°å
+    // æ‰“å¼€è®¾ç½®é¢æ¿
     public void OpenSettings()
     {
-        Debug.Log("´ò¿ªÉèÖÃÃæ°å");
+        Debug.Log("æ‰“å¼€è®¾ç½®é¢æ¿");
 
-        // Òş²Ø²Ëµ¥Ãæ°å
+        // å…³é—­èœå•é¢æ¿
         if (menuPanel != null)
         {
             menuPanel.SetActive(false);
         }
 
-        // ÏÔÊ¾ÉèÖÃÃæ°å
+        // æ˜¾ç¤ºè®¾ç½®é¢æ¿
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(true);
         }
         else
         {
-            Debug.LogWarning("ÉèÖÃÃæ°åÎ´Ö¸¶¨£¡");
+            Debug.LogWarning("è®¾ç½®é¢æ¿æœªæŒ‡å®š");
         }
     }
 
-    // ¹Ø±ÕÉèÖÃÃæ°å£¬·µ»Ø²Ëµ¥
+    // å…³é—­è®¾ç½®é¢æ¿ï¼Œè¿”å›èœå•
     public void CloseSettings()
     {
-        Debug.Log("¹Ø±ÕÉèÖÃÃæ°å");
+        Debug.Log("å…³é—­è®¾ç½®é¢æ¿");
 
-        // Òş²ØÉèÖÃÃæ°å
+        // å…³é—­è®¾ç½®é¢æ¿
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(false);
         }
 
-        // ÏÔÊ¾²Ëµ¥Ãæ°å
+        // æ˜¾ç¤ºèœå•é¢æ¿
         if (menuPanel != null)
         {
             menuPanel.SetActive(true);
         }
     }
 
-    // ·µ»ØÖ÷²Ëµ¥
+    // è¿”å›ä¸»èœå•
     public void ReturnToMainMenu()
     {
-        Debug.Log("·µ»ØÖ÷²Ëµ¥°´Å¥±»µã»÷");
+        Debug.Log("è¿”å›ä¸»èœå•æŒ‰é’®è¢«ç‚¹å‡»");
 
-        // È¡ÏûÓÎÏ·ÔİÍ£
+        // å–æ¶ˆæ¸¸æˆæš‚åœ
         Time.timeScale = 1f;
         AudioListener.pause = false;
 
-        Debug.Log("ÓÎÏ·ÔİÍ£ÒÑÈ¡Ïû£¬ÕıÔÚ¼ÓÔØÖ÷²Ëµ¥...");
+        Debug.Log("æ¸¸æˆæš‚åœå·²å–æ¶ˆï¼Œæ­£åœ¨åŠ è½½ä¸»èœå•...");
 
-        // ¼ÓÔØÖ÷²Ëµ¥³¡¾°
+        // åŠ è½½ä¸»èœå•åœºæ™¯
         if (!string.IsNullOrEmpty(mainMenuScene))
         {
             SceneManager.LoadScene(mainMenuScene);
         }
         else
         {
-            Debug.LogError("ÇëÉèÖÃÖ÷²Ëµ¥³¡¾°Ãû³Æ£¡");
+            Debug.LogError("ä¸»èœå•åœºæ™¯åç§°æœªè®¾ç½®");
         }
     }
 
@@ -304,19 +304,19 @@ public class SimplePauseMenu : MonoBehaviour
         return settingsPanel != null && settingsPanel.activeInHierarchy;
     }
 
-    // ÔÚ±à¼­Æ÷ÖĞ²âÊÔ
-    [ContextMenu("²âÊÔÔİÍ£")]
+    // åœ¨ç¼–è¾‘å™¨ä¸­æµ‹è¯•
+    [ContextMenu("æµ‹è¯•æš‚åœ")]
     void TestPause() => PauseGame();
 
-    [ContextMenu("²âÊÔ¼ÌĞø")]
+    [ContextMenu("æµ‹è¯•ç»§ç»­")]
     void TestResume() => ResumeGame();
 
-    [ContextMenu("²âÊÔ´ò¿ªÉèÖÃ")]
+    [ContextMenu("æµ‹è¯•æ‰“å¼€è®¾ç½®")]
     void TestOpenSettings() => OpenSettings();
 
-    [ContextMenu("²âÊÔ¹Ø±ÕÉèÖÃ")]
+    [ContextMenu("æµ‹è¯•å…³é—­è®¾ç½®")]
     void TestCloseSettings() => CloseSettings();
 
-    [ContextMenu("²âÊÔ·µ»ØÖ÷²Ëµ¥")]
+    [ContextMenu("æµ‹è¯•è¿”å›ä¸»èœå•")]
     void TestReturnToMainMenu() => ReturnToMainMenu();
 }

@@ -1,30 +1,30 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// ±ù×¶Êõ£ºÖ±ÏßÍ¶Éä£¬ÃüÖÐÔì³ÉÉËº¦²¢ÓÐ¸ÅÂÊ¶³½áÄ¿±ê
-/// ÐèÒªÔÚ Inspector ÉèÖÃ spikePrefab£¨´ø SM_Projectile µÄÔ¤ÖÆÌå£©
+/// ï¿½ï¿½×¶ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½Í¶ï¿½ä£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½Ð¸ï¿½ï¿½Ê¶ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½
+/// ï¿½ï¿½Òªï¿½ï¿½ Inspector ï¿½ï¿½ï¿½ï¿½ spikePrefabï¿½ï¿½ï¿½ï¿½ SM_Projectile ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½å£©
 /// </summary>
 public class SM_Ice_IceSpike : SM_BaseSkill
 {
-    [Header("±ù×¶Êõ²ÎÊý")]
-    public SM_Projectile spikePrefab;    // Ô¤ÖÆÌå
-    public float damage = 18f;           // ÉËº¦
-    public float speed = 14f;            // ËÙ¶È
-    public float lifetime = 3f;          // ´æ»î
-    public float freezeChance = 0.4f;    // ¶³½á¸ÅÂÊ
-    public float freezeTime = 1.5f;      // ¶³½áÊ±¼ä
+    [Header("ï¿½ï¿½×¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public SM_Projectile spikePrefab;    // Ô¤ï¿½ï¿½ï¿½ï¿½
+    public float damage = 18f;           // ï¿½Ëºï¿½
+    public float speed = 14f;            // ï¿½Ù¶ï¿½
+    public float lifetime = 3f;          // ï¿½ï¿½ï¿½
+    public float freezeChance = 0.4f;    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public float freezeTime = 1.5f;      // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
 
     protected override bool DoCast()
     {
-        if (spikePrefab == null) return false;                               // Î´ÅäÖÃ
+        if (spikePrefab == null) return false;                               // Î´ï¿½ï¿½ï¿½ï¿½
         var go = Instantiate(spikePrefab, character.AimOrigin.position, Quaternion.identity);
-        go.damage = damage;                                                  // ÉèÖÃ
+        go.damage = damage;                                                  // ï¿½ï¿½ï¿½ï¿½
         go.element = SM_Element.Ice;
         go.speed = speed;
         go.lifetime = lifetime;
         go.freezeChance = freezeChance;
         go.freezeTime = freezeTime;
-        go.Launch(character.AimDirection);                                    // ·¢Éä
+        go.Launch(character.AimDirection);                                    // ï¿½ï¿½ï¿½ï¿½
         return true;
     }
 }

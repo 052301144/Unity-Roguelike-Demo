@@ -1,64 +1,64 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// ¿ÉÊÜÉË½Ó¿Ú£ºµÐÈË/Ä¿±êÈç¹ûÊµÏÖ±¾½Ó¿Ú£¬¾ÍÄÜ±»¼¼ÄÜÄ£¿éÉËº¦µ½
-/// £¨Èç¹ûÄãÃÇÒÑÓÐÀàËÆ½Ó¿Ú£¬¿ÉÈÃµÐÈË½Å±¾Í¬Ê±ÊµÏÖÕâ¸ö½Ó¿ÚÒÔ¼æÈÝ£©
+/// ï¿½ï¿½ï¿½ï¿½ï¿½Ë½Ó¿Ú£ï¿½ï¿½ï¿½ï¿½ï¿½/Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½Ö±ï¿½ï¿½Ó¿Ú£ï¿½ï¿½ï¿½ï¿½Ü±ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ½Ó¿Ú£ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½Ë½Å±ï¿½Í¬Ê±Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½Ô¼ï¿½ï¿½Ý£ï¿½
 
 /// </summary>
 public interface SM_IDamageable
 {
-    void ApplyDamage(SM_DamageInfo info); // Ó¦ÓÃÉËº¦
-    Transform GetTransform();             // ·µ»Ø Transform£¨ÓÃÓÚ·½Ïò/Î»ÖÃ¼ÆËã£©
+    void ApplyDamage(SM_DamageInfo info); // Ó¦ï¿½ï¿½ï¿½Ëºï¿½
+    Transform GetTransform();             // ï¿½ï¿½ï¿½ï¿½ Transformï¿½ï¿½ï¿½ï¿½ï¿½Ú·ï¿½ï¿½ï¿½/Î»ï¿½Ã¼ï¿½ï¿½ã£©
 }
 
 /// <summary>
-/// ¿É±»»÷ÍË½Ó¿Ú£ºÓÃÓÚ·çÔªËØÐ§¹û£¨¿ÉÑ¡£©
+/// ï¿½É±ï¿½ï¿½ï¿½ï¿½Ë½Ó¿Ú£ï¿½ï¿½ï¿½ï¿½Ú·ï¿½Ôªï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½
 /// </summary>
 public interface SM_IKnockbackable
 {
-    void Knockback(Vector2 dir, float force, float duration); // ±»»÷ÍË
+    void Knockback(Vector2 dir, float force, float duration); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 /// <summary>
-/// ¿É±»¶³½á½Ó¿Ú£ºÓÃÓÚ±ùÔªËØÐ§¹û£¨¿ÉÑ¡£©
+/// ï¿½É±ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿Ú£ï¿½ï¿½ï¿½ï¿½Ú±ï¿½Ôªï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½
 /// </summary>
 public interface SM_IFreezable
 {
-    void Freeze(float duration); // ¶³½á
+    void Freeze(float duration); // ï¿½ï¿½ï¿½ï¿½
 }
 
 /// <summary>
-/// ¿É±»µãÈ¼½Ó¿Ú£ºÓÃÓÚ»ðÔªËØ³ÖÐøÉËº¦£¨¿ÉÑ¡£©
+/// ï¿½É±ï¿½ï¿½ï¿½È¼ï¿½Ó¿Ú£ï¿½ï¿½ï¿½ï¿½Ú»ï¿½Ôªï¿½Ø³ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½
 /// </summary>
 public interface SM_IBurnable
 {
-    void ApplyBurn(float dps, float duration); // Ê©¼ÓÈ¼ÉÕ£¨Ã¿ÃëÉËº¦£¬³ÖÐøÊ±¼ä£©
+    void ApplyBurn(float dps, float duration); // Ê©ï¿½ï¿½È¼ï¿½Õ£ï¿½Ã¿ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä£©
 }
 
 /// <summary>
-/// ¼¼ÄÜÏµÍ³Ïò¡°½ÇÉ«¿ØÖÆÄ£¿é¡±ÇëÇóÖ»¶ÁÐÅÏ¢µÄ½Ó¿Ú£¨½âñî£©
-/// ÄãÃÇµÄ PlayerController ²»ÐèÒªÊµÏÖËü£»ÓÉ±¾¼¼ÄÜÏµÍ³ÄÚ²¿Ìá¹©ÊµÏÖ¡£
+/// ï¿½ï¿½ï¿½ï¿½ÏµÍ³ï¿½ò¡°½ï¿½É«ï¿½ï¿½ï¿½ï¿½Ä£ï¿½é¡±ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½Ä½Ó¿Ú£ï¿½ï¿½ï¿½ï¿½î£©
+/// ï¿½ï¿½ï¿½Çµï¿½ PlayerController ï¿½ï¿½ï¿½ï¿½ÒªÊµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É±ï¿½ï¿½ï¿½ï¿½ï¿½ÏµÍ³ï¿½Ú²ï¿½ï¿½á¹©Êµï¿½Ö¡ï¿½
 /// </summary>
 public interface SM_ICharacterProvider
 {
-    Transform AimOrigin { get; }  // ¼¼ÄÜÊÍ·ÅÆðµã£¨Ò»°ãÊÇ½ÇÉ«Î»ÖÃ»òÊÖ²¿¹Òµã£©
-    Vector2 AimDirection { get; } // Ãæ³¯/Ãé×¼·½Ïò£¨Ä¬ÈÏÏòÓÒ£»¿ÉÓÉÍâ²¿ÉèÖÃ£©
-    float CurrentMP { get; }      // µ±Ç°Ä§·¨Öµ
-    float MaxMP { get; }          // ×î´óÄ§·¨Öµ
-    bool ConsumeMP(float amount); // ÏûºÄÄ§·¨Öµ£¨³É¹¦·µ»Ø true£©
+    Transform AimOrigin { get; }  // ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½ï¿½ã£¨Ò»ï¿½ï¿½ï¿½Ç½ï¿½É«Î»ï¿½Ã»ï¿½ï¿½Ö²ï¿½ï¿½Òµã£©
+    Vector2 AimDirection { get; } // ï¿½æ³¯/ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½Ò£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â²¿ï¿½ï¿½ï¿½Ã£ï¿½
+    float CurrentMP { get; }      // ï¿½ï¿½Ç°Ä§ï¿½ï¿½Öµ
+    float MaxMP { get; }          // ï¿½ï¿½ï¿½Ä§ï¿½ï¿½Öµ
+    bool ConsumeMP(float amount); // ï¿½ï¿½ï¿½ï¿½Ä§ï¿½ï¿½Öµï¿½ï¿½ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½ trueï¿½ï¿½
 }
 
 /// <summary>
-/// ¼¼ÄÜ¹«¹²½Ó¿Ú£ºËùÓÐ¼¼ÄÜÀà¶¼ÊµÏÖËü
+/// ï¿½ï¿½ï¿½Ü¹ï¿½ï¿½ï¿½ï¿½Ó¿Ú£ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½ï¿½à¶¼Êµï¿½ï¿½ï¿½ï¿½
 /// </summary>
 public interface SM_ISkill
 {
-    string SkillName { get; }                        // ¼¼ÄÜÃû
-    SM_Element Element { get; }                      // ÔªËØÀàÐÍ
-    float ManaCost { get; }                          // MP ÏûºÄ
-    float Cooldown { get; }                          // ÀäÈ´Ê±¼ä
-    bool IsOnCooldown { get; }                       // ÊÇ·ñ´¦ÓÚÀäÈ´
-    void Initialize(SM_ICharacterProvider provider); // ³õÊ¼»¯£¨×¢ÈëÖ»¶Á½ÇÉ«ÐÅÏ¢£©
-    bool TryCast();                                  // ³¢ÊÔÊ©·Å£¨ÄÚ²¿¼ì²é MP/ÀäÈ´£©
-    void Tick(float dt);                             // Ã¿Ö¡¸üÐÂ£¨´¦ÀíÀäÈ´/³ÖÐøÐ§¹û£©
+    string SkillName { get; }                        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    SM_Element Element { get; }                      // Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    float ManaCost { get; }                          // MP ï¿½ï¿½ï¿½ï¿½
+    float Cooldown { get; }                          // ï¿½ï¿½È´Ê±ï¿½ï¿½
+    bool IsOnCooldown { get; }                       // ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½È´
+    void Initialize(SM_ICharacterProvider provider); // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½Ï¢ï¿½ï¿½
+    bool TryCast();                                  // ï¿½ï¿½ï¿½ï¿½Ê©ï¿½Å£ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ MP/ï¿½ï¿½È´ï¿½ï¿½
+    void Tick(float dt);                             // Ã¿Ö¡ï¿½ï¿½ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´/ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½
 }

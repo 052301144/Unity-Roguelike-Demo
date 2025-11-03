@@ -1,30 +1,30 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// »ðÇòÊõ£º·¢ÉäÒ»¿Å»ðÇò£¬ÃüÖÐºóÔì³ÉÉËº¦²¢¸½´øÈ¼ÉÕ£¨³ÖÐøÉËº¦£©
-/// ÐèÒªÔÚ Inspector ÀïÉèÖÃ fireballPrefab£¨Ò»¸ö´ø SM_Projectile µÄÔ¤ÖÆÌå£©
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Å»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðºï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½Õ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½
+/// ï¿½ï¿½Òªï¿½ï¿½ Inspector ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ fireballPrefabï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ SM_Projectile ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½å£©
 /// </summary>
 public class SM_Fire_Fireball : SM_BaseSkill
 {
-    [Header("»ðÇò²ÎÊý")]
-    public SM_Projectile fireballPrefab; // Ô¤ÖÆÌå£ºSprite + Collider2D(isTrigger) + ±¾½Å±¾
-    public float damage = 25f;           // Ö±½ÓÉËº¦
-    public float burnDPS = 5f;           // È¼ÉÕÃ¿ÃëÉËº¦
-    public float burnTime = 4f;          // È¼ÉÕ³ÖÐøÊ±¼ä
-    public float speed = 12f;            // ·ÉÐÐËÙ¶È
-    public float lifetime = 3f;          // ´æ»îÊ±¼ä
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public SM_Projectile fireballPrefab; // Ô¤ï¿½ï¿½ï¿½å£ºSprite + Collider2D(isTrigger) + ï¿½ï¿½ï¿½Å±ï¿½
+    public float damage = 25f;           // Ö±ï¿½ï¿½ï¿½Ëºï¿½
+    public float burnDPS = 5f;           // È¼ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½Ëºï¿½
+    public float burnTime = 4f;          // È¼ï¿½Õ³ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    public float speed = 12f;            // ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½
+    public float lifetime = 3f;          // ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
 
     protected override bool DoCast()
     {
-        if (fireballPrefab == null) return false;                                   // Î´ÅäÖÃÔ¤ÖÆÌå
-        var go = Instantiate(fireballPrefab, character.AimOrigin.position, Quaternion.identity); // Éú³É
-        go.damage = damage;                                                         // ¸³Öµ²ÎÊý
-        go.element = SM_Element.Fire;                                               // ÔªËØ£º»ð
-        go.burnDPS = burnDPS;                                                       // È¼ÉÕÃ¿ÃëÉËº¦
-        go.burnTime = burnTime;                                                     // È¼ÉÕ³ÖÐø
-        go.speed = speed;                                                           // ËÙ¶È
-        go.lifetime = lifetime;                                                     // ÉúÃüÖÜÆÚ
-        go.Launch(character.AimDirection);                                          // ·¢Éä
-        return true;                                                                // ³É¹¦
+        if (fireballPrefab == null) return false;                                   // Î´ï¿½ï¿½ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½
+        var go = Instantiate(fireballPrefab, character.AimOrigin.position, Quaternion.identity); // ï¿½ï¿½ï¿½ï¿½
+        go.damage = damage;                                                         // ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½
+        go.element = SM_Element.Fire;                                               // Ôªï¿½Ø£ï¿½ï¿½ï¿½
+        go.burnDPS = burnDPS;                                                       // È¼ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½Ëºï¿½
+        go.burnTime = burnTime;                                                     // È¼ï¿½Õ³ï¿½ï¿½ï¿½
+        go.speed = speed;                                                           // ï¿½Ù¶ï¿½
+        go.lifetime = lifetime;                                                     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        go.Launch(character.AimDirection);                                          // ï¿½ï¿½ï¿½ï¿½
+        return true;                                                                // ï¿½É¹ï¿½
     }
 }

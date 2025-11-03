@@ -1,19 +1,19 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
 public class InventorySystem : MonoBehaviour
 {
-    [Header("±³°üUI")]
-    public GameObject inventoryPanel; // ±³°üÃæ°å
-    public Button closeButton; // ¹Ø±Õ°´Å¥£¨¿ÉÑ¡£©
+    [Header("èƒŒåŒ…UI")]
+    public GameObject inventoryPanel; // èƒŒåŒ…é¢æ¿
+    public Button closeButton; // å…³é—­æŒ‰é’®ï¼ˆå¯é€‰ï¼‰
 
-    [Header("±³°üÉèÖÃ")]
-    public KeyCode toggleKey = KeyCode.B; // ¿ª¹Ø¿ì½İ¼ü
-    public bool pauseGameWhenOpen = true; // ´ò¿ªÊ±ÊÇ·ñÔİÍ£ÓÎÏ·
+    [Header("æ“ä½œè®¾ç½®")]
+    public KeyCode toggleKey = KeyCode.B; // åˆ‡æ¢å¿«æ·é”®
+    public bool pauseGameWhenOpen = true; // æ‰“å¼€æ—¶æ˜¯å¦æš‚åœæ¸¸æˆ
 
     private bool isInventoryOpen = false;
-    private CanvasGroup canvasGroup; // ÓÃÓÚµ­Èëµ­³öĞ§¹û£¨¿ÉÑ¡£©
+    private CanvasGroup canvasGroup; // ç”¨äºæ·¡å…¥æ·¡å‡ºæ•ˆæœï¼ˆå¯é€‰ï¼‰
 
     void Start()
     {
@@ -22,12 +22,12 @@ public class InventorySystem : MonoBehaviour
 
     void InitializeInventory()
     {
-        // È·±£±³°ü¿ªÊ¼Ê±ÊÇÒş²ØµÄ
+        // ç¡®ä¿èƒŒåŒ…åˆå§‹æ—¶å…³é—­
         if (inventoryPanel != null)
         {
             inventoryPanel.SetActive(false);
 
-            // Ìí¼ÓCanvasGroupÓÃÓÚ¿ÉÄÜµÄ¶¯»­Ğ§¹û
+            // åˆ›å»ºCanvasGroupç”¨äºå¯èƒ½çš„æ·¡å…¥æ•ˆæœ
             canvasGroup = inventoryPanel.GetComponent<CanvasGroup>();
             if (canvasGroup == null)
             {
@@ -35,38 +35,38 @@ public class InventorySystem : MonoBehaviour
             }
         }
 
-        // °ó¶¨¹Ø±Õ°´Å¥ÊÂ¼ş
+        // ç»‘å®šå…³é—­æŒ‰é’®äº‹ä»¶
         if (closeButton != null)
         {
             closeButton.onClick.AddListener(CloseInventory);
         }
         else
         {
-            // ×Ô¶¯²éÕÒ¹Ø±Õ°´Å¥
+            // è‡ªåŠ¨æŸ¥æ‰¾å…³é—­æŒ‰é’®
             FindCloseButton();
         }
 
-        Debug.Log("±³°üÏµÍ³³õÊ¼»¯Íê³É£¬°´ " + toggleKey + " ¼ü´ò¿ª/¹Ø±Õ");
+        Debug.Log("èƒŒåŒ…ç³»ç»Ÿåˆå§‹åŒ–å®Œæˆï¼ŒæŒ‰ " + toggleKey + " æ‰“å¼€/å…³é—­");
     }
 
     void Update()
     {
-        // ¼ì²â¿ì½İ¼ü
+        // æ£€æµ‹å¿«æ·é”®
         if (Input.GetKeyDown(toggleKey))
         {
-            // ¼ì²éÔİÍ£²Ëµ¥ÊÇ·ñ´ò¿ª
+            // æ£€æŸ¥æš‚åœèœå•æ˜¯å¦æ‰“å¼€
             SimplePauseMenu pauseMenu = FindObjectOfType<SimplePauseMenu>();
             SimplePauseMenu pauseSetting = FindObjectOfType<SimplePauseMenu>();
             if (pauseMenu != null && pauseMenu.IsMenuOpen()|| pauseSetting != null && pauseSetting.IssettingsOpen())
             {
-                Debug.Log("ÔİÍ£²Ëµ¥ÒÑ´ò¿ª£¬ÎŞ·¨²Ù×÷±³°ü");
-                return; // Èç¹ûÔİÍ£²Ëµ¥´ò¿ª£¬²»Ö´ĞĞ±³°ü²Ù×÷
+                Debug.Log("æš‚åœèœå•å·²æ‰“å¼€ï¼Œæ— æ³•æ‰“å¼€èƒŒåŒ…");
+                return; // å¦‚æœæš‚åœèœå•æ‰“å¼€ï¼Œä¸æ‰§è¡ŒèƒŒåŒ…æ“ä½œ
             }
 
             ToggleInventory();
         }
 
-        // ESC¼üÒ²¿ÉÒÔ¹Ø±Õ±³°ü£¨¿ÉÑ¡£©
+        // ESCé”®ä¹Ÿå¯ä»¥å…³é—­èƒŒåŒ…ï¼ˆå¯é€‰ï¼‰
         if (isInventoryOpen && Input.GetKeyDown(KeyCode.Escape))
         {
             CloseInventory();
@@ -93,13 +93,13 @@ public class InventorySystem : MonoBehaviour
                 if (closeButton != null)
                 {
                     closeButton.onClick.AddListener(CloseInventory);
-                    Debug.Log("×Ô¶¯ÕÒµ½¹Ø±Õ°´Å¥: " + closeButton.name);
+                    Debug.Log("è‡ªåŠ¨æ‰¾åˆ°å…³é—­æŒ‰é’®: " + closeButton.name);
                 }
             }
         }
     }
 
-    // ÇĞ»»±³°üÏÔÊ¾/Òş²Ø
+    // åˆ‡æ¢èƒŒåŒ…æ˜¾ç¤º/éšè—
     public void ToggleInventory()
     {
         if (isInventoryOpen)
@@ -112,7 +112,7 @@ public class InventorySystem : MonoBehaviour
         }
     }
 
-    // ´ò¿ª±³°ü
+    // æ‰“å¼€èƒŒåŒ…
     public void OpenInventory()
     {
         if (inventoryPanel != null && !isInventoryOpen)
@@ -120,33 +120,33 @@ public class InventorySystem : MonoBehaviour
             inventoryPanel.SetActive(true);
             isInventoryOpen = true;
 
-            // ÔİÍ£ÓÎÏ·
+            // æš‚åœæ¸¸æˆ
             if (pauseGameWhenOpen)
             {
                 Time.timeScale = 0f;
                 AudioListener.pause = true;
             }
 
-            // ¿ÉÑ¡£º²¥·Å´ò¿ª¶¯»­
+            // å¯é€‰ï¼šæ’­æ”¾æ‰“å¼€åŠ¨ç”»
             StartCoroutine(PlayOpenAnimation());
 
-            Debug.Log("±³°üÒÑ´ò¿ª");
+            Debug.Log("èƒŒåŒ…å·²æ‰“å¼€");
         }
     }
 
-    // ¹Ø±Õ±³°ü
+    // å…³é—­èƒŒåŒ…
     public void CloseInventory()
     {
         if (inventoryPanel != null && isInventoryOpen)
         {
-            // ¿ÉÑ¡£º²¥·Å¹Ø±Õ¶¯»­
+            // å¯é€‰ï¼šæ’­æ”¾å…³é—­åŠ¨ç”»
             StartCoroutine(PlayCloseAnimation());
 
-            Debug.Log("±³°üÒÑ¹Ø±Õ");
+            Debug.Log("èƒŒåŒ…å·²å…³é—­");
         }
     }
 
-    // ²¥·Å´ò¿ª¶¯»­£¨¿ÉÑ¡£©
+    // æ’­æ”¾æ‰“å¼€åŠ¨ç”»ï¼ˆå¯é€‰ï¼‰
     IEnumerator PlayOpenAnimation()
     {
         if (canvasGroup != null)
@@ -159,7 +159,7 @@ public class InventorySystem : MonoBehaviour
 
             while (timer < duration)
             {
-                timer += Time.unscaledDeltaTime; // Ê¹ÓÃunscaledÊ±¼ä£¬ÒòÎªÓÎÏ·¿ÉÄÜÔİÍ£ÁË
+                timer += Time.unscaledDeltaTime; // ä½¿ç”¨unscaledæ—¶é—´ï¼Œå› ä¸ºæ¸¸æˆå¯èƒ½è¢«æš‚åœ
                 canvasGroup.alpha = Mathf.Lerp(0f, 1f, timer / duration);
                 yield return null;
             }
@@ -168,7 +168,7 @@ public class InventorySystem : MonoBehaviour
         }
     }
 
-    // ²¥·Å¹Ø±Õ¶¯»­£¨¿ÉÑ¡£©
+    // æ’­æ”¾å…³é—­åŠ¨ç”»ï¼ˆå¯é€‰ï¼‰
     IEnumerator PlayCloseAnimation()
     {
         if (canvasGroup != null)
@@ -188,7 +188,7 @@ public class InventorySystem : MonoBehaviour
         inventoryPanel.SetActive(false);
         isInventoryOpen = false;
 
-        // »Ö¸´ÓÎÏ·
+        // æ¢å¤æ¸¸æˆ
         if (pauseGameWhenOpen)
         {
             Time.timeScale = 1f;
@@ -196,7 +196,7 @@ public class InventorySystem : MonoBehaviour
         }
     }
 
-    // Ç¿ÖÆ¹Ø±Õ±³°ü£¨ÔÚĞèÒªÊ±µ÷ÓÃ£©
+    // å¼ºåˆ¶å…³é—­èƒŒåŒ…ï¼ˆåœ¨éœ€è¦æ—¶è°ƒç”¨ï¼‰
     public void ForceCloseInventory()
     {
         if (inventoryPanel != null)
@@ -204,28 +204,28 @@ public class InventorySystem : MonoBehaviour
             inventoryPanel.SetActive(false);
             isInventoryOpen = false;
 
-            // »Ö¸´ÓÎÏ·
+            // æ¢å¤æ¸¸æˆ
             Time.timeScale = 1f;
             AudioListener.pause = false;
 
-            Debug.Log("±³°üÇ¿ÖÆ¹Ø±Õ");
+            Debug.Log("èƒŒåŒ…å¼ºåˆ¶å…³é—­");
         }
     }
 
-    // ¼ì²é±³°üÊÇ·ñ´ò¿ª£¨¹©ÆäËû½Å±¾²éÑ¯£©
+    // æ£€æŸ¥èƒŒåŒ…æ˜¯å¦æ‰“å¼€ï¼Œä¾›å…¶ä»–è„šæœ¬æŸ¥è¯¢
     public bool IsInventoryOpen()
     {
         return isInventoryOpen;
     }
 
-    // ÔÚ±à¼­Æ÷ÖĞ²âÊÔµÄ·½·¨
-    [ContextMenu("²âÊÔ´ò¿ª±³°ü")]
+    // åœ¨ç¼–è¾‘å™¨ä¸­æµ‹è¯•çš„æ–¹æ³•
+    [ContextMenu("æµ‹è¯•æ‰“å¼€èƒŒåŒ…")]
     public void TestOpenInventory()
     {
         OpenInventory();
     }
 
-    [ContextMenu("²âÊÔ¹Ø±Õ±³°ü")]
+    [ContextMenu("æµ‹è¯•å…³é—­èƒŒåŒ…")]
     public void TestCloseInventory()
     {
         CloseInventory();

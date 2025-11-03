@@ -1,25 +1,25 @@
-using UnityEngine; // Unity ÃüÃû¿Õ¼ä
+ï»¿using UnityEngine; // Unity ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 
 /// <summary>
-/// ¼«¼òµĞÈË£¨²âÊÔÓÃ£©£ºÊµÏÖ SM_IDamageable£¬ÄÜ±»¼¼ÄÜ³Ôµ½ÉËº¦£»
-/// Äã¿ÉÒÔÔÚ Inspector ÖĞ¿´µ½ Health µÄ±ä»¯£¬ÑéÖ¤¼¼ÄÜÊÇ·ñÉúĞ§¡£
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½Êµï¿½ï¿½ SM_IDamageableï¿½ï¿½ï¿½Ü±ï¿½ï¿½ï¿½ï¿½Ü³Ôµï¿½ï¿½Ëºï¿½ï¿½ï¿½
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Inspector ï¿½Ğ¿ï¿½ï¿½ï¿½ Health ï¿½Ä±ä»¯ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ğ§ï¿½ï¿½
 /// </summary>
-[RequireComponent(typeof(Collider2D))] // ĞèÒªÅö×²Ìå²ÎÓë¼ì²â£¨×¢Òâ£º¿ÉÉèÎª isTrigger£©
+[RequireComponent(typeof(Collider2D))] // ï¿½ï¿½Òªï¿½ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â£¨×¢ï¿½â£ºï¿½ï¿½ï¿½ï¿½Îª isTriggerï¿½ï¿½
 public class SM_DummyEnemy : MonoBehaviour, SM_IDamageable
 {
-    [Header("²âÊÔÉúÃüÖµ")]
-    public float Health = 100f;         // ³õÊ¼ÉúÃü
-    public bool printLog = true;        // ÊÇ·ñÔÚ Console ´òÓ¡ÊÜ»÷ÈÕÖ¾
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ")]
+    public float Health = 100f;         // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½
+    public bool printLog = true;        // ï¿½Ç·ï¿½ï¿½ï¿½ Console ï¿½ï¿½Ó¡ï¿½Ü»ï¿½ï¿½ï¿½Ö¾
 
-    public void ApplyDamage(SM_DamageInfo info) // ÊµÏÖ¡°¿ÉÊÜÉË¡±½Ó¿Ú
+    public void ApplyDamage(SM_DamageInfo info) // Êµï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¡ï¿½ï¿½Ó¿ï¿½
     {
-        Health -= info.Amount;                       // ¿ÛÑª
-        if (Health < 0f) Health = 0f;                // ÏÂÏŞ±£»¤
+        Health -= info.Amount;                       // ï¿½ï¿½Ñª
+        if (Health < 0f) Health = 0f;                // ï¿½ï¿½ï¿½Ş±ï¿½ï¿½ï¿½
         if (printLog)
         {
-            Debug.Log($"[DummyEnemy] ÊÜµ½ÉËº¦£º{info.Amount:F2}£¬ÔªËØ£º{info.Element}£¬µ±Ç°ÉúÃü£º{Health:F2}");
+            Debug.Log($"[DummyEnemy] ï¿½Üµï¿½ï¿½Ëºï¿½ï¿½ï¿½{info.Amount:F2}ï¿½ï¿½Ôªï¿½Ø£ï¿½{info.Element}ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½{Health:F2}");
         }
     }
 
-    public Transform GetTransform() => transform;    // ·µ»Ø×ÔÉí Transform
+    public Transform GetTransform() => transform;    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Transform
 }
