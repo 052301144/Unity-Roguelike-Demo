@@ -659,18 +659,62 @@ public class Attack : MonoBehaviour
 
     private void ApplyIceEffect(GameObject target, AttackInfo attackInfo)
     {
-        FreezeEffect freezeEffect = target.GetComponent<FreezeEffect>();
-        if (freezeEffect == null) freezeEffect = target.AddComponent<FreezeEffect>();
+        // 如果目标已被冻结，直接忽略
+        if (target.GetComponent<FreezeEffect>() != null)
+        {
+            if (showDebugInfo)
+                Debug.Log($"冰元素: {target.name} 已被冻结，忽略重复冻结");
+            return;
+        }
+
+        FreezeEffect freezeEffect = target.AddComponent<FreezeEffect>();
+
+        // 尝试播放冻结粒子特效
+        PlayFreezeEffect(target);
 
         freezeEffect.StartFreeze(iceFreezeDuration);
         if (showDebugInfo)
         {
-            Debug.Log($"冰元素: {target.name} 被冻结{iceFreezeDuration}秒");
+            Debug.Log($"冰元素: {target.name} 被冻结 {iceFreezeDuration} 秒");
         }
     }
 
+    // 冻结粒子特效预制体
+    [SerializeField] private GameObject freezeEffectPrefab = null;
+
+    private void PlayFreezeEffect(GameObject target)
+    {
+        if (freezeEffectPrefab != null && target != null)
+        {
+            // 在目标位置实例化粒子特效
+            GameObject effect = Instantiate(freezeEffectPrefab, target.transform.position, Quaternion.identity);
+
+            // 自动销毁
+            var main = effect.GetComponent<ParticleSystem>()?.main;
+            if (main.HasValue && main.Value.duration > 0)
+            {
+                Destroy(effect, main.Value.duration + 0.5f);
+            }
+            else
+            {
+                Destroy(effect, 2f); // 默认 2 秒后销毁
+            }
+        }
+        else if (freezeEffectPrefab == null && showDebugInfo)
+        {
+            Debug.Log($"提示：未设置 freezeEffectPrefab，冻结时无粒子特效");
+        }
+    }
+
+
+    [SerializeField] private int maxChainTargets = 3;                // 最大连锁数量（不包括主目标）
     private void ApplyThunderEffect(GameObject target, AttackInfo attackInfo)
     {
+        if (target == null) return;
+
+        // 为主目标播放雷击命中粒子
+        PlayThunderHitVFX(target);
+
         Collider2D[] nearbyEnemies = Physics2D.OverlapCircleAll(target.transform.position, thunderChainRange, enemyLayer);
         int chainDamage = Mathf.RoundToInt(attackInfo.baseDamage * 0.5f);
 
@@ -682,6 +726,7 @@ public class Attack : MonoBehaviour
                 if (enemyAttribute != null)
                 {
                     enemyAttribute.TakeDamage(chainDamage, gameObject);
+                    PlayThunderHitVFX(enemy.gameObject);
                     if (showDebugInfo)
                     {
                         Debug.Log($"雷元素连锁: {enemy.name} 受到{chainDamage}伤害");
@@ -693,6 +738,31 @@ public class Attack : MonoBehaviour
         if (showDebugInfo)
         {
             Debug.Log($"雷元素: 连锁攻击{nearbyEnemies.Length - 1}个目标");
+        }
+    }
+
+    // 雷电粒子特效预制体
+    [SerializeField] private GameObject thunderHitVFXPrefab = null;
+
+    private void PlayThunderHitVFX(GameObject target)
+    {      
+        if (thunderHitVFXPrefab != null && target != null)
+        {
+            GameObject effect = Instantiate(thunderHitVFXPrefab, target.transform.position, Quaternion.identity);
+
+            var main = effect.GetComponent<ParticleSystem>()?.main;
+            if (main.HasValue && main.Value.duration > 0)
+            {
+                Destroy(effect, main.Value.duration + 0.5f);
+            }
+            else
+            {
+                Destroy(effect, 2f);
+            }
+        }
+        else if (thunderHitVFXPrefab == null && showDebugInfo)
+        {
+            Debug.Log($"提示：未设置 thunderHitVFXPrefab，雷击时无粒子特效");
         }
     }
 
