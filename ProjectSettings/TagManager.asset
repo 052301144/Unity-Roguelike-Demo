@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wall
   - PauseMenuButton
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -16,7 +17,7 @@ TagManager:
   - Ground
   - Enemy
   - Wall
-  - 
+  - obstacle
   - 
   - 
   - 
@@ -57,6 +58,9 @@ TagManager:
     locked: 0
   - name: Map Mutual
     uniqueID: 3594876111
+    locked: 0
+  - name: item
+    uniqueID: 2912957785
     locked: 0
   - name: Map Block
     uniqueID: 1645502539
