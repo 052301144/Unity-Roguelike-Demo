@@ -610,9 +610,42 @@ public class Attack : MonoBehaviour
 
         int burnDamage = Mathf.RoundToInt(attackInfo.baseDamage * 0.3f);
         burnEffect.StartBurning(burnDamage, fireDamageDuration, gameObject);
+
+        // 播放燃烧粒子特效特效
+        PlayFireHitVFX(target);
+
         if (showDebugInfo)
         {
             Debug.Log($"火元素: {target.name} 开始燃烧，持续{fireDamageDuration}秒");
+        }
+
+        if (showDebugInfo)
+        {
+            Debug.Log($"火元素: {target.name} 开始燃烧，持续{fireDamageDuration}秒");
+        }
+    }
+
+    // 燃烧粒子特效预制体
+    [SerializeField] private GameObject fireHitVFXPrefab = null;
+    private void PlayFireHitVFX(GameObject target)
+    {
+        if (fireHitVFXPrefab != null && target != null)
+        {
+            GameObject effect = Instantiate(fireHitVFXPrefab, target.transform.position, Quaternion.identity);
+
+            var main = effect.GetComponent<ParticleSystem>()?.main;
+            if (main.HasValue && main.Value.duration > 0)
+            {
+                Destroy(effect, main.Value.duration + 0.5f);
+            }
+            else
+            {
+                Destroy(effect, 2f); // 默认 2 秒后销毁
+            }
+        }
+        else if (fireHitVFXPrefab == null && showDebugInfo)
+        {
+            Debug.Log($"提示：未设置 fireHitVFXPrefab，火元素命中时无粒子特效");
         }
     }
 
@@ -758,7 +791,7 @@ public class Attack : MonoBehaviour
             }
             else
             {
-                Destroy(effect, 2f);
+                Destroy(effect, 2f);// 默认 2 秒后销毁
             }
         }
         else if (thunderHitVFXPrefab == null && showDebugInfo)
