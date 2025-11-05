@@ -15,7 +15,20 @@ public class EnemyAI : MonoBehaviour
     public float attackDelay = 0.5f;
     public int attackDamage = 10;
 
-    [Header("检测点设置")]
+    // ===== 新增：攻击类型支持（圆形 / Box） =====
+    public enum AttackMode { Circle, Box }
+    [Header("攻击模式")]
+    public AttackMode attackMode = AttackMode.Circle; // 默认为圆形攻击
+
+    [Header("拳头Box攻击设置（仅在 attackMode == Box 时生效）")]
+    public Vector2 boxOffset = new Vector2(1f, 0f); // 相对于 attackPoint（或敌人根）的偏移（本地/世界取决于实现）
+    public Vector2 boxSize = new Vector2(1.2f, 0.8f); // box 大小
+    public float boxAngle = 0f; // 旋转角度（一般为0）
+    [Tooltip("是否在敌人转向时自动翻转Box攻击范围")]
+    public bool flipBoxWithEnemy = true; // ✅ 新增：控制Box是否随敌人翻转
+
+    [Header("圆形攻击设置（仅在 attackMode == Circle 时生效）")]
+    public Vector2 circleOffset = Vector2.zero; // 相对于 attackPoint 的偏移
     public Transform detectionPoint;
     public Transform attackPoint;
     public Transform wallCheckLeft;
@@ -59,7 +72,7 @@ public class EnemyAI : MonoBehaviour
     // ✅ 新增：受击状态变量
     private bool isHurting = false;
     private float hurtTimer = 0f;
-    
+
     // ✅ 新增：死亡状态标志
     private bool isDead = false;
 
@@ -97,10 +110,10 @@ public class EnemyAI : MonoBehaviour
 
     // ✅ 新增：动画状态跟踪
     private string currentAnimationState = "Idle";
-    
+
     // ✅ 新增：玩家碰撞体缓存
     private BoxCollider2D playerCollider;
-    
+
     // ✅ 新增：获取玩家碰撞框中心位置的属性
     private Vector2 PlayerColliderCenter
     {
@@ -119,7 +132,7 @@ public class EnemyAI : MonoBehaviour
             return player != null ? player.position : Vector2.zero;
         }
     }
-    
+
     // ✅ 新增：获取敌人视觉位置（用于Gizmos绘制和调试）
     private Vector2 EnemyVisualPosition
     {
@@ -134,6 +147,58 @@ public class EnemyAI : MonoBehaviour
             return transform.position;
         }
     }
+
+    // ✅ 新增：获取当前Box偏移（考虑翻转）
+    private Vector2 CurrentBoxOffset
+    {
+        get
+        {
+            if (flipBoxWithEnemy && !facingRight)
+            {
+                // 当敌人朝左时，翻转Box的X偏移
+                return new Vector2(-boxOffset.x, boxOffset.y);
+            }
+            return boxOffset;
+        }
+    }
+
+    // ✅ 新增：获取当前Box角度（考虑翻转）
+    private float CurrentBoxAngle
+    {
+        get
+        {
+            if (flipBoxWithEnemy && !facingRight)
+            {
+                // 当敌人朝左时，翻转Box的角度（如果需要）
+                return -boxAngle;
+            }
+            return boxAngle;
+        }
+    }
+
+    // ✅ 新增：编辑器刷新支持
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        // 确保数值合理
+        attackRange = Mathf.Max(0.1f, attackRange);
+        moveSpeed = Mathf.Max(0.1f, moveSpeed);
+        chaseSpeed = Mathf.Max(0.1f, chaseSpeed);
+        wallCheckDistance = Mathf.Max(0.01f, wallCheckDistance);
+        
+        // 延迟调用以确保组件已初始化
+        UnityEditor.EditorApplication.delayCall += () =>
+        {
+            if (this == null) return;
+            
+            // 刷新场景视图
+            UnityEditor.SceneView.RepaintAll();
+            
+            // 输出调试信息
+            Debug.Log($"🔄 EnemyAI 配置已更新 - 攻击模式: {attackMode}");
+        };
+    }
+#endif
 
     private void Start()
     {
@@ -189,7 +254,7 @@ public class EnemyAI : MonoBehaviour
 
         // ✅ 新增：验证组件获取情况
         Debug.Log($"🎯 EnemyAI初始化完成 - Animator: {anim != null}, SpriteRenderer: {sprite != null}, Attribute: {enemyAttributes != null}, 玩家Attribute: {playerAttributes != null}, 玩家根对象: {playerRoot?.name ?? "未找到"}");
-        
+
         // ✅ 新增：验证玩家位置修复和碰撞框检测
         if (playerCollider != null)
         {
@@ -480,6 +545,8 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log("当前攻击模式: " + attackMode);
+
         // ✅ 新增：检查敌人是否已死亡
         if (isDead)
         {
@@ -588,7 +655,7 @@ public class EnemyAI : MonoBehaviour
         {
             // 立即停止移动
             if (rb != null) rb.velocity = Vector2.zero;
-            
+
         }
     }
 
@@ -596,7 +663,7 @@ public class EnemyAI : MonoBehaviour
     {
 
         //  新增冻结检查
-        if (isFrozen)  
+        if (isFrozen)
         {
             if (rb != null) rb.velocity = Vector2.zero;
             return;
@@ -699,7 +766,7 @@ public class EnemyAI : MonoBehaviour
             // 先检查玩家方向
             float playerDir = Mathf.Sign(xDiff);
             float facingDir = facingRight ? 1f : -1f;
-            
+
             // 如果玩家方向和敌人朝向一致，说明玩家在前方但有墙体阻挡
             if (Mathf.Sign(playerDir) == Mathf.Sign(facingDir))
             {
@@ -818,6 +885,12 @@ public class EnemyAI : MonoBehaviour
         facingRight = faceRight;
         ApplyFacingDirection();
         Debug.Log($"🔄 敌人转向: {(faceRight ? "右" : "左")}");
+
+        // ✅ 新增：Box翻转时输出调试信息
+        if (attackMode == AttackMode.Box && flipBoxWithEnemy)
+        {
+            Debug.Log($"📦 Box攻击范围已翻转 - 当前偏移: {CurrentBoxOffset}, 当前角度: {CurrentBoxAngle}");
+        }
     }
 
     // 统一应用朝向的方法，针对子对象
@@ -1000,7 +1073,7 @@ public class EnemyAI : MonoBehaviour
             // ✅ 修复：在攻击延迟一半时造成伤害
             if (IsPlayerInAttackRange())
             {
-                SafeDealDamage();
+                DamageAtAttack(); // 使用新的伤害检测（按攻击模式）
             }
 
             yield return new WaitForSeconds(attackDelay / 2f);
@@ -1073,7 +1146,7 @@ public class EnemyAI : MonoBehaviour
 
             if (IsPlayerInAttackRange())
             {
-                SafeDealDamage();
+                DamageAtAttack();
             }
 
             // 等待动画剩余时间
@@ -1087,17 +1160,67 @@ public class EnemyAI : MonoBehaviour
 
             if (IsPlayerInAttackRange())
             {
-                SafeDealDamage();
+                DamageAtAttack();
             }
 
             yield return new WaitForSeconds(attackDelay / 2f);
         }
     }
 
+    // ===== 新增：根据当前攻击模式在攻击命中时造成伤害 =====
+    void DamageAtAttack()
+    {
+        // 优先使用 attackPoint，如果未设置使用 transform
+        Vector2 origin = (attackPoint != null) ? (Vector2)attackPoint.position : (Vector2)transform.position;
+
+        if (attackMode == AttackMode.Circle)
+        {
+            Vector2 circleCenter = origin + circleOffset;
+            Collider2D[] hits = Physics2D.OverlapCircleAll(circleCenter, attackRange, playerLayer);
+            if (hits != null && hits.Length > 0)
+            {
+                foreach (Collider2D c in hits)
+                {
+                    if (c == null) continue;
+                    Attribute attr = c.GetComponent<Attribute>() ?? c.GetComponentInParent<Attribute>() ?? c.GetComponentInChildren<Attribute>(true);
+                    if (attr != null)
+                    {
+                        attr.TakeDamage(attackDamage, gameObject);
+                        Debug.Log($"💥 圆形攻击命中 {c.name}，造成 {attackDamage} 伤害");
+                    }
+                }
+            }
+        }
+        else // Box 模式
+        {
+            // ✅ 修复：使用当前Box偏移和角度（考虑翻转）
+            Vector2 boxCenter = (attackPoint != null) ? (Vector2)attackPoint.position + CurrentBoxOffset : (Vector2)transform.position + CurrentBoxOffset;
+            Collider2D[] hits = Physics2D.OverlapBoxAll(boxCenter, boxSize, CurrentBoxAngle, playerLayer);
+            if (hits != null && hits.Length > 0)
+            {
+                foreach (Collider2D c in hits)
+                {
+                    if (c == null) continue;
+                    Attribute attr = c.GetComponent<Attribute>() ?? c.GetComponentInParent<Attribute>() ?? c.GetComponentInChildren<Attribute>(true);
+                    if (attr != null)
+                    {
+                        attr.TakeDamage(attackDamage, gameObject);
+                        Debug.Log($"💥 Box攻击命中 {c.name}，造成 {attackDamage} 伤害");
+                    }
+                }
+            }
+        }
+    }
+
     // ✅ 修复：安全的伤害处理方法 - 使用玩家根对象
     void SafeDealDamage()
     {
-        // ✅ 改进：如果 playerAttributes 为空，重新查找
+        // 兼容旧逻辑：如果你之前希望直接打 playerRoot 的 Attribute（单玩家），保留这段
+        // 但在我们新的 DamageAtAttack 中会按攻击模式对所有命中对象造成伤害。
+        // 这里我们优先调用 DamageAtAttack()（按新系统处理），并保留老方法作后备。
+        DamageAtAttack();
+
+        // 如果没有找到任何 Attribute，也尝试原有单一玩家伤害逻辑（以防只想伤害单个 playerRoot）
         if (playerAttributes == null)
         {
             FindPlayerRootAndAttributes();
@@ -1105,43 +1228,15 @@ public class EnemyAI : MonoBehaviour
 
         if (playerRoot == null)
         {
-            Debug.LogWarning("⚠️ 玩家根对象为空，无法造成伤害");
+            // 已经在 DamageAtAttack 中处理过，提前返回
             return;
         }
 
-        // ✅ 修复：使用玩家根对象的Attribute组件
         if (playerAttributes != null)
         {
-            int damageToDeal = attackDamage;
-            playerAttributes.TakeDamage(damageToDeal, gameObject);
-            Debug.Log($"💥 攻击命中玩家 '{playerRoot.name}'，造成 {damageToDeal} 伤害！");
-        }
-        else
-        {
-            // ✅ 修复：最后一次尝试重新查找
-            playerAttributes = playerRoot.GetComponent<Attribute>();
-            if (playerAttributes == null)
-            {
-                playerAttributes = playerRoot.GetComponentInChildren<Attribute>(true);
-            }
-            if (playerAttributes == null && player != null)
-            {
-                playerAttributes = player.GetComponentInParent<Attribute>();
-            }
-
-            if (playerAttributes != null)
-            {
-                int damageToDeal = attackDamage;
-                playerAttributes.TakeDamage(damageToDeal, gameObject);
-                Debug.Log($"💥 攻击命中玩家 '{playerRoot.name}'，造成 {damageToDeal} 伤害！");
-            }
-            else
-            {
-                Debug.LogError($"❌ 在玩家根对象 '{playerRoot.name}' 及其所有相关对象中都没有找到Attribute组件，无法造成伤害");
-                Debug.LogError($"   玩家对象: {player?.name ?? "null"}");
-                Debug.LogError($"   玩家根对象: {playerRoot.name}");
-                Debug.LogError($"   建议：请确保玩家对象（或其父/子对象）上有 Attribute 组件");
-            }
+            // 如果你仍然希望在没有 overlap 检测时伤害 playerRoot（兼容老逻辑）
+            playerAttributes.TakeDamage(attackDamage, gameObject);
+            Debug.Log($"💥 (Fallback) 攻击命中玩家 '{playerRoot.name}'，造成 {attackDamage} 伤害！");
         }
     }
 
@@ -1198,7 +1293,7 @@ public class EnemyAI : MonoBehaviour
     public void OnAttackHit()
     {
         Debug.Log("🎯 攻击命中帧");
-        SafeDealDamage();
+        DamageAtAttack(); // 使用统一的新函数
     }
 
     bool IsPlayerInDetectionRange()
@@ -1218,11 +1313,22 @@ public class EnemyAI : MonoBehaviour
     {
         if (player == null) return false;
 
-        // ✅ 修复：使用敌人的根对象位置进行攻击范围检测，确保与ChasePlayer的距离计算一致
-        Vector2 attackPosition = transform.position;
-        
-        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPosition, attackRange, playerLayer);
-        return hits.Length > 0;
+        // 根据当前攻击模式判断是否有玩家处于攻击范围（用于决定何时开始攻击）
+        Vector2 origin = (attackPoint != null) ? (Vector2)attackPoint.position : (Vector2)transform.position;
+
+        if (attackMode == AttackMode.Circle)
+        {
+            Vector2 circleCenter = origin + circleOffset;
+            Collider2D[] hits = Physics2D.OverlapCircleAll(circleCenter, attackRange, playerLayer);
+            return hits != null && hits.Length > 0;
+        }
+        else // Box 模式
+        {
+            // ✅ 修复：使用当前Box偏移和角度（考虑翻转）
+            Vector2 boxCenter = origin + CurrentBoxOffset;
+            Collider2D[] hits = Physics2D.OverlapBoxAll(boxCenter, boxSize, CurrentBoxAngle, playerLayer);
+            return hits != null && hits.Length > 0;
+        }
     }
 
     // 原有的方法（保持布尔参数）
@@ -1323,9 +1429,9 @@ public class EnemyAI : MonoBehaviour
             Debug.Log("⚠️ 敌人已经死亡，跳过重复调用");
             return;
         }
-        
+
         isDead = true;
-        
+
         // 停止所有行为
         isAttacking = false;
         attackAnimationPlaying = false;
@@ -1528,6 +1634,17 @@ public class EnemyAI : MonoBehaviour
             Debug.Log($"攻击状态: {(isAttacking ? "攻击中" : "待机")}");
             Debug.Log($"受击状态: {(isHurting ? "受击中" : "正常")}");
             Debug.Log($"当前动画: {currentAnimationState}");
+            Debug.Log($"攻击模式: {attackMode}");
+            if (attackMode == AttackMode.Box)
+            {
+                Debug.Log($"Box 偏移: {boxOffset}, 大小: {boxSize}, 角度: {boxAngle}");
+                Debug.Log($"当前Box偏移: {CurrentBoxOffset}, 当前Box角度: {CurrentBoxAngle}");
+                Debug.Log($"Box翻转启用: {flipBoxWithEnemy}");
+            }
+            else
+            {
+                Debug.Log($"Circle 偏移: {circleOffset}, 半径: {attackRange}");
+            }
         }
     }
 
@@ -1620,7 +1737,7 @@ public class EnemyAI : MonoBehaviour
             playerRoot = player;
             Debug.LogWarning($"⚠️ 无法找到玩家根对象，使用当前对象: {player.name}");
         }
-        
+
         // ✅ 新增：查找玩家的BoxCollider2D组件（用于精确的碰撞框检测）
         playerCollider = playerRoot.GetComponent<BoxCollider2D>();
         if (playerCollider != null)
@@ -1680,7 +1797,7 @@ public class EnemyAI : MonoBehaviour
                 return;
             }
         }
-        
+
         // 如果还没找到，尝试查找所有带 PlayerController 的对象
         PlayerController[] allPlayers = FindObjectsOfType<PlayerController>();
         foreach (PlayerController pc in allPlayers)
@@ -1809,19 +1926,103 @@ public class EnemyAI : MonoBehaviour
         ForceUpdateAnimationState();
     }
 
+    [ContextMenu("刷新攻击范围显示")]
+    private void RefreshAttackRangeDisplay()
+    {
+#if UNITY_EDITOR
+        UnityEditor.SceneView.RepaintAll();
+        Debug.Log($"🔄 刷新攻击范围显示 - 当前模式: {attackMode}");
+        
+        if (attackMode == AttackMode.Circle)
+        {
+            Debug.Log($"  圆形 - 偏移: {circleOffset}, 半径: {attackRange}");
+        }
+        else
+        {
+            Debug.Log($"  Box - 偏移: {boxOffset}, 大小: {boxSize}, 角度: {boxAngle}");
+            Debug.Log($"  当前Box偏移: {CurrentBoxOffset}, 当前Box角度: {CurrentBoxAngle}");
+            Debug.Log($"  Box翻转启用: {flipBoxWithEnemy}");
+        }
+#endif
+    }
+
+    [ContextMenu("切换Box翻转设置")]
+    private void ToggleBoxFlip()
+    {
+        flipBoxWithEnemy = !flipBoxWithEnemy;
+        Debug.Log($"🔄 Box翻转设置已切换: {flipBoxWithEnemy}");
+        RefreshAttackRangeDisplay();
+    }
+
     private void OnDrawGizmos()
     {
-        // ✅ 修复：绘制检测范围和攻击范围（使用根对象位置）
-        if (!Application.isPlaying || player != null)
+        // ✅ 修复：在编辑模式下也绘制攻击范围
+        Vector2 origin = (attackPoint != null) ? (Vector2)attackPoint.position : (Vector2)transform.position;
+
+        // 绘制检测范围
+        Gizmos.color = new Color(0f, 0f, 1f, 0.3f);
+        DrawEllipseGizmo(transform.position, detectionWidth, detectionHeight, 64);
+
+        // 根据攻击模式绘制不同的攻击范围
+        if (attackMode == AttackMode.Circle)
         {
-            Gizmos.color = new Color(0f, 0f, 1f, 0.3f);
-            DrawEllipseGizmo(transform.position, detectionWidth, detectionHeight, 64);
+            // 圆形攻击范围
+            Vector2 circleCenter = origin + circleOffset;
+            Gizmos.color = new Color(1f, 0.2f, 0.2f, 0.4f);
+            Gizmos.DrawWireSphere(circleCenter, attackRange);
+
+            // 在圆形中心添加小标记
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(circleCenter, 0.1f);
+        }
+        else
+        {
+            // Box攻击范围 - ✅ 修复：使用当前Box偏移和角度（考虑翻转）
+            Vector2 boxCenter = origin + CurrentBoxOffset;
+            Gizmos.color = new Color(1f, 0.6f, 0.0f, 0.4f);
+
+#if UNITY_EDITOR
+        // 使用 Handles 绘制带旋转的 Box（更精确）
+        UnityEditor.Handles.color = Gizmos.color;
+        
+        // ✅ 修复：使用 Matrix4x4 来应用旋转，因为 Handles.DrawWireCube 不支持直接旋转
+        Matrix4x4 originalMatrix = UnityEditor.Handles.matrix;
+        Matrix4x4 rotationMatrix = Matrix4x4.TRS(boxCenter, Quaternion.Euler(0, 0, CurrentBoxAngle), Vector3.one);
+        UnityEditor.Handles.matrix = rotationMatrix;
+        UnityEditor.Handles.DrawWireCube(Vector3.zero, boxSize);
+        UnityEditor.Handles.matrix = originalMatrix;
+        
+        // 在 Box 中心添加标记
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(boxCenter, 0.1f);
+        
+        // 绘制Box方向指示线
+        Vector2 direction = Quaternion.Euler(0, 0, CurrentBoxAngle) * Vector2.right;
+        Gizmos.color = Color.white;
+        Gizmos.DrawLine(boxCenter, boxCenter + direction * 0.5f);
+#else
+            // 运行时回退到 Gizmos（不带旋转）
+            Gizmos.DrawWireCube(boxCenter, boxSize);
+#endif
         }
 
-        // ✅ 修复：绘制攻击范围
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        // 绘制攻击模式标签
+#if UNITY_EDITOR
+    GUIStyle style = new GUIStyle();
+    style.normal.textColor = attackMode == AttackMode.Circle ? Color.red : Color.yellow;
+    style.fontSize = 11;
+    style.fontStyle = FontStyle.Bold;
+    
+    Vector3 labelPos = transform.position + Vector3.up * 1f;
+    string modeText = $"攻击模式: {attackMode}";
+    if (attackMode == AttackMode.Box)
+    {
+        modeText += $"\nBox翻转: {(flipBoxWithEnemy ? "启用" : "禁用")}";
+    }
+    UnityEditor.Handles.Label(labelPos, modeText, style);
+#endif
 
+        // 原有的其他Gizmos绘制代码保持不变...
         if (wallCheckLeft != null)
         {
             Gizmos.color = Color.yellow;
@@ -1840,6 +2041,48 @@ public class EnemyAI : MonoBehaviour
             );
         }
 
+        // 绘制朝向指示器
+        Gizmos.color = facingRight ? Color.green : Color.red;
+        Vector3 directionIndicator = transform.position + (facingRight ? Vector3.right : Vector3.left) * 0.8f;
+        Gizmos.DrawWireSphere(directionIndicator, 0.2f);
+
+        // 原有的其他Gizmos代码...
+        if (!Application.isPlaying || player != null)
+        {
+            Gizmos.color = new Color(0f, 0f, 1f, 0.3f);
+            DrawEllipseGizmo(transform.position, detectionWidth, detectionHeight, 64);
+        }
+
+        // 绘制当前攻击形状（调试用）
+        if (Application.isPlaying)
+        {
+            if (attackMode == AttackMode.Circle)
+            {
+                Vector2 circleCenter = origin + circleOffset;
+                Gizmos.color = new Color(1f, 0.2f, 0.2f, 0.4f);
+                Gizmos.DrawWireSphere(circleCenter, attackRange);
+            }
+            else
+            {
+                Vector2 boxCenter = origin + CurrentBoxOffset;
+                Gizmos.color = new Color(1f, 0.6f, 0.0f, 0.4f);
+#if UNITY_EDITOR
+            // 使用 Handles 绘制带旋转的 Box
+            UnityEditor.Handles.color = Gizmos.color;
+            
+            // ✅ 修复：使用 Matrix4x4 来应用旋转
+            Matrix4x4 originalMatrix = UnityEditor.Handles.matrix;
+            Matrix4x4 rotationMatrix = Matrix4x4.TRS(boxCenter, Quaternion.Euler(0, 0, CurrentBoxAngle), Vector3.one);
+            UnityEditor.Handles.matrix = rotationMatrix;
+            UnityEditor.Handles.DrawWireCube(Vector3.zero, boxSize);
+            UnityEditor.Handles.matrix = originalMatrix;
+#else
+                // 运行时回退到 Gizmos
+                Gizmos.DrawWireCube(boxCenter, boxSize);
+#endif
+            }
+        }
+
         // 新增：绘制击退检测点
         if (Application.isPlaying && isKnockedBack)
         {
@@ -1853,8 +2096,8 @@ public class EnemyAI : MonoBehaviour
 
         // 新增：绘制当前朝向指示器
         Gizmos.color = facingRight ? Color.green : Color.red;
-        Vector3 directionIndicator = transform.position + (facingRight ? Vector3.right : Vector3.left) * 0.8f;
-        Gizmos.DrawWireSphere(directionIndicator, 0.2f);
+        Vector3 directionIndicator2 = transform.position + (facingRight ? Vector3.right : Vector3.left) * 0.8f;
+        Gizmos.DrawWireSphere(directionIndicator2, 0.2f);
 
         // 新增：绘制攻击状态指示器
         if (isAttacking || attackAnimationPlaying)
@@ -1892,42 +2135,42 @@ public class EnemyAI : MonoBehaviour
             AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
             string stateName = GetAnimationStateName(stateInfo);
 
-            GUIStyle style = new GUIStyle();
-            style.normal.textColor = Color.white;
-            style.fontSize = 12;
+            GUIStyle style2 = new GUIStyle();
+            style2.normal.textColor = Color.white;
+            style2.fontSize = 12;
 
 #if UNITY_EDITOR
-            UnityEditor.Handles.Label(transform.position + Vector3.up * 2.5f, 
-                $"动画状态: {stateName}\n受击: {isHurting}\n移动: {Mathf.Abs(rb.velocity.x) > 0.1f}\n当前状态: {currentAnimationState}", style);
+        UnityEditor.Handles.Label(transform.position + Vector3.up * 2.5f, 
+            $"动画状态: {stateName}\n受击: {isHurting}\n移动: {Mathf.Abs(rb.velocity.x) > 0.1f}\n当前状态: {currentAnimationState}", style2);
 #endif
         }
-        
+
         // ✅ 新增：绘制玩家位置和距离
         if (Application.isPlaying && player != null)
         {
             Vector2 playerPos = PlayerColliderCenter;
             Vector2 enemyVisualPos = EnemyVisualPosition;
             float xDiff = playerPos.x - transform.position.x; // 使用根对象位置计算距离
-            
+
             // ✅ 修复：从敌人视觉位置绘制到玩家位置的连线
             Gizmos.color = isChasing ? Color.red : Color.yellow;
             Gizmos.DrawLine(enemyVisualPos, playerPos);
-            
+
             // 绘制玩家碰撞框中心
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(playerPos, 0.5f);
-            
+
             // ✅ 修复：在敌人视觉位置绘制标记
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(enemyVisualPos, 0.3f);
-            
+
             // 绘制距离文本（在视觉位置上方）
 #if UNITY_EDITOR
-            GUIStyle labelStyle = new GUIStyle();
-            labelStyle.normal.textColor = Color.white;
-            labelStyle.fontSize = 11;
-            UnityEditor.Handles.Label((Vector3)enemyVisualPos + Vector3.up * 3.5f, 
-                $"到玩家距离: {Mathf.Abs(xDiff):F1}\n攻击范围: {attackRange}\n停止范围: {attackRange * 1.2f}", labelStyle);
+        GUIStyle labelStyle = new GUIStyle();
+        labelStyle.normal.textColor = Color.white;
+        labelStyle.fontSize = 11;
+        UnityEditor.Handles.Label((Vector3)enemyVisualPos + Vector3.up * 3.5f, 
+            $"到玩家距离: {Mathf.Abs(xDiff):F1}\n攻击范围: {attackRange}\n停止范围: {attackRange * 1.2f}", labelStyle);
 #endif
         }
     }
@@ -1948,22 +2191,22 @@ public class EnemyAI : MonoBehaviour
             prev = next;
         }
     }
-    
+
     // ✅ 新增：调试玩家位置检测问题
     [ContextMenu("诊断玩家位置检测")]
     private void DiagnosePlayerDetection()
     {
         Debug.Log("=== 玩家位置检测诊断 ===");
-        
+
         if (player == null)
         {
             Debug.LogError("❌ player引用为空！");
             return;
         }
-        
+
         Debug.Log($"player引用对象: {player.name}");
         Debug.Log($"player.position: {player.position}");
-        
+
         if (playerRoot != null)
         {
             Debug.Log($"playerRoot: {playerRoot.name}");
@@ -1973,7 +2216,7 @@ public class EnemyAI : MonoBehaviour
         {
             Debug.LogWarning("⚠️ playerRoot为空！");
         }
-        
+
         if (playerCollider != null)
         {
             Debug.Log($"玩家碰撞体对象: {playerCollider.name}");
@@ -1988,9 +2231,9 @@ public class EnemyAI : MonoBehaviour
         {
             Debug.LogWarning("⚠️ playerCollider为空！");
         }
-        
+
         Debug.Log($"当前使用的位置PlayerColliderCenter: {PlayerColliderCenter}");
-        
+
         // ✅ 新增：敌人位置信息
         Debug.Log($"敌人根对象位置: {transform.position}");
         Debug.Log($"敌人视觉位置: {EnemyVisualPosition}");
@@ -1998,7 +2241,7 @@ public class EnemyAI : MonoBehaviour
         {
             Debug.Log($"敌人视觉对象: {sprite.name}, 位置: {sprite.transform.position}");
         }
-        
+
         // 计算距离
         float xDiff = PlayerColliderCenter.x - transform.position.x;
         Debug.Log($"到玩家的水平距离（基于根对象）: {xDiff}");
@@ -2007,23 +2250,23 @@ public class EnemyAI : MonoBehaviour
         Debug.Log($"是否在停止范围内: {Mathf.Abs(xDiff) < attackRange * 1.2f}");
         Debug.Log($"当前朝向: {(facingRight ? "右" : "左")}");
         Debug.Log($"当前速度: {rb.velocity}");
-        
+
         Debug.Log($"isChasing: {isChasing}");
         Debug.Log($"isAttacking: {isAttacking}");
         Debug.Log($"attackAnimationPlaying: {attackAnimationPlaying}");
         Debug.Log($"isHurting: {isHurting}");
         Debug.Log($"isKnockedBack: {isKnockedBack}");
-        
+
         // ✅ 修复：检测范围信息（使用根对象位置）
         bool inDetectionRange = IsPlayerInDetectionRange();
         Debug.Log($"检测中心位置: {transform.position}");
         Debug.Log($"在检测范围内: {inDetectionRange}");
-        
+
         // ✅ 修复：攻击范围检测信息（使用根对象位置）
         bool inAttackRange = IsPlayerInAttackRange();
         Debug.Log($"攻击检测中心位置: {transform.position}");
         Debug.Log($"在攻击范围内: {inAttackRange}");
-        
+
         // 墙体检测
         if (wallCheckLeft != null && wallCheckRight != null)
         {
@@ -2032,7 +2275,7 @@ public class EnemyAI : MonoBehaviour
             Debug.Log($"左侧墙体检测: {leftHit.collider != null}");
             Debug.Log($"右侧墙体检测: {rightHit.collider != null}");
         }
-        
+
         Debug.Log("=== 诊断结束 ===");
     }
 }
