@@ -481,8 +481,16 @@ PrefabInstance:
       value: isAttack
       objectReference: {fileID: 0}
     - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: sightCheckPoint
+      value: 
+      objectReference: {fileID: 1305679058}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: wallCheckDistance
       value: 41.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: sightBlockingLayers.m_Bits
+      value: 256
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2290,6 +2298,11 @@ Transform:
 Transform:
   m_CorrespondingSourceObject: {fileID: 1051501765166770943, guid: 963fd66011f9e8e439735738e83a6cd9, type: 3}
   m_PrefabInstance: {fileID: 1488790372}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &321122741 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6934370966685327541, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+  m_PrefabInstance: {fileID: 4545199380667771136}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &343447185
 GameObject:
@@ -47579,6 +47592,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 541919389}
   m_CullTransparentMesh: 1
+--- !u!4 &557157066 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6934370966685327541, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+  m_PrefabInstance: {fileID: 1009514588}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &559085143
 GameObject:
   m_ObjectHideFlags: 0
@@ -50361,6 +50379,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 906044775}
   m_CullTransparentMesh: 1
+--- !u!4 &923286476 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6934370966685327541, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+  m_PrefabInstance: {fileID: 1449351008}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &957652669
 GameObject:
   m_ObjectHideFlags: 0
@@ -51426,6 +51449,22 @@ PrefabInstance:
     - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: detectionHeight
       value: 304
+      objectReference: {fileID: 0}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: sightCheckPoint
+      value: 
+      objectReference: {fileID: 557157066}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: sightCheckDistance
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: useAdvancedSightCheck
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: sightBlockingLayers.m_Bits
+      value: 256
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -53237,6 +53276,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305562323}
   m_CullTransparentMesh: 1
+--- !u!4 &1305679058 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6934370966685327541, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+  m_PrefabInstance: {fileID: 70104609}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1324578892
 GameObject:
   m_ObjectHideFlags: 0
@@ -54477,8 +54521,16 @@ PrefabInstance:
       value: isAttack
       objectReference: {fileID: 0}
     - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: sightCheckPoint
+      value: 
+      objectReference: {fileID: 923286476}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: wallCheckDistance
       value: 41.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: sightBlockingLayers.m_Bits
+      value: 256
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -58846,6 +58898,18 @@ PrefabInstance:
     - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: attackParamName
       value: isAttack
+      objectReference: {fileID: 0}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: sightCheckPoint
+      value: 
+      objectReference: {fileID: 321122741}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: useAdvancedSightCheck
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: sightBlockingLayers.m_Bits
+      value: 256
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

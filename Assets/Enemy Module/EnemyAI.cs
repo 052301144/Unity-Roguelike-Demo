@@ -42,6 +42,15 @@ public class EnemyAI : MonoBehaviour
     public float detectionHeight = 5f;
     public LayerMask playerLayer;
 
+    [Header("视线检测参数")]
+    public float sightCheckDistance = 10f;
+    public LayerMask sightBlockingLayers; // 应该包含wallLayer
+    public Transform sightCheckPoint; // 视线检测起点（可选，如眼睛位置）
+    [Header("高级视线检测")]
+    public bool useAdvancedSightCheck = true; // 是否使用多角度视线检测
+    [Header("调试绘制")]
+    public bool drawSightGizmos = true; // 控制是否绘制视线Gizmos
+
     [Header("击退参数")]
     public float windKnockbackDuration = 0.3f;
     public float windKnockbackForce = 8f;
@@ -240,6 +249,13 @@ public class EnemyAI : MonoBehaviour
 
         // ✅ 修复：改进玩家对象查找逻辑
         FindAndSetupPlayer();
+
+        // ✅ 新增：视线层设置
+        if (sightBlockingLayers == 0)
+        {
+            // 默认包含墙体层
+            sightBlockingLayers = wallLayer;
+        }
 
         // ✅ 新增：注册死亡事件监听
         if (enemyAttributes != null)
@@ -591,17 +607,18 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-        bool playerDetected = IsPlayerInDetectionRange();
+        // ✅ 修复：使用改进的玩家检测（包含视线检测）
+        bool playerDetected = CanDetectPlayer();
 
         if (playerDetected && !isChasing)
         {
             isChasing = true;
-            Debug.Log("🎯 玩家进入检测范围，开始追击！");
+            Debug.Log("🎯 玩家进入检测范围且视线畅通，开始追击！");
         }
         else if (!playerDetected && isChasing)
         {
             isChasing = false;
-            Debug.Log("🚶 玩家离开检测范围，恢复巡逻");
+            Debug.Log("🚫 玩家离开检测范围或视线被阻挡，停止追击");
         }
 
         if (playerDetected && player != null)
@@ -621,7 +638,8 @@ public class EnemyAI : MonoBehaviour
         // 墙体检测应该在FixedUpdate的ChasePlayer中进行
 
         // 确保攻击条件正确判断
-        if (player != null && IsPlayerInAttackRange() && !isAttacking && !attackAnimationPlaying && !isHurting)
+        // ✅ 修复：攻击条件也添加视线检测
+        if (player != null && IsPlayerInAttackRange() && HasLineOfSightToPlayer() && !isAttacking && !attackAnimationPlaying && !isHurting)
         {
             StartCoroutine(AttackPlayer());
         }
@@ -721,7 +739,17 @@ public class EnemyAI : MonoBehaviour
     {
         if (player == null) return;
 
-        // ✅ 修复：使用PlayerColliderCenter获取玩家碰撞框中心位置
+        // ✅ 修复：在追击前检查视线，如果视线被阻挡则停止追击
+        if (!HasLineOfSightToPlayer())
+        {
+            // 视线被阻挡，停止移动
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            isChasing = false; // 可选：立即停止追击
+            Debug.Log("🚫 追击中视线被阻挡，停止移动");
+            return;
+        }
+
+        // ... 原有的追击逻辑保持不变
         float xDiff = PlayerColliderCenter.x - transform.position.x;
 
         // ✅ 修复：先检查是否需要转向，然后再进行其他判断
@@ -1329,6 +1357,111 @@ public class EnemyAI : MonoBehaviour
             Collider2D[] hits = Physics2D.OverlapBoxAll(boxCenter, boxSize, CurrentBoxAngle, playerLayer);
             return hits != null && hits.Length > 0;
         }
+    }
+
+    // ✅ 新增：视线检测方法
+    private bool HasLineOfSightToPlayer()
+    {
+        if (player == null) return false;
+
+        // 使用玩家的碰撞框中心作为目标点
+        Vector2 targetPos = PlayerColliderCenter;
+
+        // 确定视线检测的起点
+        Vector2 startPos = sightCheckPoint != null ? (Vector2)sightCheckPoint.position : (Vector2)transform.position;
+
+        // 计算到玩家的方向
+        Vector2 direction = (targetPos - startPos).normalized;
+        float distance = Vector2.Distance(startPos, targetPos);
+
+        // 进行射线检测
+        RaycastHit2D hit = Physics2D.Raycast(startPos, direction, distance, sightBlockingLayers);
+
+        // 调试绘制射线（只在需要时绘制）
+        if (drawSightGizmos)
+        {
+            Debug.DrawRay(startPos, direction * distance, hit.collider == null ? Color.green : Color.red, 0.1f);
+        }
+
+        // 如果没有击中任何东西，说明视线畅通
+        if (hit.collider == null)
+        {
+            return true;
+        }
+
+        // 如果击中了玩家，说明视线畅通（射线可能先击中玩家）
+        if (hit.collider.CompareTag("Player") || ((1 << hit.collider.gameObject.layer) & playerLayer) != 0)
+        {
+            return true;
+        }
+
+        // 击中了墙体或其他障碍物
+        Debug.Log($"🚫 视线被阻挡: {hit.collider.name}");
+        return false;
+    }
+
+    // ✅ 新增：改进的玩家检测方法（包含视线检测）
+    private bool CanDetectPlayer()
+    {
+        if (player == null) return false;
+
+        // 首先检查玩家是否在检测范围内
+        if (!IsPlayerInDetectionRange())
+            return false;
+
+        // 然后检查是否有视线
+        // 根据设置选择使用基础或高级视线检测
+        return useAdvancedSightCheck ? HasLineOfSightToPlayerAdvanced() : HasLineOfSightToPlayer();
+    }
+
+    // ✅ 新增：多角度视线检测（更精确）
+    private bool HasLineOfSightToPlayerAdvanced()
+    {
+        if (player == null) return false;
+
+        Vector2 targetPos = PlayerColliderCenter;
+        Vector2 startPos = sightCheckPoint != null ? (Vector2)sightCheckPoint.position : (Vector2)transform.position;
+
+        // 使用多个检测点提高准确性
+        Vector2[] checkPoints = GetSightCheckPoints(startPos);
+        int validHits = 0;
+
+        foreach (Vector2 checkPoint in checkPoints)
+        {
+            Vector2 direction = (targetPos - checkPoint).normalized;
+            float distance = Vector2.Distance(checkPoint, targetPos);
+
+            RaycastHit2D hit = Physics2D.Raycast(checkPoint, direction, distance, sightBlockingLayers);
+
+            // 调试绘制（只在需要时绘制）
+            if (drawSightGizmos)
+            {
+                Debug.DrawRay(checkPoint, direction * distance, hit.collider == null ? Color.green : Color.red, 0.1f);
+            }
+
+            if (hit.collider == null ||
+                hit.collider.CompareTag("Player") ||
+                ((1 << hit.collider.gameObject.layer) & playerLayer) != 0)
+            {
+                validHits++;
+            }
+        }
+
+        // 如果超过一半的检测点有视线，则认为有视线
+        return validHits >= checkPoints.Length / 2;
+    }
+
+    // ✅ 新增：获取多个视线检测点
+    private Vector2[] GetSightCheckPoints(Vector2 basePoint)
+    {
+        return new Vector2[]
+        {
+            basePoint,                                   // 中心点
+            basePoint + Vector2.up * 0.5f,              // 上方点
+            basePoint + Vector2.down * 0.3f,            // 下方点
+            basePoint + Vector2.up * 0.25f,             // 中上点
+            basePoint + Vector2.down * 0.15f            // 中下点
+        };
     }
 
     // 原有的方法（保持布尔参数）
@@ -1954,8 +2087,134 @@ public class EnemyAI : MonoBehaviour
         RefreshAttackRangeDisplay();
     }
 
+    // ✅ 新增：编辑器菜单项用于测试视线检测
+    [ContextMenu("测试视线检测")]
+    private void TestLineOfSight()
+    {
+        if (player == null)
+        {
+            Debug.LogError("❌ 玩家引用为空，无法测试视线检测");
+            return;
+        }
+
+        bool hasSight = CanDetectPlayer();
+        Debug.Log($"🔍 视线检测结果: {(hasSight ? "✅ 视线畅通" : "❌ 视线被阻挡")}");
+
+        // 在场景中高亮显示检测结果
+        StartCoroutine(HighlightSightTest());
+    }
+
+    private IEnumerator HighlightSightTest()
+    {
+        Vector2 startPos = sightCheckPoint != null ? (Vector2)sightCheckPoint.position : (Vector2)transform.position;
+        Vector2 targetPos = PlayerColliderCenter;
+
+        // 绘制3秒的调试线
+        float timer = 0f;
+        while (timer < 3f)
+        {
+            bool hasSight = HasLineOfSightToPlayer();
+            Debug.DrawRay(startPos, (targetPos - startPos), hasSight ? Color.green : Color.red, 0.1f);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    [ContextMenu("诊断玩家位置检测")]
+    private void DiagnosePlayerDetection()
+    {
+        Debug.Log("=== 玩家位置检测诊断 ===");
+
+        if (player == null)
+        {
+            Debug.LogError("❌ player引用为空！");
+            return;
+        }
+
+        Debug.Log($"player引用对象: {player.name}");
+        Debug.Log($"player.position: {player.position}");
+
+        if (playerRoot != null)
+        {
+            Debug.Log($"playerRoot: {playerRoot.name}");
+            Debug.Log($"playerRoot.position: {playerRoot.position}");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ playerRoot为空！");
+        }
+
+        if (playerCollider != null)
+        {
+            Debug.Log($"玩家碰撞体对象: {playerCollider.name}");
+            Debug.Log($"碰撞体Size: {playerCollider.size}");
+            Debug.Log($"碰撞体Offset: {playerCollider.offset}");
+            Debug.Log($"碰撞体bounds.center: {playerCollider.bounds.center}");
+            Debug.Log($"碰撞体bounds.size: {playerCollider.bounds.size}");
+            Debug.Log($"碰撞体bounds.min: {playerCollider.bounds.min}");
+            Debug.Log($"碰撞体bounds.max: {playerCollider.bounds.max}");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ playerCollider为空！");
+        }
+
+        Debug.Log($"当前使用的位置PlayerColliderCenter: {PlayerColliderCenter}");
+
+        // ✅ 新增：敌人位置信息
+        Debug.Log($"敌人根对象位置: {transform.position}");
+        Debug.Log($"敌人视觉位置: {EnemyVisualPosition}");
+        if (sprite != null)
+        {
+            Debug.Log($"敌人视觉对象: {sprite.name}, 位置: {sprite.transform.position}");
+        }
+
+        // 计算距离
+        float xDiff = PlayerColliderCenter.x - transform.position.x;
+        Debug.Log($"到玩家的水平距离（基于根对象）: {xDiff}");
+        Debug.Log($"攻击范围: {attackRange}");
+        Debug.Log($"停止移动范围: {attackRange * 1.2f}");
+        Debug.Log($"是否在停止范围内: {Mathf.Abs(xDiff) < attackRange * 1.2f}");
+        Debug.Log($"当前朝向: {(facingRight ? "右" : "左")}");
+        Debug.Log($"当前速度: {rb.velocity}");
+
+        Debug.Log($"isChasing: {isChasing}");
+        Debug.Log($"isAttacking: {isAttacking}");
+        Debug.Log($"attackAnimationPlaying: {attackAnimationPlaying}");
+        Debug.Log($"isHurting: {isHurting}");
+        Debug.Log($"isKnockedBack: {isKnockedBack}");
+
+        // ✅ 修复：检测范围信息（使用根对象位置）
+        bool inDetectionRange = IsPlayerInDetectionRange();
+        Debug.Log($"检测中心位置: {transform.position}");
+        Debug.Log($"在检测范围内: {inDetectionRange}");
+
+        // ✅ 修复：攻击范围检测信息（使用根对象位置）
+        bool inAttackRange = IsPlayerInAttackRange();
+        Debug.Log($"攻击检测中心位置: {transform.position}");
+        Debug.Log($"在攻击范围内: {inAttackRange}");
+
+        // 视线检测信息
+        bool hasSight = HasLineOfSightToPlayer();
+        Debug.Log($"视线检测结果: {hasSight}");
+        Debug.Log($"视线阻挡层: {sightBlockingLayers}");
+
+        // 墙体检测
+        if (wallCheckLeft != null && wallCheckRight != null)
+        {
+            RaycastHit2D leftHit = Physics2D.Raycast(wallCheckLeft.position, Vector2.left, wallCheckDistance, wallLayer);
+            RaycastHit2D rightHit = Physics2D.Raycast(wallCheckRight.position, Vector2.right, wallCheckDistance, wallLayer);
+            Debug.Log($"左侧墙体检测: {leftHit.collider != null}");
+            Debug.Log($"右侧墙体检测: {rightHit.collider != null}");
+        }
+
+        Debug.Log("=== 诊断结束 ===");
+    }
+
     private void OnDrawGizmos()
     {
+        if (!drawSightGizmos) return;
+
         // ✅ 修复：在编辑模式下也绘制攻击范围
         Vector2 origin = (attackPoint != null) ? (Vector2)attackPoint.position : (Vector2)transform.position;
 
@@ -2173,6 +2432,20 @@ public class EnemyAI : MonoBehaviour
             $"到玩家距离: {Mathf.Abs(xDiff):F1}\n攻击范围: {attackRange}\n停止范围: {attackRange * 1.2f}", labelStyle);
 #endif
         }
+
+        // ✅ 修改：简化视线检测绘制 - 只绘制一条主线
+        if (Application.isPlaying && player != null)
+        {
+            Vector2 startPos = sightCheckPoint != null ? (Vector2)sightCheckPoint.position : (Vector2)transform.position;
+            Vector2 targetPos = PlayerColliderCenter;
+
+            // 只绘制一条主要的视线线
+            bool hasSight = CanDetectPlayer();
+            Gizmos.color = hasSight ? Color.green : Color.red;
+            Gizmos.DrawLine(startPos, targetPos);
+
+            // 不再绘制多角度检测点和线，以简化场景
+        }
     }
 
     void DrawEllipseGizmo(Vector3 center, float width, float height, int segments)
@@ -2190,92 +2463,5 @@ public class EnemyAI : MonoBehaviour
             Gizmos.DrawLine(prev, next);
             prev = next;
         }
-    }
-
-    // ✅ 新增：调试玩家位置检测问题
-    [ContextMenu("诊断玩家位置检测")]
-    private void DiagnosePlayerDetection()
-    {
-        Debug.Log("=== 玩家位置检测诊断 ===");
-
-        if (player == null)
-        {
-            Debug.LogError("❌ player引用为空！");
-            return;
-        }
-
-        Debug.Log($"player引用对象: {player.name}");
-        Debug.Log($"player.position: {player.position}");
-
-        if (playerRoot != null)
-        {
-            Debug.Log($"playerRoot: {playerRoot.name}");
-            Debug.Log($"playerRoot.position: {playerRoot.position}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ playerRoot为空！");
-        }
-
-        if (playerCollider != null)
-        {
-            Debug.Log($"玩家碰撞体对象: {playerCollider.name}");
-            Debug.Log($"碰撞体Size: {playerCollider.size}");
-            Debug.Log($"碰撞体Offset: {playerCollider.offset}");
-            Debug.Log($"碰撞体bounds.center: {playerCollider.bounds.center}");
-            Debug.Log($"碰撞体bounds.size: {playerCollider.bounds.size}");
-            Debug.Log($"碰撞体bounds.min: {playerCollider.bounds.min}");
-            Debug.Log($"碰撞体bounds.max: {playerCollider.bounds.max}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ playerCollider为空！");
-        }
-
-        Debug.Log($"当前使用的位置PlayerColliderCenter: {PlayerColliderCenter}");
-
-        // ✅ 新增：敌人位置信息
-        Debug.Log($"敌人根对象位置: {transform.position}");
-        Debug.Log($"敌人视觉位置: {EnemyVisualPosition}");
-        if (sprite != null)
-        {
-            Debug.Log($"敌人视觉对象: {sprite.name}, 位置: {sprite.transform.position}");
-        }
-
-        // 计算距离
-        float xDiff = PlayerColliderCenter.x - transform.position.x;
-        Debug.Log($"到玩家的水平距离（基于根对象）: {xDiff}");
-        Debug.Log($"攻击范围: {attackRange}");
-        Debug.Log($"停止移动范围: {attackRange * 1.2f}");
-        Debug.Log($"是否在停止范围内: {Mathf.Abs(xDiff) < attackRange * 1.2f}");
-        Debug.Log($"当前朝向: {(facingRight ? "右" : "左")}");
-        Debug.Log($"当前速度: {rb.velocity}");
-
-        Debug.Log($"isChasing: {isChasing}");
-        Debug.Log($"isAttacking: {isAttacking}");
-        Debug.Log($"attackAnimationPlaying: {attackAnimationPlaying}");
-        Debug.Log($"isHurting: {isHurting}");
-        Debug.Log($"isKnockedBack: {isKnockedBack}");
-
-        // ✅ 修复：检测范围信息（使用根对象位置）
-        bool inDetectionRange = IsPlayerInDetectionRange();
-        Debug.Log($"检测中心位置: {transform.position}");
-        Debug.Log($"在检测范围内: {inDetectionRange}");
-
-        // ✅ 修复：攻击范围检测信息（使用根对象位置）
-        bool inAttackRange = IsPlayerInAttackRange();
-        Debug.Log($"攻击检测中心位置: {transform.position}");
-        Debug.Log($"在攻击范围内: {inAttackRange}");
-
-        // 墙体检测
-        if (wallCheckLeft != null && wallCheckRight != null)
-        {
-            RaycastHit2D leftHit = Physics2D.Raycast(wallCheckLeft.position, Vector2.left, wallCheckDistance, wallLayer);
-            RaycastHit2D rightHit = Physics2D.Raycast(wallCheckRight.position, Vector2.right, wallCheckDistance, wallLayer);
-            Debug.Log($"左侧墙体检测: {leftHit.collider != null}");
-            Debug.Log($"右侧墙体检测: {rightHit.collider != null}");
-        }
-
-        Debug.Log("=== 诊断结束 ===");
     }
 }
