@@ -390,7 +390,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 523483242991693821, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -113.7065
+      value: -68.4
       objectReference: {fileID: 0}
     - target: {fileID: 523483242991693821, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -429,12 +429,28 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4157062225904094483, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: m_FlipY
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4157062225904094483, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: m_Size.x
+      value: 2.88
+      objectReference: {fileID: 0}
+    - target: {fileID: 4157062225904094483, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: m_Size.y
+      value: 1.28
+      objectReference: {fileID: 0}
+    - target: {fileID: 4157062225904094483, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 4296126707360361574, guid: 6835986b8d4e04045a2fc4376b22e476, type: 3}
+      objectReference: {fileID: 21300000, guid: b35128ec4e88f0245908721938732e0d, type: 3}
+    - target: {fileID: 4157062225904094483, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5528563922902670059, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: m_Name
-      value: Enemy 4
+      value: Enemy BOSS
       objectReference: {fileID: 0}
     - target: {fileID: 5528563922902670059, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: m_IsActive
@@ -451,7 +467,7 @@ PrefabInstance:
     - target: {fileID: 8799240784510984993, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 7218ee8b0612ec64aa8bf28e19275051, type: 2}
+      objectReference: {fileID: 9100000, guid: 9cd8c33677920924da8b8dc1c329bb3a, type: 2}
     - target: {fileID: 8974396918213740545, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
       propertyPath: player
       value: 
