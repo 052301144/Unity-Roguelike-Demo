@@ -6,7 +6,7 @@ public class SimpleSceneLoader : MonoBehaviour
     public void LoadSampleScene()
     {
         // 直接加载自己设定的SampleScene
-        SceneManager.LoadScene("Main Scenes");
+        SceneManager.LoadScene("map_1");
     }
 
     // 提供按索引加载场景的方法
