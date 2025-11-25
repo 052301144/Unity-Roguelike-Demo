@@ -1603,6 +1603,7 @@ GameObject:
   - component: {fileID: 206719896}
   - component: {fileID: 206719895}
   - component: {fileID: 206719894}
+  - component: {fileID: 206719897}
   m_Layer: 5
   m_Name: UIsetting
   m_TagString: Untagged
@@ -1661,6 +1662,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &206719897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 206719893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4426521347b0c349bb80beacab0b9fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deathSceneName: DeathScene
+  deathDelay: 1
+  playerAttribute: {fileID: 574374877}
+  checkInterval: 0.1
 --- !u!1 &207737961
 GameObject:
   m_ObjectHideFlags: 0
@@ -47149,6 +47166,11 @@ MonoBehaviour:
   skill1Key: 117
   skill2Key: 105
   skill3Key: 111
+  skillUPrefab: {fileID: 0}
+  skillIPrefab: {fileID: 0}
+  skillOPrefab: {fileID: 0}
+  skillAttachRoot: {fileID: 0}
+  displacementSkillPrefab: {fileID: 0}
   allowAttackInAir: 1
   healthRegenPerSec: 1
   animator: {fileID: 0}
@@ -47182,7 +47204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71e0c740e19aee344ae062e71d0238c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1000
+  maxHealth: 20
   currentHealth: 0
   attack: 100
   defense: 0
