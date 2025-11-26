@@ -559,7 +559,16 @@ public class EnemyBossAI : MonoBehaviour
     {
         if (anim == null) return;
 
-        bool isMoving = Mathf.Abs(rb != null ? rb.velocity.x : 0f) > 0.1f && !isAttacking && !attackAnimationPlaying && !isKnockedBack && !isHurting;
+        if (isAttacking || attackAnimationPlaying || isHurting || isKnockedBack || isDead)
+        {
+            if (HasParameter(walkParamName))
+            {
+                anim.SetBool(walkParamName, false);
+            }
+            return;
+        }
+
+        bool isMoving = Mathf.Abs(rb != null ? rb.velocity.x : 0f) > 0.1f;
         if (forcePlayStates)
         {
             // 使用按状态名强制播放（只在需要时作为后备）
@@ -587,10 +596,6 @@ public class EnemyBossAI : MonoBehaviour
                 }
             }
 
-            if ((isAttacking || attackAnimationPlaying || isHurting) && HasParameter(walkParamName))
-            {
-                anim.SetBool(walkParamName, false);
-            }
         }
     }
 
@@ -598,9 +603,18 @@ public class EnemyBossAI : MonoBehaviour
     {
         if (anim == null) return;
 
+        if (isAttacking || attackAnimationPlaying || isHurting || isKnockedBack || isDead)
+        {
+            if (HasParameter(walkParamName))
+            {
+                anim.SetBool(walkParamName, false);
+            }
+            return;
+        }
+
         if (HasParameter(walkParamName))
         {
-            bool shouldWalk = Mathf.Abs(rb != null ? rb.velocity.x : 0f) > 0.1f && !isAttacking && !attackAnimationPlaying && !isKnockedBack && !isHurting;
+            bool shouldWalk = Mathf.Abs(rb != null ? rb.velocity.x : 0f) > 0.1f && !isKnockedBack && !isHurting;
             anim.SetBool(walkParamName, shouldWalk);
 
             if (shouldWalk)
