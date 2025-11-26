@@ -62,7 +62,7 @@ public class EnemyAI : MonoBehaviour
     public string walkParamName = "isWalk";
     public string attackParamName = "Attack";
     public string hurtParamName = "isHurt"; // ✅ 修复：默认值改为 isHurt
-    public string deadParamName = "isDead";
+    public string deadParamName = "Dead";
 
     [Header("动画对象引用")]
     public Transform animationChild;
