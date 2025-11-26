@@ -221,6 +221,7 @@ public class EnemyBossAI : MonoBehaviour
         // 增加连击计数，触发 Hurt 动画
         Debug.Log($"🩸 Boss受到 {damage} 点伤害，连续受击: {consecutiveHits + 1}/{consecutiveHitsToTriggerAttack4}");
 
+        InterruptCurrentAttack("OnEnemyTakeDamage");
         consecutiveHits++;
         // 如果达到阈值，立即强制触发 Attack4（模式1）并跳过 Hurt 流程——Attack4 优先级高于受击
         if (consecutiveHits >= consecutiveHitsToTriggerAttack4)
@@ -256,9 +257,10 @@ public class EnemyBossAI : MonoBehaviour
             isAttacking = false;
             attackAnimationPlaying = false;
             // 取消受击标志以允许 Attack4 处理伤害逻辑（Attack4 优先）
-            isHurting = false;
+            // isHurting is kept true so forced attack cannot damage while currently hurt
 
             // 启动强制 Attack4（不再受当前攻击/受击状态限制）
+            TriggerHurtAnimation();
             StartCoroutine(Attack4_Forced());
             return;
         }
@@ -301,7 +303,35 @@ public class EnemyBossAI : MonoBehaviour
             {
                 anim.Play(hurtStateName);
             }
+            // ���ʱ���� AE ����ֹǰһ�ε��ӹ����¼�
+            blockAEUntil = Mathf.Max(blockAEUntil, Time.time + 0.2f);
         }
+    }
+
+    // �ܻ�ʱ�ϸ�ȫ��ֹͣ����Э�̣����� AE ��ǿ���жϣ�
+    void InterruptCurrentAttack(string reason)
+    {
+        // ��ֹ���ű��ϵ�����Э�̣��������ֵľ�ȷ�����ڷ���������Ҳ���ᱻֹͣ
+        StopAllCoroutines();
+
+        // ��ʱ���� AE ��ֹ�ɵ��ڼ������¼�
+        blockAEUntil = Time.time + 0.2f;
+
+        // ��λ������־
+        isAttacking = false;
+        attackAnimationPlaying = false;
+        comboStage = 0;
+        isAttack2Enabled = false;
+        isAttack3Enabled = false;
+        attack4ForcedActive = false;
+
+        // ���� Animator �е��ӹ���ص����ò���
+        ResetAllAttackParameters();
+
+        // ������ǰ״̬���Ը�ʱ����
+        ForceUpdateAnimationState();
+
+        Debug.Log($"⚠ Attack interrupted due to hurt: {reason}");
     }
 
     private void Update()
