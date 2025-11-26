@@ -61,6 +61,15 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
     public KeyCode skill1Key = KeyCode.U;
     public KeyCode skill2Key = KeyCode.I;
     public KeyCode skill3Key = KeyCode.O;
+    [Header("Skill Loadout (U/I/O)")]
+    [Tooltip("Skill instances/prefabs from Skills Module that bind to U/I/O. L remains reserved for future movement skills.")]
+    public SM_BaseSkill skillUPrefab;
+    public SM_BaseSkill skillIPrefab;
+    public SM_BaseSkill skillOPrefab;
+    [Tooltip("Optional parent to hold instantiated skills; defaults to the player root.")]
+    public Transform skillAttachRoot;
+    [Tooltip("L key movement skill placeholder; currently ignored until movement skills are implemented.")]
+    public SM_BaseSkill displacementSkillPrefab;
     
     [Header("Attack Settings")]
     public bool allowAttackInAir = true;  // 是否允许在空中攻击
@@ -611,6 +620,41 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
             skillSystem.SetAim(new Vector2(facing, 0f));
         }
     }
+    // Configure skill bindings (U/I/O); L slot is reserved for movement skills.
+    private void ConfigureSkillLoadout()
+    {
+        if (skillSystem == null)
+        {
+            Debug.LogWarning("[PlayerController] Skill system is missing, skip skill loadout.");
+            return;
+        }
+
+        var parent = skillAttachRoot != null ? skillAttachRoot : transform;
+
+        skillSystem.slotU = PrepareSkillInstance(skillUPrefab, skillSystem.slotU, parent);
+        skillSystem.Equip(KeyCode.U, skillSystem.slotU);
+
+        skillSystem.slotI = PrepareSkillInstance(skillIPrefab, skillSystem.slotI, parent);
+        skillSystem.Equip(KeyCode.I, skillSystem.slotI);
+
+        skillSystem.slotO = PrepareSkillInstance(skillOPrefab, skillSystem.slotO, parent);
+        skillSystem.Equip(KeyCode.O, skillSystem.slotO);
+
+        if (displacementSkillPrefab != null)
+        {
+            Debug.LogWarning("[PlayerController] L key is reserved for displacement skills; configured movement skill is ignored until implemented.");
+        }
+
+        skillSystem.slotL = null;
+        skillSystem.Equip(KeyCode.L, null);
+    }
+
+    private SM_BaseSkill PrepareSkillInstance(SM_BaseSkill prefab, SM_BaseSkill existing, Transform parent)
+    {
+        if (prefab == null) return existing;
+        return Instantiate(prefab, parent);
+    }
+
 
 
     void Start()
@@ -699,6 +743,7 @@ public class PlayerController : MonoBehaviour, SM_ICharacterProvider, SM_IDamage
         coyoteTime = Mathf.Max(0f, coyoteTime);
         jumpCooldown = Mathf.Max(0f, jumpCooldown);
         minJumpHeight = Mathf.Max(0f, minJumpHeight);
+        ConfigureSkillLoadout();
         
         Debug.Log($"[PlayerController] 初始化完成 - CCD: {useContinuousCollisionDetection}, 地面射线: {groundCheckRays}, 墙壁射线: {wallCheckRays}, 移动速度: {moveSpeed}");
         Debug.Log($"[PlayerController] 跳跃设置 - 缓冲时间: {jumpBufferTime}, 土狼时间: {coyoteTime}, 冷却: {jumpCooldown}, 最小高度: {minJumpHeight}");
