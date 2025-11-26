@@ -9,12 +9,15 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
+    path: Assets/Scenes/map_1.unity
+    guid: db5a758d032dab4419769f54b4742c5b
+  - enabled: 1
     path: Assets/Scenes/StartMenuScene.unity
-    guid: 359c986c9ba47ed47a70e28d9a24a64f
+    guid: 8ab2462161c542141a6bfff63757943d
   - enabled: 1
     path: Assets/Scenes/SaveScenes.unity
     guid: da8978fa83b42544791b42cb46d135aa
   - enabled: 1
-    path: Assets/Scenes/map_1.unity
-    guid: db5a758d032dab4419769f54b4742c5b
+    path: Assets/Scenes/Deathscene.unity
+    guid: 15f1a1827e261a84fb41641f54bf971f
   m_configObjects: {}
