@@ -1184,7 +1184,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u56DE\u5230\u9009\u5173\u754C\u9762"
+  m_text: "\u56DE\u5230\u5B89\u5168\u533A"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 670d2ace9d9cbaa48b9d253d1eec1392, type: 2}
   m_sharedMaterial: {fileID: -5347022197778413029, guid: 670d2ace9d9cbaa48b9d253d1eec1392, type: 2}
