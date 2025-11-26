@@ -137,7 +137,7 @@ GameObject:
   - component: {fileID: 13074265}
   - component: {fileID: 13074266}
   m_Layer: 5
-  m_Name: Button
+  m_Name: BackButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -216,7 +216,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: StartMenuScene
+          m_StringArgument: Selectscene
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &13074263
@@ -538,7 +538,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0183eced902ab884aab8af330799318a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blinkSpeed: 3
 --- !u!1 &562784954
 GameObject:
   m_ObjectHideFlags: 0
@@ -766,7 +765,7 @@ GameObject:
   - component: {fileID: 1420058703}
   - component: {fileID: 1420058706}
   m_Layer: 5
-  m_Name: Button
+  m_Name: ExitButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
