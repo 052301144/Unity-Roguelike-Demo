@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0e721c2a7db3de4fb03d0d6f28769d6, type: 3}
   m_Name: SkillData
   m_EditorClassIdentifier: 
-  skillName: Skill
+  skillName: slash
   element: 0
-  manaCost: 10
-  cooldown: 2
+  manaCost: 1
+  cooldown: 0.4
   description: 
   icon: {fileID: 0}
