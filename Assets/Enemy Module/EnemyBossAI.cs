@@ -10,6 +10,10 @@ public class EnemyBossAI : MonoBehaviour
     public float wallCheckDistance = 0.2f;
     public LayerMask wallLayer;
 
+    [Header("墙体检测改进")]
+    public float wallCheckHeight = 1f; // 垂直方向检测高度
+    public int verticalChecks = 3; // 垂直方向检测点数
+
     [Header("检测范围")]
     public float detectionWidth = 10f;
     public float detectionHeight = 5f;
@@ -26,6 +30,7 @@ public class EnemyBossAI : MonoBehaviour
     public float attack3Delay = 0.5f;
     public float attack4Delay = 0.5f;
     public int attackDamage = 10;
+    public int attack4Damage = 20; // 单独设置Attack4的伤害
     public int consecutiveHitsToTriggerAttack4 = 3;
     public float attackOffset = 1.2f; // 基于 transform.position 的左右偏移（可在 Inspector 调整）
 
@@ -71,6 +76,9 @@ public class EnemyBossAI : MonoBehaviour
     [Tooltip("自动后备开启的延迟（若启用）")]
     public float fallbackEnableDelay = 0.05f;
 
+    [Header("无敌状态设置")]
+    public bool enableInvincibleDuringAttack4 = true; // 是否在Attack4期间无敌
+
     private Rigidbody2D rb;
     private bool isAttacking = false;
     private bool isChasing = false;
@@ -78,6 +86,7 @@ public class EnemyBossAI : MonoBehaviour
     private bool isKnockedBack = false;
     private bool isHurting = false;
     private bool isDead = false;
+    private bool isInvincible = false; // 新增：无敌状态标志
 
     private float hurtTimer = 0f;
     private float lastFlipTime = 0f;
@@ -147,6 +156,7 @@ public class EnemyBossAI : MonoBehaviour
         attack2Delay = Mathf.Max(0.01f, attack2Delay);
         attack3Delay = Mathf.Max(0.01f, attack3Delay);
         attack4Delay = Mathf.Max(0.01f, attack4Delay);
+        attack4Damage = Mathf.Max(1, attack4Damage);
     }
 #endif
 
@@ -218,6 +228,13 @@ public class EnemyBossAI : MonoBehaviour
     // 为了实现模式1（攻击4优先），当 consecutiveHits 达到阈值时立即中断并强制触发 Attack4。
     private void OnEnemyTakeDamage(int damage, GameObject attacker)
     {
+        // 如果在Attack4期间无敌，则直接返回不处理伤害
+        if (isInvincible && enableInvincibleDuringAttack4)
+        {
+            Debug.Log("🛡️ Boss在Attack4期间无敌，忽略伤害");
+            return;
+        }
+
         // 增加连击计数，触发 Hurt 动画
         Debug.Log($"🩸 Boss受到 {damage} 点伤害，连续受击: {consecutiveHits + 1}/{consecutiveHitsToTriggerAttack4}");
 
@@ -257,10 +274,9 @@ public class EnemyBossAI : MonoBehaviour
             isAttacking = false;
             attackAnimationPlaying = false;
             // 取消受击标志以允许 Attack4 处理伤害逻辑（Attack4 优先）
-            // isHurting is kept true so forced attack cannot damage while currently hurt
+            isHurting = false;
 
             // 启动强制 Attack4（不再受当前攻击/受击状态限制）
-            TriggerHurtAnimation();
             StartCoroutine(Attack4_Forced());
             return;
         }
@@ -303,21 +319,21 @@ public class EnemyBossAI : MonoBehaviour
             {
                 anim.Play(hurtStateName);
             }
-            // ���ʱ���� AE ����ֹǰһ�ε��ӹ����¼�
+            // 暂时屏蔽 AE 防止前一帧的攻击事件
             blockAEUntil = Mathf.Max(blockAEUntil, Time.time + 0.2f);
         }
     }
 
-    // �ܻ�ʱ�ϸ�ȫ��ֹͣ����Э�̣����� AE ��ǿ���жϣ�
+    // 受伤时严格全部停止攻击协程，并屏蔽 AE 强制中断
     void InterruptCurrentAttack(string reason)
     {
-        // ��ֹ���ű��ϵ�����Э�̣��������ֵľ�ȷ�����ڷ���������Ҳ���ᱻֹͣ
+        // 停止本脚本上的所有协程，包括攻击协程
         StopAllCoroutines();
 
-        // ��ʱ���� AE ��ֹ�ɵ��ڼ������¼�
+        // 暂时屏蔽 AE 防止在此期间触发新的事件
         blockAEUntil = Time.time + 0.2f;
 
-        // ��λ������־
+        // 复位攻击标志
         isAttacking = false;
         attackAnimationPlaying = false;
         comboStage = 0;
@@ -325,10 +341,10 @@ public class EnemyBossAI : MonoBehaviour
         isAttack3Enabled = false;
         attack4ForcedActive = false;
 
-        // ���� Animator �е��ӹ���ص����ò���
+        // 重置 Animator 中的攻击相关参数
         ResetAllAttackParameters();
 
-        // ������ǰ״̬���Ը�ʱ����
+        // 强制更新当前状态到合适状态
         ForceUpdateAnimationState();
 
         Debug.Log($"⚠ Attack interrupted due to hurt: {reason}");
@@ -421,7 +437,7 @@ public class EnemyBossAI : MonoBehaviour
 
         if (enemyAttributes != null && !enemyAttributes.IsAlive)
         {
-            rb.velocity = Vector2.zero;
+            if (rb != null) rb.velocity = Vector2.zero;
             return;
         }
 
@@ -450,7 +466,7 @@ public class EnemyBossAI : MonoBehaviour
         UpdateAnimationState();
     }
 
-    // 保留方法签名但不执行巡逻（满足“永远不巡逻”的要求）
+    // 保留方法签名但不执行巡逻（满足"永远不巡逻"的要求）
     void Patrol()
     {
         // 不执行任何巡逻逻辑，Boss 静止直到检测到玩家
@@ -469,7 +485,6 @@ public class EnemyBossAI : MonoBehaviour
             bool shouldFaceRight = xDiff > 0;
             if (shouldFaceRight != facingRight)
             {
-                // 翻转时记录，防止连续多次翻转
                 Flip(shouldFaceRight);
                 lastFlipTime = Time.time;
                 justFlipped = true;
@@ -477,7 +492,6 @@ public class EnemyBossAI : MonoBehaviour
         }
 
         // 当玩家足够接近攻击1时停止移动以保证稳定攻击距离
-        // 使用攻击原点到玩家中心的精确距离判断，避免 transform.x vs attackOffset 造成的偏差
         Vector2 attackOrigin = GetAttackOrigin();
         float distToPlayer = Vector2.Distance(attackOrigin, PlayerColliderCenter);
 
@@ -487,74 +501,54 @@ public class EnemyBossAI : MonoBehaviour
             return;
         }
 
+        // 改进的墙体检测
+        bool isPathBlocked = IsPathBlocked();
+
+        if (isPathBlocked)
+        {
+            // 检测到墙体，停止移动
+            if (rb != null) rb.velocity = new Vector2(0, rb.velocity.y);
+            Debug.Log("🧱 检测到墙体，停止移动");
+        }
+        else
+        {
+            float moveDir = Mathf.Sign(xDiff);
+            if (rb != null) rb.velocity = new Vector2(moveDir * chaseSpeed, rb.velocity.y);
+        }
+    }
+
+    // 改进的墙体检测方法
+    bool IsPathBlocked()
+    {
         Transform checkPoint = facingRight ? wallCheckRight : wallCheckLeft;
         if (checkPoint == null)
         {
-            float moveDir = Mathf.Sign(xDiff);
-            if (rb != null) rb.velocity = new Vector2(moveDir * chaseSpeed, rb.velocity.y);
-            return;
+            // 如果没有设置检测点，使用默认位置
+            Vector2 basePos = transform.position;
+            checkPoint = transform;
         }
 
         Vector2 dir = facingRight ? Vector2.right : Vector2.left;
-        RaycastHit2D wallHit = Physics2D.Raycast(checkPoint.position, dir, wallCheckDistance, wallLayer);
-        bool blocked = wallHit.collider != null;
 
-        if (blocked)
+        // 多点垂直检测，避免从缝隙中穿过
+        for (int i = 0; i < verticalChecks; i++)
         {
-            HandleChaseWallCollision();
+            float verticalOffset = (i / (float)(verticalChecks - 1) - 0.5f) * wallCheckHeight;
+            Vector2 checkPos = (Vector2)checkPoint.position + Vector2.up * verticalOffset;
+
+            RaycastHit2D hit = Physics2D.Raycast(checkPos, dir, wallCheckDistance, wallLayer);
+            if (hit.collider != null)
+            {
+                Debug.DrawRay(checkPos, dir * wallCheckDistance, Color.red, 0.1f);
+                return true;
+            }
+            else
+            {
+                Debug.DrawRay(checkPos, dir * wallCheckDistance, Color.green, 0.1f);
+            }
         }
-        else
-        {
-            float moveDir = Mathf.Sign(xDiff);
-            if (rb != null) rb.velocity = new Vector2(moveDir * chaseSpeed, rb.velocity.y);
-        }
-    }
 
-    void CheckWallForPatrol()
-    {
-        // 虽然我们不巡逻，但保留墙体检测方法以兼容未来逻辑
-        Transform checkPoint = facingRight ? wallCheckRight : wallCheckLeft;
-        if (checkPoint == null) return;
-
-        Vector2 dir = facingRight ? Vector2.right : Vector2.left;
-        RaycastHit2D hit = Physics2D.Raycast(checkPoint.position, dir, wallCheckDistance, wallLayer);
-
-        if (hit.collider != null && Time.time >= lastFlipTime + flipCooldown)
-        {
-            Flip(!facingRight);
-            lastFlipTime = Time.time;
-        }
-    }
-
-    void HandleChaseWallCollision()
-    {
-        if (isAttacking || isKnockedBack || isHurting) return;
-        if (Time.time < lastFlipTime + flipCooldown) return;
-
-        bool alternativeDirection = !facingRight;
-        Transform altCheckPoint = alternativeDirection ? wallCheckRight : wallCheckLeft;
-        if (altCheckPoint == null) return;
-        Vector2 altDir = alternativeDirection ? Vector2.right : Vector2.left;
-
-        RaycastHit2D altHit = Physics2D.Raycast(altCheckPoint.position, altDir, wallCheckDistance * 2f, wallLayer);
-
-        if (altHit.collider == null)
-        {
-            Flip(alternativeDirection);
-            lastFlipTime = Time.time;
-        }
-        else
-        {
-            if (rb != null) rb.velocity = new Vector2(0, rb.velocity.y);
-            StartCoroutine(EscapeCoroutine());
-        }
-    }
-
-    private IEnumerator EscapeCoroutine()
-    {
-        yield return new WaitForSeconds(1f);
-        Flip(!facingRight);
-        lastFlipTime = Time.time;
+        return false;
     }
 
     void Flip(bool faceRight)
@@ -975,7 +969,7 @@ public class EnemyBossAI : MonoBehaviour
 
     }
 
-    // 强制触发的 Attack4（用于“模式1：最高优先级”）
+    // 强制触发的 Attack4（用于"模式1：最高优先级"）
     IEnumerator Attack4_Forced()
     {
         // 直接进入强制攻击流程（不检查 isAttacking）
@@ -990,6 +984,14 @@ public class EnemyBossAI : MonoBehaviour
         ResetAllAttackParameters();
         // 标记强制 Attack4 正在运行，外部取消逻辑应跳过
         attack4ForcedActive = true;
+
+        // 开启无敌状态
+        if (enableInvincibleDuringAttack4)
+        {
+            isInvincible = true;
+            Debug.Log("🛡️ Boss进入无敌状态（Attack4期间）");
+        }
+
         if (anim != null && HasParameter(attack4ParamName))
         {
             SetAnimatorParameterTrue(attack4ParamName);
@@ -1006,13 +1008,14 @@ public class EnemyBossAI : MonoBehaviour
 
         if (IsPlayerInAttackRange(attack4Range))
         {
-            if (!isHurting && !isDead)
+            if (!isDead)
             {
-                DealDamage(attackDamage * 2, attack4Range);
+                // Attack4 期间不受 isHurting 限制，因为已经无敌
+                DealDamage(attack4Damage, attack4Range);
             }
             else
             {
-                Debug.Log("⚠ Attack4 命中点被取消：Boss 当前处于受击或死亡状态");
+                Debug.Log("⚠ Attack4 命中点被取消：Boss 已死亡");
             }
         }
 
@@ -1026,6 +1029,14 @@ public class EnemyBossAI : MonoBehaviour
         // 强制结束，清理状态
         isAttacking = false;
         attackAnimationPlaying = false;
+
+        // 关闭无敌状态
+        if (enableInvincibleDuringAttack4)
+        {
+            isInvincible = false;
+            Debug.Log("🛡️ Boss无敌状态结束");
+        }
+
         ForceUpdateAnimationState();
 
         // 确保连段重置（Attack4 不在连段中）
@@ -1048,6 +1059,13 @@ public class EnemyBossAI : MonoBehaviour
 
         Debug.Log("💥 Boss发动特殊攻击4！");
 
+        // 开启无敌状态
+        if (enableInvincibleDuringAttack4)
+        {
+            isInvincible = true;
+            Debug.Log("🛡️ Boss进入无敌状态（Attack4期间）");
+        }
+
         if (anim != null && HasParameter(attack4ParamName))
         {
             SetAnimatorParameterTrue(attack4ParamName);
@@ -1059,7 +1077,15 @@ public class EnemyBossAI : MonoBehaviour
 
         if (IsPlayerInAttackRange(attack4Range))
         {
-            DealDamage(attackDamage * 2, attack4Range);
+            if (!isDead)
+            {
+                // Attack4 期间不受 isHurting 限制，因为已经无敌
+                DealDamage(attack4Damage, attack4Range);
+            }
+            else
+            {
+                Debug.Log("⚠ Attack4 命中点被取消：Boss 已死亡");
+            }
         }
 
         yield return new WaitForSeconds(currentAttackDelay / 2f);
@@ -1067,6 +1093,13 @@ public class EnemyBossAI : MonoBehaviour
         if (anim != null && HasParameter(attack4ParamName))
         {
             SetAnimatorParameterFalse(attack4ParamName);
+        }
+
+        // 关闭无敌状态
+        if (enableInvincibleDuringAttack4)
+        {
+            isInvincible = false;
+            Debug.Log("🛡️ Boss无敌状态结束");
         }
 
         isAttacking = false;
@@ -1079,10 +1112,10 @@ public class EnemyBossAI : MonoBehaviour
     {
         if (player == null) return;
 
-        // 如果处于受击或已经死亡，取消任何伤害判定
-        if (isHurting || isDead || !enemyAttributes.IsAlive)
+        // 如果已经死亡，取消任何伤害判定
+        if (isDead || !enemyAttributes.IsAlive)
         {
-            Debug.Log("⚠ DealDamage 被取消：Boss 正在受击或已死亡");
+            Debug.Log("⚠ DealDamage 被取消：Boss 已死亡");
             return;
         }
 
@@ -1184,6 +1217,7 @@ public class EnemyBossAI : MonoBehaviour
         isChasing = false;
         isKnockedBack = false;
         isHurting = false;
+        isInvincible = false; // 死亡时取消无敌状态
 
         if (rb != null) rb.velocity = Vector2.zero;
 
@@ -1642,6 +1676,7 @@ public class EnemyBossAI : MonoBehaviour
             Debug.Log($"当前动画: {currentAnimationState}");
             Debug.Log($"comboStage: {comboStage}, isAttack2Enabled: {isAttack2Enabled}, isAttack3Enabled: {isAttack3Enabled}");
             Debug.Log($"isChasing: {isChasing}, facingRight: {facingRight}");
+            Debug.Log($"无敌状态: {isInvincible}");
         }
     }
 
@@ -1698,6 +1733,22 @@ public class EnemyBossAI : MonoBehaviour
                 wallCheckRight.position,
                 wallCheckRight.position + Vector3.right * wallCheckDistance
             );
+        }
+
+        // 新增：绘制改进的墙体检测可视化
+        if (wallCheckLeft != null && wallCheckRight != null)
+        {
+            // 绘制垂直多点检测
+            Transform currentCheck = facingRight ? wallCheckRight : wallCheckLeft;
+            Vector2 dir = facingRight ? Vector2.right : Vector2.left;
+
+            Gizmos.color = Color.magenta;
+            for (int i = 0; i < verticalChecks; i++)
+            {
+                float verticalOffset = (i / (float)(verticalChecks - 1) - 0.5f) * wallCheckHeight;
+                Vector2 checkPos = (Vector2)currentCheck.position + Vector2.up * verticalOffset;
+                Gizmos.DrawLine(checkPos, checkPos + (Vector2)dir * wallCheckDistance);
+            }
         }
 
         // 朝向指示
