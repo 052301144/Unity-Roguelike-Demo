@@ -70,6 +70,21 @@ public class EnemyAI : MonoBehaviour
     [Header("受击动画设置")]
     public float hurtAnimationDuration = 0.3f; // 受击动画持续时间
 
+    // ===== 新增：AB点巡逻参数 =====
+    [Header("AB点巡逻设置")]
+    [Tooltip("是否启用AB点巡逻")]
+    public bool useABPatrol = false; // 新增：控制是否使用AB点巡逻
+    [Tooltip("巡逻点A")]
+    public Transform patrolPointA;
+    [Tooltip("巡逻点B")]
+    public Transform patrolPointB;
+    [Tooltip("到达点的误差范围")]
+    public float reachThreshold = 0.5f; // 增加阈值，避免抽搐
+    [Tooltip("在到达点停留的时间")]
+    public float waitTimeAtPoint = 1f;
+    [Tooltip("减速距离 - 在距离目标点多远时开始减速")]
+    public float slowingDistance = 2f; // 新增：减速距离
+
     private Rigidbody2D rb;
     private bool isAttacking = false;
     private bool isChasing = false;
@@ -84,6 +99,15 @@ public class EnemyAI : MonoBehaviour
 
     // ✅ 新增：死亡状态标志
     private bool isDead = false;
+
+    // ===== 新增：AB点巡逻状态变量 =====
+    private Transform currentPatrolTarget; // 当前巡逻目标点
+    private bool isWaitingAtPoint = false; // 是否在点等待
+    private float waitTimer = 0f; // 等待计时器
+    private bool hasReachedPoint = false; // 标记是否已经到达过当前点
+    private Vector2 lastPosition; // 记录上一帧位置，用于检测是否卡住
+    private float stuckTimer = 0f; // 卡住计时器
+    private const float STUCK_TIME_THRESHOLD = 2f; // 卡住时间阈值
 
     private SpriteRenderer sprite;
     private Animator anim;
@@ -265,8 +289,17 @@ public class EnemyAI : MonoBehaviour
             enemyAttributes.OnTakeDamage += OnEnemyTakeDamage;
         }
 
+        // ===== 新增：AB点巡逻初始化 =====
+        if (useABPatrol)
+        {
+            InitializeABPatrol();
+        }
+
         // 确保初始朝向正确
         ApplyFacingDirection();
+
+        // 记录初始位置
+        lastPosition = transform.position;
 
         // ✅ 新增：验证组件获取情况
         Debug.Log($"🎯 EnemyAI初始化完成 - Animator: {anim != null}, SpriteRenderer: {sprite != null}, Attribute: {enemyAttributes != null}, 玩家Attribute: {playerAttributes != null}, 玩家根对象: {playerRoot?.name ?? "未找到"}");
@@ -291,6 +324,167 @@ public class EnemyAI : MonoBehaviour
             // ✅ 新增：取消受伤事件注册
             enemyAttributes.OnTakeDamage -= OnEnemyTakeDamage;
         }
+    }
+
+    // ===== 新增：AB点巡逻初始化方法 =====
+    private void InitializeABPatrol()
+    {
+        if (patrolPointA == null || patrolPointB == null)
+        {
+            Debug.LogError("❌ AB点巡逻已启用，但未设置巡逻点A或B！");
+            useABPatrol = false;
+            return;
+        }
+
+        // 设置初始巡逻目标为点A
+        currentPatrolTarget = patrolPointA;
+        hasReachedPoint = false; // 重置到达标记
+        Debug.Log($"🔄 AB点巡逻已初始化 - 点A: {patrolPointA.position}, 点B: {patrolPointB.position}");
+    }
+
+    // ===== 修复：改进的AB点巡逻方法 =====
+    private void ABPatrol()
+    {
+        if (isWaitingAtPoint)
+        {
+            // 在点等待期间停止移动
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            waitTimer += Time.deltaTime;
+
+            // 等待时间结束后切换到下一个点
+            if (waitTimer >= waitTimeAtPoint)
+            {
+                isWaitingAtPoint = false;
+                waitTimer = 0f;
+                hasReachedPoint = false; // 重置到达标记
+                SwitchPatrolTarget();
+                Debug.Log($"🔄 等待结束，切换到下一个巡逻点: {currentPatrolTarget.name}");
+            }
+            return;
+        }
+
+        // 计算到目标点的方向和距离
+        Vector2 toTarget = currentPatrolTarget.position - transform.position;
+        float distanceToTarget = Mathf.Abs(toTarget.x);
+        float direction = Mathf.Sign(toTarget.x);
+
+        // 检查是否到达目标点 - 修复：使用更严格的到达条件
+        if (!hasReachedPoint && distanceToTarget <= reachThreshold)
+        {
+            // 到达目标点，开始等待
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            isWaitingAtPoint = true;
+            hasReachedPoint = true; // 标记已经到达
+            stuckTimer = 0f; // 重置卡住计时器
+            Debug.Log($"✅ 到达巡逻点 {currentPatrolTarget.name}，距离: {distanceToTarget:F2}，开始等待 {waitTimeAtPoint} 秒");
+            return;
+        }
+
+        // 检查是否卡住
+        CheckIfStuck();
+
+        // 检查前方是否有墙体阻挡
+        Transform checkPoint = direction > 0 ? wallCheckRight : wallCheckLeft;
+        if (checkPoint != null)
+        {
+            Vector2 checkDir = direction > 0 ? Vector2.right : Vector2.left;
+            RaycastHit2D wallHit = Physics2D.Raycast(checkPoint.position, checkDir, wallCheckDistance, wallLayer);
+
+            if (wallHit.collider != null)
+            {
+                // 检测到墙体，转向并切换到下一个点
+                Debug.Log($"🧱 AB点巡逻检测到墙体，转向并切换目标点");
+                SwitchPatrolTarget();
+                return;
+            }
+        }
+
+        // 朝向目标点移动
+        bool shouldFaceRight = direction > 0;
+        if (shouldFaceRight != facingRight && Time.time >= lastFlipTime + flipCooldown)
+        {
+            Flip(shouldFaceRight);
+            lastFlipTime = Time.time;
+        }
+
+        // 移动 - 修复：接近目标点时平滑减速
+        float currentSpeed = CalculatePatrolSpeed(distanceToTarget, direction);
+
+        rb.velocity = new Vector2(direction * currentSpeed, rb.velocity.y);
+
+        // 调试信息 - 每60帧输出一次
+        if (Time.frameCount % 60 == 0)
+        {
+            Debug.Log($"🔄 AB点巡逻 - 目标: {currentPatrolTarget.name}, 距离: {distanceToTarget:F2}, 方向: {direction}, 速度: {currentSpeed:F2}");
+        }
+    }
+
+    // ===== 新增：计算巡逻速度（包含平滑减速） =====
+    private float CalculatePatrolSpeed(float distanceToTarget, float direction)
+    {
+        // 如果距离小于减速距离，开始减速
+        if (distanceToTarget <= slowingDistance)
+        {
+            // 使用平滑的减速曲线
+            float speedFactor = distanceToTarget / slowingDistance;
+            // 使用二次曲线使减速更平滑
+            speedFactor = Mathf.Pow(speedFactor, 1.5f);
+            // 确保最小速度，避免完全停止前抽搐
+            float minSpeed = 0.3f;
+            return Mathf.Max(moveSpeed * speedFactor, minSpeed);
+        }
+
+        return moveSpeed;
+    }
+
+    // ===== 新增：检查是否卡住 =====
+    private void CheckIfStuck()
+    {
+        // 计算当前位置和上一帧位置的距离
+        float moveDistance = Vector2.Distance(transform.position, lastPosition);
+
+        // 如果移动距离很小，说明可能卡住了
+        if (moveDistance < 0.01f && !isWaitingAtPoint)
+        {
+            stuckTimer += Time.deltaTime;
+
+            // 如果卡住时间超过阈值，强制切换目标点
+            if (stuckTimer >= STUCK_TIME_THRESHOLD)
+            {
+                Debug.LogWarning($"⚠️ 敌人卡住 {stuckTimer:F1} 秒，强制切换巡逻点");
+                SwitchPatrolTarget();
+                stuckTimer = 0f;
+            }
+        }
+        else
+        {
+            // 如果没有卡住，重置计时器
+            stuckTimer = 0f;
+        }
+
+        // 更新上一帧位置
+        lastPosition = transform.position;
+    }
+
+    // ===== 修复：改进的切换巡逻目标点方法 =====
+    private void SwitchPatrolTarget()
+    {
+        if (currentPatrolTarget == patrolPointA)
+        {
+            currentPatrolTarget = patrolPointB;
+        }
+        else
+        {
+            currentPatrolTarget = patrolPointA;
+        }
+
+        // 重置相关状态
+        isWaitingAtPoint = false;
+        waitTimer = 0f;
+        hasReachedPoint = false;
+        stuckTimer = 0f;
+
+        Debug.Log($"🔄 切换巡逻目标: {currentPatrolTarget.name}");
     }
 
     // ✅ 新增：敌人受伤事件处理
@@ -561,8 +755,6 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log("当前攻击模式: " + attackMode);
-
         // ✅ 新增：检查敌人是否已死亡
         if (isDead)
         {
@@ -593,7 +785,6 @@ public class EnemyAI : MonoBehaviour
                     // 尝试播放空闲状态
                     anim.Play("Idle", 0, 0f);
                     currentAnimationState = "Idle";
-                    Debug.Log("🔄 受击结束，强制切换到空闲状态");
                 }
             }
         }
@@ -613,12 +804,10 @@ public class EnemyAI : MonoBehaviour
         if (playerDetected && !isChasing)
         {
             isChasing = true;
-            Debug.Log("🎯 玩家进入检测范围且视线畅通，开始追击！");
         }
         else if (!playerDetected && isChasing)
         {
             isChasing = false;
-            Debug.Log("🚫 玩家离开检测范围或视线被阻挡，停止追击");
         }
 
         if (playerDetected && player != null)
@@ -633,9 +822,6 @@ public class EnemyAI : MonoBehaviour
                 lastFlipTime = Time.time;
             }
         }
-
-        // ✅ 修复：移除Update中的墙体检测，避免与ChasePlayer冲突
-        // 墙体检测应该在FixedUpdate的ChasePlayer中进行
 
         // 确保攻击条件正确判断
         // ✅ 修复：攻击条件也添加视线检测
@@ -653,7 +839,6 @@ public class EnemyAI : MonoBehaviour
             {
                 attackAnimationPlaying = false;
                 isAttacking = false;
-                Debug.LogWarning("⚠️ 攻击动画超时，强制重置状态");
             }
         }
 
@@ -673,14 +858,12 @@ public class EnemyAI : MonoBehaviour
         {
             // 立即停止移动
             if (rb != null) rb.velocity = Vector2.zero;
-
         }
     }
 
     private void FixedUpdate()
     {
-
-        //  新增冻结检查
+        // 新增冻结检查
         if (isFrozen)
         {
             if (rb != null) rb.velocity = Vector2.zero;
@@ -716,7 +899,15 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            Patrol();
+            // ===== 修改：根据AB点巡逻设置选择巡逻方式 =====
+            if (useABPatrol)
+            {
+                ABPatrol(); // 使用AB点巡逻
+            }
+            else
+            {
+                Patrol(); // 使用原有巡逻逻辑
+            }
         }
 
         // 更新动画状态
@@ -745,7 +936,6 @@ public class EnemyAI : MonoBehaviour
             // 视线被阻挡，停止移动
             rb.velocity = new Vector2(0, rb.velocity.y);
             isChasing = false; // 可选：立即停止追击
-            Debug.Log("🚫 追击中视线被阻挡，停止移动");
             return;
         }
 
@@ -822,6 +1012,9 @@ public class EnemyAI : MonoBehaviour
     // 专门用于巡逻的墙体检测
     void CheckWallForPatrol()
     {
+        // ===== 修改：AB点巡逻有自己的墙体检测，原有巡逻逻辑只用于非AB点巡逻 =====
+        if (useABPatrol) return;
+
         Transform checkPoint = facingRight ? wallCheckRight : wallCheckLeft;
         if (checkPoint == null) return;
 
@@ -830,7 +1023,6 @@ public class EnemyAI : MonoBehaviour
 
         if (hit.collider != null && Time.time >= lastFlipTime + flipCooldown)
         {
-            Debug.Log("🧱 巡逻时检测到墙体，转向");
             Flip(!facingRight);
             lastFlipTime = Time.time;
         }
@@ -862,8 +1054,6 @@ public class EnemyAI : MonoBehaviour
         if (isAttacking || isKnockedBack || isHurting) return;
         if (Time.time < lastFlipTime + flipCooldown) return;
 
-        Debug.Log("🧱 追击时检测到墙体，寻找替代路径");
-
         // 检查另一个方向是否可行
         bool alternativeDirection = !facingRight;
         Transform altCheckPoint = alternativeDirection ? wallCheckRight : wallCheckLeft;
@@ -876,13 +1066,11 @@ public class EnemyAI : MonoBehaviour
             // 另一个方向没有墙体，转向
             Flip(alternativeDirection);
             lastFlipTime = Time.time;
-            Debug.Log("🔄 转向到可行方向继续追击");
         }
         else
         {
             // 两个方向都有墙体，可能是死胡同，停止移动
             rb.velocity = new Vector2(0, rb.velocity.y);
-            Debug.Log("❌ 陷入死胡同，停止移动");
 
             // 尝试跳转或其他逃脱逻辑
             TryEscapeFromDeadEnd();
@@ -904,7 +1092,6 @@ public class EnemyAI : MonoBehaviour
         // 强制转向并尝试移动
         Flip(!facingRight);
         lastFlipTime = Time.time;
-        Debug.Log("🔄 强制转向尝试逃脱死胡同");
     }
 
     // 使用子对象的transform.localScale进行翻转
@@ -912,13 +1099,6 @@ public class EnemyAI : MonoBehaviour
     {
         facingRight = faceRight;
         ApplyFacingDirection();
-        Debug.Log($"🔄 敌人转向: {(faceRight ? "右" : "左")}");
-
-        // ✅ 新增：Box翻转时输出调试信息
-        if (attackMode == AttackMode.Box && flipBoxWithEnemy)
-        {
-            Debug.Log($"📦 Box攻击范围已翻转 - 当前偏移: {CurrentBoxOffset}, 当前角度: {CurrentBoxAngle}");
-        }
     }
 
     // 统一应用朝向的方法，针对子对象
@@ -973,12 +1153,6 @@ public class EnemyAI : MonoBehaviour
         {
             anim.SetBool(animIsWalk, false);
         }
-
-        // ✅ 新增：调试日志，帮助诊断动画状态
-        if (Time.frameCount % 60 == 0) // 每60帧记录一次，避免日志过多
-        {
-            Debug.Log($"🎭 动画状态 - 移动: {isMoving}, 速度X: {rb.velocity.x:F2}, 受击: {isHurting}, 攻击: {isAttacking}, 当前状态: {currentAnimationState}");
-        }
     }
 
     // ✅ 新增：强制更新动画状态的方法
@@ -1010,8 +1184,6 @@ public class EnemyAI : MonoBehaviour
             // 确保受击触发器被重置
             anim.ResetTrigger(hurtParamToUse);
         }
-
-        Debug.Log("🔄 强制更新动画状态完成");
     }
 
     // ✅ 新增：动画状态监控方法
@@ -1021,12 +1193,10 @@ public class EnemyAI : MonoBehaviour
 
         AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
         string stateName = GetAnimationStateName(stateInfo);
-        Debug.Log($"🎭 当前动画状态: {stateName}, 进度: {stateInfo.normalizedTime:F2}, 循环: {stateInfo.loop}, 长度: {stateInfo.length:F2}");
 
         // ✅ 新增：检查是否卡在受击状态
         if (stateName == "Hurt" && stateInfo.normalizedTime >= 1.0f && !isHurting)
         {
-            Debug.LogWarning("⚠️ 检测到卡在受击状态，强制修复");
             ForceExitHurtState();
         }
     }
@@ -1052,8 +1222,6 @@ public class EnemyAI : MonoBehaviour
         currentAnimationState = "Idle";
         isHurting = false;
         hurtTimer = 0f;
-
-        Debug.Log("🔧 强制退出受击状态，切换到空闲");
     }
 
     // 改进：多种攻击动画触发方式
@@ -1063,8 +1231,6 @@ public class EnemyAI : MonoBehaviour
         attackAnimationPlaying = true;
         attackAnimationTime = 0f;
         rb.velocity = Vector2.zero;
-
-        Debug.Log("⚔ 敌人发动攻击！");
 
         // 详细的Animator状态检查
         if (anim == null)
@@ -1113,8 +1279,6 @@ public class EnemyAI : MonoBehaviour
 
         // ✅ 新增：攻击结束后强制更新动画状态
         ForceUpdateAnimationState();
-
-        Debug.Log("攻击结束");
     }
 
     // ✅ 修复：安全的动画触发方法
@@ -1131,7 +1295,6 @@ public class EnemyAI : MonoBehaviour
             // ✅ 修复：检查参数是否存在，如果不存在则使用直接播放方式
             if (string.IsNullOrEmpty(actualAttackParamName) || !HasParameter(actualAttackParamName))
             {
-                Debug.LogWarning($"⚠️ 攻击参数 '{actualAttackParamName}' 不存在，使用直接播放方式");
                 return false;
             }
 
@@ -1139,7 +1302,6 @@ public class EnemyAI : MonoBehaviour
             anim.ResetTrigger(actualAttackParamName);
             anim.SetTrigger(actualAttackParamName);
             currentAnimationState = "Attack";
-            Debug.Log($"✅ 使用触发器方式触发攻击动画，参数: {actualAttackParamName}");
 
             return true;
         }
@@ -1153,8 +1315,6 @@ public class EnemyAI : MonoBehaviour
     // 方法2 - 直接播放动画状态
     IEnumerator PlayAttackAnimationDirectly()
     {
-        Debug.Log("🔄 尝试直接播放攻击动画");
-
         // 尝试直接播放攻击动画状态
         anim.Play(attackAnimationName, 0, 0f);
         currentAnimationState = "Attack";
@@ -1163,12 +1323,9 @@ public class EnemyAI : MonoBehaviour
         yield return null;
 
         AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
-        Debug.Log($"直接播放后状态: {stateInfo.ToString()}");
 
         if (stateInfo.IsName(attackAnimationName) || stateInfo.length > 0)
         {
-            Debug.Log("✅ 直接播放攻击动画成功");
-
             // 等待动画播放一段时间后造成伤害
             yield return new WaitForSeconds(attackDelay / 2f);
 
@@ -1183,7 +1340,6 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            Debug.LogError("❌ 直接播放攻击动画失败，使用默认延迟");
             yield return new WaitForSeconds(attackDelay / 2f);
 
             if (IsPlayerInAttackRange())
@@ -1214,7 +1370,6 @@ public class EnemyAI : MonoBehaviour
                     if (attr != null)
                     {
                         attr.TakeDamage(attackDamage, gameObject);
-                        Debug.Log($"💥 圆形攻击命中 {c.name}，造成 {attackDamage} 伤害");
                     }
                 }
             }
@@ -1233,7 +1388,6 @@ public class EnemyAI : MonoBehaviour
                     if (attr != null)
                     {
                         attr.TakeDamage(attackDamage, gameObject);
-                        Debug.Log($"💥 Box攻击命中 {c.name}，造成 {attackDamage} 伤害");
                     }
                 }
             }
@@ -1264,7 +1418,6 @@ public class EnemyAI : MonoBehaviour
         {
             // 如果你仍然希望在没有 overlap 检测时伤害 playerRoot（兼容老逻辑）
             playerAttributes.TakeDamage(attackDamage, gameObject);
-            Debug.Log($"💥 (Fallback) 攻击命中玩家 '{playerRoot.name}'，造成 {attackDamage} 伤害！");
         }
     }
 
@@ -1277,14 +1430,12 @@ public class EnemyAI : MonoBehaviour
     // 动画事件方法
     public void OnAttackAnimationStart()
     {
-        Debug.Log("🎬 攻击动画开始");
         attackAnimationPlaying = true;
         currentAnimationState = "Attack";
     }
 
     public void OnAttackAnimationEnd()
     {
-        Debug.Log("🎬 攻击动画结束");
         attackAnimationPlaying = false;
         isAttacking = false;
 
@@ -1295,14 +1446,12 @@ public class EnemyAI : MonoBehaviour
     // ✅ 新增：受击动画事件方法
     public void OnHurtAnimationStart()
     {
-        Debug.Log("🎬 受击动画开始");
         isHurting = true;
         currentAnimationState = "Hurt";
     }
 
     public void OnHurtAnimationEnd()
     {
-        Debug.Log("🎬 受击动画结束");
         isHurting = false;
         hurtTimer = 0f;
 
@@ -1320,7 +1469,6 @@ public class EnemyAI : MonoBehaviour
     // 攻击伤害触发点
     public void OnAttackHit()
     {
-        Debug.Log("🎯 攻击命中帧");
         DamageAtAttack(); // 使用统一的新函数
     }
 
@@ -1396,7 +1544,6 @@ public class EnemyAI : MonoBehaviour
         }
 
         // 击中了墙体或其他障碍物
-        Debug.Log($"🚫 视线被阻挡: {hit.collider.name}");
         return false;
     }
 
@@ -1508,8 +1655,6 @@ public class EnemyAI : MonoBehaviour
 
         float knockbackSpeed = force / windKnockbackDuration;
 
-        Debug.Log($"🌀 击退开始 - 力量: {force}, 方向: {dir}, 速度: {knockbackSpeed}");
-
         Vector3 startPosition = transform.position;
 
         while (elapsed < windKnockbackDuration)
@@ -1523,18 +1668,11 @@ public class EnemyAI : MonoBehaviour
 
             if (willHitWall)
             {
-                Debug.Log("🧱 击退中检测到墙体，停止击退");
                 break;
             }
 
             // 执行移动
             transform.position += new Vector3(dir * moveStep, 0, 0);
-
-            // 实时位置监控
-            if (elapsed < 0.2f) // 只在前0.2秒打印
-            {
-                Debug.Log($"击退中 - 方向: {dir}, 当前位置X: {transform.position.x:F2}");
-            }
 
             yield return null;
         }
@@ -1549,8 +1687,6 @@ public class EnemyAI : MonoBehaviour
 
         // ✅ 修复：击退结束后强制更新动画状态
         ForceUpdateAnimationState();
-
-        Debug.Log($"✅ 击退结束 - 最终位置X: {transform.position.x:F2}, 总移动: {transform.position.x - startPosition.x:F2}");
     }
 
     // ✅ 改进：死亡方法，与Attribute系统集成
@@ -1559,7 +1695,6 @@ public class EnemyAI : MonoBehaviour
         // ✅ 修复：防止重复调用Die()
         if (isDead)
         {
-            Debug.Log("⚠️ 敌人已经死亡，跳过重复调用");
             return;
         }
 
@@ -1596,8 +1731,6 @@ public class EnemyAI : MonoBehaviour
 
         // 禁用脚本
         enabled = false;
-
-        Debug.Log("💀 敌人死亡 - EnemyAI已禁用");
 
         // 可选：在动画播放后销毁对象
         StartCoroutine(DestroyAfterDeath());
@@ -1680,8 +1813,6 @@ public class EnemyAI : MonoBehaviour
         Collider2D[] overlappingWalls = Physics2D.OverlapCircleAll(transform.position, 0.3f, wallLayer);
         if (overlappingWalls.Length > 0)
         {
-            Debug.LogWarning($"⚠️ 检测到 {name} 嵌入墙体，尝试修复");
-
             // 尝试向相反方向移动来脱离墙体
             Vector2 escapeDirection = facingRight ? Vector2.left : Vector2.right;
             RaycastHit2D hit = Physics2D.Raycast(transform.position, escapeDirection, 2f, ~wallLayer);
@@ -1690,7 +1821,6 @@ public class EnemyAI : MonoBehaviour
             {
                 // 找到安全位置，移动过去
                 transform.position = hit.point - (Vector2)escapeDirection * 0.1f;
-                Debug.Log($"✅ 已修复 {name} 的墙体嵌入问题");
             }
         }
     }
@@ -1754,6 +1884,40 @@ public class EnemyAI : MonoBehaviour
         FindAndSetupPlayer();
     }
 
+    // ===== 新增：AB点巡逻测试方法 =====
+    [ContextMenu("切换AB点巡逻")]
+    private void ToggleABPatrol()
+    {
+        useABPatrol = !useABPatrol;
+        if (useABPatrol)
+        {
+            InitializeABPatrol();
+        }
+        else
+        {
+            // 禁用AB点巡逻时重置状态
+            isWaitingAtPoint = false;
+            waitTimer = 0f;
+            hasReachedPoint = false;
+            stuckTimer = 0f;
+        }
+        Debug.Log($"🔄 AB点巡逻已{(useABPatrol ? "启用" : "禁用")}");
+    }
+
+    // ===== 新增：强制切换到下一个巡逻点 =====
+    [ContextMenu("强制切换巡逻点")]
+    private void ForceSwitchPatrolPoint()
+    {
+        if (useABPatrol)
+        {
+            SwitchPatrolTarget();
+        }
+        else
+        {
+            Debug.Log("⚠️ AB点巡逻未启用");
+        }
+    }
+
     [ContextMenu("显示敌人状态")]
     private void ShowEnemyStatus()
     {
@@ -1768,6 +1932,20 @@ public class EnemyAI : MonoBehaviour
             Debug.Log($"受击状态: {(isHurting ? "受击中" : "正常")}");
             Debug.Log($"当前动画: {currentAnimationState}");
             Debug.Log($"攻击模式: {attackMode}");
+            Debug.Log($"AB点巡逻: {(useABPatrol ? "启用" : "禁用")}");
+
+            if (useABPatrol)
+            {
+                Vector2 toTarget = currentPatrolTarget.position - transform.position;
+                float distanceToTarget = Mathf.Abs(toTarget.x);
+
+                Debug.Log($"当前巡逻目标: {(currentPatrolTarget != null ? currentPatrolTarget.name : "无")}");
+                Debug.Log($"到目标点距离: {distanceToTarget:F2}");
+                Debug.Log($"等待状态: {(isWaitingAtPoint ? $"等待中 ({waitTimer:F1}/{waitTimeAtPoint}s)" : "移动中")}");
+                Debug.Log($"已到达标记: {hasReachedPoint}");
+                Debug.Log($"卡住计时器: {stuckTimer:F1}/{STUCK_TIME_THRESHOLD}s");
+            }
+
             if (attackMode == AttackMode.Box)
             {
                 Debug.Log($"Box 偏移: {boxOffset}, 大小: {boxSize}, 角度: {boxAngle}");
@@ -1791,7 +1969,6 @@ public class EnemyAI : MonoBehaviour
             if (playerObj != null)
             {
                 player = playerObj.transform;
-                Debug.Log($"✅ 通过标签找到玩家: {player.name}");
             }
             else
             {
@@ -1822,7 +1999,6 @@ public class EnemyAI : MonoBehaviour
             }
             if (playerRoot != null)
             {
-                Debug.Log($"🔍 方法1 - 从Visual子对象找到根对象: {playerRoot.name} (从 {player.name})");
             }
         }
 
@@ -1837,7 +2013,6 @@ public class EnemyAI : MonoBehaviour
             if (pc != null)
             {
                 playerRoot = pc.transform;
-                Debug.Log($"🔍 方法2 - 通过PlayerController找到根对象: {playerRoot.name}");
             }
         }
 
@@ -1848,7 +2023,6 @@ public class EnemyAI : MonoBehaviour
             if (attr != null)
             {
                 playerRoot = attr.transform;
-                Debug.Log($"🔍 方法3 - 通过Attribute父组件找到根对象: {playerRoot.name}");
             }
         }
 
@@ -1861,33 +2035,23 @@ public class EnemyAI : MonoBehaviour
                 current = current.parent;
             }
             playerRoot = current;
-            Debug.Log($"🔍 方法4 - 向上查找根对象: {playerRoot.name}");
         }
 
         // 如果还是没找到，使用当前对象
         if (playerRoot == null)
         {
             playerRoot = player;
-            Debug.LogWarning($"⚠️ 无法找到玩家根对象，使用当前对象: {player.name}");
         }
 
         // ✅ 新增：查找玩家的BoxCollider2D组件（用于精确的碰撞框检测）
         playerCollider = playerRoot.GetComponent<BoxCollider2D>();
-        if (playerCollider != null)
-        {
-            Debug.Log($"✅ 找到玩家BoxCollider2D - Size: {playerCollider.size}, Offset: {playerCollider.offset}");
-        }
-        else
+        if (playerCollider == null)
         {
             // 如果在根对象没找到，尝试在整个玩家层次结构中查找
             playerCollider = player.GetComponentInParent<BoxCollider2D>();
             if (playerCollider == null)
             {
                 playerCollider = player.GetComponentInChildren<BoxCollider2D>();
-            }
-            if (playerCollider != null)
-            {
-                Debug.Log($"✅ 在玩家层次结构中找到BoxCollider2D - Size: {playerCollider.size}, Offset: {playerCollider.offset}");
             }
         }
 
@@ -1898,7 +2062,6 @@ public class EnemyAI : MonoBehaviour
         playerAttributes = playerRoot.GetComponent<Attribute>();
         if (playerAttributes != null)
         {
-            Debug.Log($"✅ 在玩家根对象 '{playerRoot.name}' 上找到Attribute组件");
             return;
         }
 
@@ -1906,7 +2069,6 @@ public class EnemyAI : MonoBehaviour
         playerAttributes = playerRoot.GetComponentInChildren<Attribute>(true);
         if (playerAttributes != null)
         {
-            Debug.Log($"✅ 在玩家子对象 '{playerAttributes.gameObject.name}' 上找到Attribute组件");
             return;
         }
 
@@ -1914,7 +2076,6 @@ public class EnemyAI : MonoBehaviour
         playerAttributes = player.GetComponentInParent<Attribute>();
         if (playerAttributes != null)
         {
-            Debug.Log($"✅ 在玩家父对象 '{playerAttributes.gameObject.name}' 上找到Attribute组件");
             return;
         }
 
@@ -1926,7 +2087,6 @@ public class EnemyAI : MonoBehaviour
             {
                 playerAttributes = attr;
                 playerRoot = attr.transform;
-                Debug.Log($"✅ 通过场景扫描在 '{attr.gameObject.name}' 上找到Attribute组件");
                 return;
             }
         }
@@ -1944,16 +2104,9 @@ public class EnemyAI : MonoBehaviour
             {
                 playerAttributes = attr;
                 playerRoot = pc.transform;
-                Debug.Log($"✅ 通过PlayerController扫描在 '{pc.gameObject.name}' 上找到Attribute组件");
                 return;
             }
         }
-
-        // 如果还是找不到，输出详细的调试信息
-        Debug.LogError($"❌ 在玩家对象 '{playerRoot.name}' 及其所有相关对象中都没有找到Attribute组件！");
-        Debug.LogError($"   玩家对象路径: {GetFullPath(playerRoot)}");
-        Debug.LogError($"   玩家对象标签: {playerRoot.tag}");
-        Debug.LogError($"   建议：请在玩家对象（或根对象）上添加 Attribute 组件");
     }
 
     // ✅ 新增：获取对象的完整路径
@@ -1990,8 +2143,6 @@ public class EnemyAI : MonoBehaviour
         // 强制回到默认状态
         anim.Play("Idle", 0, 0f);
         currentAnimationState = "Idle";
-
-        Debug.Log("🔄 动画状态已重置");
     }
 
     // ✅ 新增：测试受击后动画恢复
@@ -2003,8 +2154,6 @@ public class EnemyAI : MonoBehaviour
 
     private IEnumerator TestHurtRecoveryCoroutine()
     {
-        Debug.Log("🧪 开始测试受击后动画恢复");
-
         // 触发受击
         TriggerHurtAnimation();
 
@@ -2016,12 +2165,6 @@ public class EnemyAI : MonoBehaviour
 
         // 检查动画状态
         yield return new WaitForSeconds(0.5f);
-
-        if (anim != null && HasParameter(walkParamName))
-        {
-            bool isWalking = anim.GetBool(walkParamName);
-            Debug.Log($"🧪 测试结果 - 应该行走: {Mathf.Abs(rb.velocity.x) > 0.1f}, 实际行走状态: {isWalking}, 当前状态: {currentAnimationState}");
-        }
     }
 
     // ✅ 新增：强制修复动画状态
@@ -2034,8 +2177,6 @@ public class EnemyAI : MonoBehaviour
         AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
         string stateName = GetAnimationStateName(stateInfo);
 
-        Debug.Log($"🔧 强制修复前状态: {stateName}, 进度: {stateInfo.normalizedTime:F2}");
-
         // 如果卡在受击状态，强制退出
         if (stateName == "Hurt" && stateInfo.normalizedTime >= 1.0f)
         {
@@ -2046,7 +2187,6 @@ public class EnemyAI : MonoBehaviour
             // 否则强制切换到空闲状态
             anim.Play("Idle", 0, 0f);
             currentAnimationState = "Idle";
-            Debug.Log("🔧 强制切换到空闲状态");
         }
 
         // 重置所有状态变量
@@ -2064,7 +2204,6 @@ public class EnemyAI : MonoBehaviour
     {
 #if UNITY_EDITOR
         UnityEditor.SceneView.RepaintAll();
-        Debug.Log($"🔄 刷新攻击范围显示 - 当前模式: {attackMode}");
         
         if (attackMode == AttackMode.Circle)
         {
@@ -2083,7 +2222,6 @@ public class EnemyAI : MonoBehaviour
     private void ToggleBoxFlip()
     {
         flipBoxWithEnemy = !flipBoxWithEnemy;
-        Debug.Log($"🔄 Box翻转设置已切换: {flipBoxWithEnemy}");
         RefreshAttackRangeDisplay();
     }
 
@@ -2098,7 +2236,6 @@ public class EnemyAI : MonoBehaviour
         }
 
         bool hasSight = CanDetectPlayer();
-        Debug.Log($"🔍 视线检测结果: {(hasSight ? "✅ 视线畅通" : "❌ 视线被阻挡")}");
 
         // 在场景中高亮显示检测结果
         StartCoroutine(HighlightSightTest());
@@ -2151,8 +2288,6 @@ public class EnemyAI : MonoBehaviour
             Debug.Log($"碰撞体Offset: {playerCollider.offset}");
             Debug.Log($"碰撞体bounds.center: {playerCollider.bounds.center}");
             Debug.Log($"碰撞体bounds.size: {playerCollider.bounds.size}");
-            Debug.Log($"碰撞体bounds.min: {playerCollider.bounds.min}");
-            Debug.Log($"碰撞体bounds.max: {playerCollider.bounds.max}");
         }
         else
         {
@@ -2265,6 +2400,52 @@ public class EnemyAI : MonoBehaviour
 #endif
         }
 
+        // ===== 新增：绘制AB点巡逻路径 =====
+        if (useABPatrol && patrolPointA != null && patrolPointB != null)
+        {
+            // 绘制巡逻路径线
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(patrolPointA.position, patrolPointB.position);
+
+            // 绘制点A
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(patrolPointA.position, 0.3f);
+            Gizmos.DrawWireSphere(patrolPointA.position, reachThreshold);
+
+            // 绘制点B
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(patrolPointB.position, 0.3f);
+            Gizmos.DrawWireSphere(patrolPointB.position, reachThreshold);
+
+            // 绘制减速距离
+            if (currentPatrolTarget != null)
+            {
+                Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f);
+                Gizmos.DrawWireSphere(currentPatrolTarget.position, slowingDistance);
+            }
+
+            // 绘制当前目标点
+            if (currentPatrolTarget != null && Application.isPlaying)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawWireSphere(currentPatrolTarget.position, 0.2f);
+
+                // 绘制从敌人到目标点的线
+                Gizmos.DrawLine(transform.position, currentPatrolTarget.position);
+
+                // 绘制距离文本
+#if UNITY_EDITOR
+                Vector2 toTarget = currentPatrolTarget.position - transform.position;
+                float distanceToTarget = Mathf.Abs(toTarget.x);
+                GUIStyle labelStyle = new GUIStyle();
+                labelStyle.normal.textColor = Color.yellow;
+                labelStyle.fontSize = 10;
+                UnityEditor.Handles.Label(transform.position + Vector3.up * 1.2f, 
+                    $"目标: {currentPatrolTarget.name}\n距离: {distanceToTarget:F2}\n等待: {isWaitingAtPoint}", labelStyle);
+#endif
+            }
+        }
+
         // 绘制攻击模式标签
 #if UNITY_EDITOR
     GUIStyle style = new GUIStyle();
@@ -2277,6 +2458,10 @@ public class EnemyAI : MonoBehaviour
     if (attackMode == AttackMode.Box)
     {
         modeText += $"\nBox翻转: {(flipBoxWithEnemy ? "启用" : "禁用")}";
+    }
+    if (useABPatrol)
+    {
+        modeText += $"\nAB点巡逻: 启用";
     }
     UnityEditor.Handles.Label(labelPos, modeText, style);
 #endif
@@ -2443,8 +2628,6 @@ public class EnemyAI : MonoBehaviour
             bool hasSight = CanDetectPlayer();
             Gizmos.color = hasSight ? Color.green : Color.red;
             Gizmos.DrawLine(startPos, targetPos);
-
-            // 不再绘制多角度检测点和线，以简化场景
         }
     }
 
