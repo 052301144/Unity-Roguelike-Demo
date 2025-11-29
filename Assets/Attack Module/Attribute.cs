@@ -42,7 +42,64 @@ public class Attribute : MonoBehaviour, SM_IDamageable
         get => deathProtected;
         set => deathProtected = value;
     }
+    // 法力值相关属性
+    [SerializeField] private int maxMana;
+    [SerializeField] private int currentMana;
 
+    // 法力值变化事件（供UI订阅）
+    public System.Action<int> OnManaChanged;
+
+    // 最大法力值属性
+    public int MaxMana
+    {
+        get => maxMana;
+        private set => maxMana = value;
+    }
+
+    // 当前法力值属性
+    public int CurrentMana
+    {
+        get => currentMana;
+        private set
+        {
+            currentMana = Mathf.Clamp(value, 0, maxMana);
+            OnManaChanged?.Invoke(currentMana); // 触发事件
+        }
+    }
+
+    // 初始化法力值
+    public void InitializeMana(int max)
+    {
+        maxMana = max;
+        currentMana = maxMana;
+    }
+
+    // 增减法力值的方法
+    public void AddMana(int amount)
+    {
+        CurrentMana += amount;
+    }
+
+    public bool SpendMana(int amount)
+    {
+        if (currentMana >= amount)
+        {
+            CurrentMana -= amount;
+            return true;
+        }
+        return false;
+    }
+    /// <summary>
+    /// 获取法力值百分比（0-1范围）
+    /// </summary>
+    public float GetManaPercentage()
+    {
+        // 避免除以零错误
+        if (maxMana <= 0)
+            return 0f;
+
+        return (float)currentMana / maxMana;
+    }
     // 事件
     public System.Action<int> OnHealthChanged;           // 生命值变化事件
     public System.Action<int, GameObject> OnTakeDamage;  // 受到伤害事件
