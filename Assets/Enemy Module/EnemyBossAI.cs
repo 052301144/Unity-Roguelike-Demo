@@ -82,6 +82,7 @@ public class EnemyBossAI : MonoBehaviour
     private Rigidbody2D rb;
     private bool isAttacking = false;
     private bool isChasing = false;
+    public bool IsChasing => isChasing; // 利用属性暴露isChasing的状态
     private bool facingRight = true;
     private bool isKnockedBack = false;
     private bool isHurting = false;
