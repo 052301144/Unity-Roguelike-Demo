@@ -66,6 +66,25 @@ public class InventoryManager : MonoBehaviour
         return true;
     }
 
+    public Dictionary<string, int> GetItemsSnapshot()
+    {
+        return new Dictionary<string, int>(_items);
+    }
+
+    public void ReplaceItems(Dictionary<string, int> items)
+    {
+        _items.Clear();
+        if (items != null)
+        {
+            foreach (var kvp in items)
+            {
+                if (string.IsNullOrEmpty(kvp.Key) || kvp.Value <= 0) continue;
+                _items[kvp.Key] = kvp.Value;
+            }
+        }
+        OnItemsUpdated?.Invoke(_items);
+    }
+
     // 新游戏时重置数据（在开始新游戏按钮调用）
     public void ResetInventory()
     {

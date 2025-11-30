@@ -55,9 +55,29 @@ public class SaveButtonHandler : MonoBehaviour
     {
         var list = new List<ItemStackData>();
         if (inventory == null)
-            return list;
+        {
+            inventory = InventoryManager.Instance ?? FindObjectOfType<InventoryManager>();
+        }
 
-        // InventoryManager currently stores items internally; extend it with a snapshot getter for real data.
+        if (inventory == null)
+        {
+            Debug.LogWarning("[SaveButtonHandler] InventoryManager not found, inventory will not be saved.");
+            return list;
+        }
+
+        var snapshot = inventory.GetItemsSnapshot();
+        foreach (var kvp in snapshot)
+        {
+            if (string.IsNullOrEmpty(kvp.Key) || kvp.Value <= 0) continue;
+            list.Add(new ItemStackData
+            {
+                itemId = kvp.Key,
+                count = kvp.Value,
+                enhancementLevel = 0,
+                durability = 0
+            });
+        }
+
         return list;
     }
 }

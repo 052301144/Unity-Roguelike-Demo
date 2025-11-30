@@ -14,6 +14,12 @@ public class WeaponItem : ItemBase
     [Min(0)]
     [SerializeField] private int enhancementLevel = 0;
 
+    [Header("Enhancement")]
+    [Min(0)]
+    [SerializeField] private int maxEnhancementLevel = 10;
+    [Tooltip("Configure the material costs for each target enhancement level. Levels beyond the list use the last entry.")]
+    [SerializeField] private List<EnhancementStepCost> enhancementCosts = new List<EnhancementStepCost>();
+
     [Header("Special Attributes")]
     [Min(0f)]
     [SerializeField] private float elementalAttack = 0f;
@@ -27,10 +33,32 @@ public class WeaponItem : ItemBase
 
     public int BaseAttack => baseAttack;
     public int EnhancementLevel => enhancementLevel;
+    public int MaxEnhancementLevel => Mathf.Max(0, maxEnhancementLevel);
     public float ElementalAttack => elementalAttack;
     public float CriticalChance => Mathf.Clamp01(criticalChance);
     public float DefenseIgnore => Mathf.Clamp01(defenseIgnore);
     public IReadOnlyList<WeaponAttribute> ExtraAttributes => extraAttributes;
+
+    /// <summary>
+    /// Get the material costs to reach the specified target level.
+    /// If no exact entry is found, returns the last defined step.
+    /// </summary>
+    public IReadOnlyList<EnhancementMaterialCost> GetCostForLevel(int targetLevel)
+    {
+        if (enhancementCosts == null || enhancementCosts.Count == 0)
+            return System.Array.Empty<EnhancementMaterialCost>();
+
+        EnhancementStepCost best = enhancementCosts[enhancementCosts.Count - 1];
+        foreach (var step in enhancementCosts)
+        {
+            if (step.targetLevel == targetLevel)
+                return step.materials;
+            if (step.targetLevel > targetLevel)
+                break;
+            best = step;
+        }
+        return best.materials;
+    }
 }
 
 [System.Serializable]
