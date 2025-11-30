@@ -19,6 +19,7 @@ MonoBehaviour:
   - itemName: "\u751F\u547D\u836F\u6C34"
     itemPrefab: {fileID: 189845631566739158, guid: b327483c53042944c8477f25f278fac4, type: 3}
     itemIcon: {fileID: 0}
+    itemAsset: {fileID: 0}
     dropChance: 0.4
     minQuantity: 1
     maxQuantity: 2
@@ -28,6 +29,7 @@ MonoBehaviour:
   - itemName: "\u9B54\u6CD5\u836F\u6C34"
     itemPrefab: {fileID: 1496370975145116466, guid: 830c26289449f51489bb0f9013b5b3e4, type: 3}
     itemIcon: {fileID: 0}
+    itemAsset: {fileID: 0}
     dropChance: 0.35
     minQuantity: 1
     maxQuantity: 2
@@ -37,6 +39,7 @@ MonoBehaviour:
   - itemName: "\u91D1\u5E01"
     itemPrefab: {fileID: 6049858402603625659, guid: 8fe62488d9afcf9429571ef29ea3b4b7, type: 3}
     itemIcon: {fileID: 0}
+    itemAsset: {fileID: 0}
     dropChance: 1
     minQuantity: 0
     maxQuantity: 0

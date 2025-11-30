@@ -95,7 +95,7 @@ public class DropItemController : MonoBehaviour
 
         itemData = data;
         lifetime = lifeTime;
-        itemType = data.itemType;
+        itemType = data.ResolveItemType();
         gameObject.name = $"{data.itemName} (Drop)";
 
         // 确保SpriteRenderer已初始化
@@ -253,7 +253,7 @@ public class DropItemController : MonoBehaviour
             case DropItemType.Equipment:
             case DropItemType.Consumable:
                 // 创建物品数据并触发拾取事件
-                ItemData pickedItem = new ItemData(itemData);
+                ItemData pickedItem = itemData.itemAsset != null ? new ItemData(itemData.itemAsset) : new ItemData(itemData);
                 if (itemType == DropItemType.Weapon)
                 {
                     DropManager.Instance.TriggerWeaponPickedUp(pickedItem);

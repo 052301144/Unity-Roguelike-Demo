@@ -16,7 +16,7 @@ MonoBehaviour:
   itemName: 
   quality: 0
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 0b0124d487231b3498d53a37335a1b26, type: 3}
   maxStackSize: 1
   baseAttack: 1
   enhancementLevel: 0

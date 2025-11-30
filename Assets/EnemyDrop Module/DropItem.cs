@@ -9,7 +9,9 @@ public class DropItem
     [Header("物品信息")] // 在Inspector中显示分组标题
     public string itemName;              // 物品显示名称
     public GameObject itemPrefab;        // 物品的预制体对象引用
-    public Sprite itemIcon;              // 物品的图标精灵
+    public Sprite itemIcon;
+    [Tooltip("?? Item Module ???/??/?? (WeaponItem / EquipmentItem / ItemBase)")]
+    public ItemBase itemAsset;              // 物品的图标精灵
 
     [Header("掉落概率")] // 掉落概率相关的部分
     [Range(0, 1)] // 在Inspector中显示为0-1的滑动条
@@ -22,7 +24,24 @@ public class DropItem
     public float forceMultiplier = 1f;   // 力的强度倍数
 
     [Header("物品类型")] // 物品类型分类
-    public DropItemType itemType;        // 物品类型枚举
+    public DropItemType itemType;        // ??????
+
+    public Sprite GetIcon()
+    {
+        if (itemAsset != null && itemAsset.Icon != null)
+            return itemAsset.Icon;
+        return itemIcon;
+    }
+
+    public DropItemType ResolveItemType()
+    {
+        if (itemAsset is WeaponItem) return DropItemType.Weapon;
+        if (itemAsset is EquipmentItem) return DropItemType.Equipment;
+        if (itemAsset != null) return DropItemType.Consumable;
+        return itemType;
+    }
+
+        // 物品类型枚举
 
     /// <summary>
     /// 判断是否应该掉落此物品
@@ -60,7 +79,7 @@ public class DropItem
         return itemName + "\n" +                    // 物品名称
                "掉落概率: " + chanceText + "\n" +   // 掉落概率
                "掉落数量: " + quantityText + "\n" + // 掉落数量
-               "类型: " + itemType.ToString();      // 物品类型
+               "类型: " + ResolveItemType().ToString();      // 物品类型
     }
 }
 

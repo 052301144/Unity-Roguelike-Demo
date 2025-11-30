@@ -345,6 +345,7 @@ public class PlayerItemManager : MonoBehaviour
 [System.Serializable]
 public class ItemData
 {
+    public string itemId;
     public string itemName;           // 物品名称
     public DropItemType itemType;     // 物品类型
     public Sprite itemIcon;            // 物品图标
@@ -358,10 +359,31 @@ public class ItemData
     {
         if (dropItem != null)
         {
+            itemId = dropItem.itemName;
             itemName = dropItem.itemName;
             itemType = dropItem.itemType;
-            itemIcon = dropItem.itemIcon;
+            itemIcon = dropItem.GetIcon();
             description = "";
+            value = 0;
+            customProperties = new Dictionary<string, float>();
+        }
+    }
+
+    public ItemData(ItemBase itemBase)
+    {
+        if (itemBase != null)
+        {
+            itemId = itemBase.ItemId;
+            itemName = itemBase.ItemName;
+            if (itemBase is WeaponItem)
+                itemType = DropItemType.Weapon;
+            else if (itemBase is EquipmentItem)
+                itemType = DropItemType.Equipment;
+            else
+                itemType = DropItemType.Consumable;
+
+            itemIcon = itemBase.Icon;
+            description = itemBase.Description;
             value = 0;
             customProperties = new Dictionary<string, float>();
         }
