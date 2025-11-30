@@ -47760,7 +47760,6 @@ GameObject:
   - component: {fileID: 574374877}
   - component: {fileID: 574374879}
   - component: {fileID: 574374880}
-  - component: {fileID: 574374881}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -47993,21 +47992,6 @@ MonoBehaviour:
   freezeEffectPrefab: {fileID: 0}
   maxChainTargets: 3
   thunderHitVFXPrefab: {fileID: 0}
---- !u!114 &574374881
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 574374872}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0f8ba5363620b240a6300a42c47b210, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentCoins: 0
-  initialCoins: 0
-  logCoinEvents: 1
 --- !u!1 &597080311
 GameObject:
   m_ObjectHideFlags: 0
@@ -51259,6 +51243,66 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1037442600}
   m_CullTransparentMesh: 1
+--- !u!1 &1042315851
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1042315854}
+  - component: {fileID: 1042315853}
+  - component: {fileID: 1042315852}
+  m_Layer: 0
+  m_Name: Inventory Module
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1042315852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042315851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18a773f04afc1c34b8f87a60ca2f6bc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1042315853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042315851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0f8ba5363620b240a6300a42c47b210, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentCoins: 0
+  initialCoins: 0
+  logCoinEvents: 1
+--- !u!4 &1042315854
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042315851}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -9.722586, y: 4.4437356, z: -5.4427943}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1060167335
 GameObject:
   m_ObjectHideFlags: 0
@@ -59200,3 +59244,4 @@ SceneRoots:
   - {fileID: 226995528}
   - {fileID: 1610888221}
   - {fileID: 112971062}
+  - {fileID: 1042315854}
