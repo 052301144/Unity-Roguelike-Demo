@@ -7555,7 +7555,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 94383ee0d5dd7ed4690b86c6468eed57, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5d56ec79d563eca4fa4e1a363235c2dc, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7587,7 +7587,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyName: O
   skillIcon: {fileID: 390461571}
-  defaultEmptySprite: {fileID: 21300000, guid: 94383ee0d5dd7ed4690b86c6468eed57, type: 3}
+  defaultEmptySprite: {fileID: 21300000, guid: 5d56ec79d563eca4fa4e1a363235c2dc, type: 3}
 --- !u!1 &406610202
 GameObject:
   m_ObjectHideFlags: 0
@@ -57096,7 +57096,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e85d015c9c0e75d4590e70ef7a58961e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3ee69cb3d5b99fb49bda8c7794919b37, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -58478,7 +58478,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 7bd979bd0c87a2948a5c4c3735ef475d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0f394fedb9b076240bd68959b4d6e729, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -60762,7 +60762,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 99925fe214a6c444f80fff15750343b0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5dca368094828d7489be20c3382537ac, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -61104,7 +61104,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 46962574e70ede440bb4f47009f4b09f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 54bada7b2de33024a89ab9994e2e7968, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -61255,6 +61255,17 @@ MonoBehaviour:
   wallCheckLeft: {fileID: 1511587607}
   wallCheckRight: {fileID: 349227310}
   detectionPoint: {fileID: 1305679058}
+  attack1BoxSize: {x: 1.5, y: 1.2}
+  attack1BoxOffset: {x: 0, y: 0.3}
+  attack2BoxSize: {x: 1.8, y: 1.3}
+  attack2BoxOffset: {x: 0, y: 0.4}
+  attack3BoxSize: {x: 2, y: 1.4}
+  attack3BoxOffset: {x: 0, y: 0.5}
+  attack4BoxSize: {x: 2.5, y: 1.8}
+  attack4BoxOffset: {x: 0, y: 0.6}
+  showAttackBoxInScene: 1
+  showAllAttackBoxes: 1
+  showOnlyActiveAttackBox: 0
   player: {fileID: 2031928923}
   walkParamName: isWalk
   attack1ParamName: isAttack1
@@ -61282,7 +61293,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8025837635141234635, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
   m_PrefabInstance: {fileID: 70104609}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1255594456}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71e0c740e19aee344ae062e71d0238c1, type: 3}
@@ -62168,7 +62179,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: eb41727ede1762a489c5a5f32f10dbc6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3123d042b440aec49a1ba39ac6567a4f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -62651,7 +62662,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9806e0d7f2645394a8e64bc603d90d8c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bc91a09e74cdf9349a9d707a763bd553, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -63026,7 +63037,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: db8f258d092ce2647ad82c78cee67a56, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c31d288789edce24187a6395cb25488e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -63058,7 +63069,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyName: U
   skillIcon: {fileID: 1412770495}
-  defaultEmptySprite: {fileID: 21300000, guid: db8f258d092ce2647ad82c78cee67a56, type: 3}
+  defaultEmptySprite: {fileID: 21300000, guid: c31d288789edce24187a6395cb25488e, type: 3}
 --- !u!1 &1433240917
 GameObject:
   m_ObjectHideFlags: 0
@@ -65990,7 +66001,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 94383ee0d5dd7ed4690b86c6468eed57, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5d56ec79d563eca4fa4e1a363235c2dc, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -66373,7 +66384,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: db8f258d092ce2647ad82c78cee67a56, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c31d288789edce24187a6395cb25488e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -66679,7 +66690,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e85d015c9c0e75d4590e70ef7a58961e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3ee69cb3d5b99fb49bda8c7794919b37, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -66711,7 +66722,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyName: I
   skillIcon: {fileID: 1887780604}
-  defaultEmptySprite: {fileID: 21300000, guid: e85d015c9c0e75d4590e70ef7a58961e, type: 3}
+  defaultEmptySprite: {fileID: 21300000, guid: 3ee69cb3d5b99fb49bda8c7794919b37, type: 3}
 --- !u!1 &1930350570
 GameObject:
   m_ObjectHideFlags: 0
@@ -67482,7 +67493,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ad74ad83e8364c943bce72d8bda80e9c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1c07938a64054c549a4dce055e40e998, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -67572,7 +67583,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: eb41727ede1762a489c5a5f32f10dbc6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3123d042b440aec49a1ba39ac6567a4f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -67604,7 +67615,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyName: L
   skillIcon: {fileID: 2004704006}
-  defaultEmptySprite: {fileID: 21300000, guid: eb41727ede1762a489c5a5f32f10dbc6, type: 3}
+  defaultEmptySprite: {fileID: 21300000, guid: 3123d042b440aec49a1ba39ac6567a4f, type: 3}
 --- !u!4 &2009683695 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 523483242991693821, guid: 0985942887c64ad4cbfb38b500257fe8, type: 3}
