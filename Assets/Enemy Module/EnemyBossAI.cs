@@ -40,6 +40,38 @@ public class EnemyBossAI : MonoBehaviour
     public Transform wallCheckRight;
     public Transform detectionPoint;
 
+    [Header("矩形攻击框设置 - 攻击1")]
+    [Tooltip("攻击1的矩形攻击框尺寸")]
+    public Vector2 attack1BoxSize = new Vector2(1.5f, 1.2f);
+    [Tooltip("攻击1的矩形框相对于攻击原点的偏移量")]
+    public Vector2 attack1BoxOffset = new Vector2(0f, 0.3f);
+
+    [Header("矩形攻击框设置 - 攻击2")]
+    [Tooltip("攻击2的矩形攻击框尺寸")]
+    public Vector2 attack2BoxSize = new Vector2(1.8f, 1.3f);
+    [Tooltip("攻击2的矩形框相对于攻击原点的偏移量")]
+    public Vector2 attack2BoxOffset = new Vector2(0f, 0.4f);
+
+    [Header("矩形攻击框设置 - 攻击3")]
+    [Tooltip("攻击3的矩形攻击框尺寸")]
+    public Vector2 attack3BoxSize = new Vector2(2.0f, 1.4f);
+    [Tooltip("攻击3的矩形框相对于攻击原点的偏移量")]
+    public Vector2 attack3BoxOffset = new Vector2(0f, 0.5f);
+
+    [Header("矩形攻击框设置 - 攻击4")]
+    [Tooltip("攻击4的矩形攻击框尺寸")]
+    public Vector2 attack4BoxSize = new Vector2(2.5f, 1.8f);
+    [Tooltip("攻击4的矩形框相对于攻击原点的偏移量")]
+    public Vector2 attack4BoxOffset = new Vector2(0f, 0.6f);
+
+    [Header("Gizmos显示设置")]
+    [Tooltip("在Scene视图中显示矩形攻击框")]
+    public bool showAttackBoxInScene = true;
+    [Tooltip("显示所有攻击的矩形框")]
+    public bool showAllAttackBoxes = true;
+    [Tooltip("只显示当前激活的攻击矩形框")]
+    public bool showOnlyActiveAttackBox = false;
+
     [Header("玩家设置")]
     public Transform player;
 
@@ -158,6 +190,14 @@ public class EnemyBossAI : MonoBehaviour
         attack3Delay = Mathf.Max(0.01f, attack3Delay);
         attack4Delay = Mathf.Max(0.01f, attack4Delay);
         attack4Damage = Mathf.Max(1, attack4Damage);
+        attack1BoxSize.x = Mathf.Max(0.1f, attack1BoxSize.x);
+        attack1BoxSize.y = Mathf.Max(0.1f, attack1BoxSize.y);
+        attack2BoxSize.x = Mathf.Max(0.1f, attack2BoxSize.x);
+        attack2BoxSize.y = Mathf.Max(0.1f, attack2BoxSize.y);
+        attack3BoxSize.x = Mathf.Max(0.1f, attack3BoxSize.x);
+        attack3BoxSize.y = Mathf.Max(0.1f, attack3BoxSize.y);
+        attack4BoxSize.x = Mathf.Max(0.1f, attack4BoxSize.x);
+        attack4BoxSize.y = Mathf.Max(0.1f, attack4BoxSize.y);
     }
 #endif
 
@@ -763,7 +803,7 @@ public class EnemyBossAI : MonoBehaviour
             // 在命中判定前再次确认未进入受击状态
             if (!isHurting && !isDead)
             {
-                DealDamage(attackDamage, attack1Range);
+                DealDamage(attackDamage, attack1Range, attack1BoxSize, attack1BoxOffset);
             }
             else
             {
@@ -856,7 +896,7 @@ public class EnemyBossAI : MonoBehaviour
         {
             if (!isHurting && !isDead)
             {
-                DealDamage(attackDamage, attack2Range);
+                DealDamage(attackDamage, attack2Range, attack2BoxSize, attack2BoxOffset);
             }
             else
             {
@@ -942,7 +982,7 @@ public class EnemyBossAI : MonoBehaviour
         {
             if (!isHurting && !isDead)
             {
-                DealDamage(attackDamage, attack3Range);
+                DealDamage(attackDamage, attack3Range, attack3BoxSize, attack3BoxOffset);
             }
             else
             {
@@ -1012,7 +1052,7 @@ public class EnemyBossAI : MonoBehaviour
             if (!isDead)
             {
                 // Attack4 期间不受 isHurting 限制，因为已经无敌
-                DealDamage(attack4Damage, attack4Range);
+                DealDamage(attack4Damage, attack4Range, attack4BoxSize, attack4BoxOffset);
             }
             else
             {
@@ -1081,7 +1121,7 @@ public class EnemyBossAI : MonoBehaviour
             if (!isDead)
             {
                 // Attack4 期间不受 isHurting 限制，因为已经无敌
-                DealDamage(attack4Damage, attack4Range);
+                DealDamage(attack4Damage, attack4Range, attack4BoxSize, attack4BoxOffset);
             }
             else
             {
@@ -1108,8 +1148,8 @@ public class EnemyBossAI : MonoBehaviour
         ForceUpdateAnimationState();
     }
 
-    // DealDamage 现在接受 range 参数，确保命中判定和可视化一致
-    void DealDamage(int damage, float range)
+    // DealDamage 现在使用矩形框进行伤害判定，矩形框会跟随敌人转向翻转
+    void DealDamage(int damage, float range, Vector2 boxSize, Vector2 boxOffset)
     {
         if (player == null) return;
 
@@ -1121,7 +1161,13 @@ public class EnemyBossAI : MonoBehaviour
         }
 
         Vector2 origin = GetAttackOrigin();
-        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, range, playerLayer);
+
+        // 计算矩形框中心，根据朝向应用x轴翻转
+        float xOffset = facingRight ? boxOffset.x : -boxOffset.x;
+        Vector2 boxCenter = origin + new Vector2(xOffset, boxOffset.y);
+
+        // 使用矩形框进行伤害判定
+        Collider2D[] hits = Physics2D.OverlapBoxAll(boxCenter, boxSize, 0f, playerLayer);
 
         if (hits != null && hits.Length > 0)
         {
@@ -1132,7 +1178,7 @@ public class EnemyBossAI : MonoBehaviour
                 if (attr != null)
                 {
                     attr.TakeDamage(damage, gameObject);
-                    Debug.Log($"💥 攻击命中 {c.name}，造成 {damage} 伤害");
+                    Debug.Log($"💥 矩形攻击命中 {c.name}，造成 {damage} 伤害");
                 }
             }
         }
@@ -1170,7 +1216,7 @@ public class EnemyBossAI : MonoBehaviour
         return false;
     }
 
-    // IsPlayerInAttackRange 使用与 Gizmos 相同的 origin（attackPoint 或 偏移中心）
+    // IsPlayerInAttackRange 使用圆形进行攻击距离判定（保持原有逻辑）
     bool IsPlayerInAttackRange(float range)
     {
         if (player == null) return false;
@@ -1670,10 +1716,10 @@ public class EnemyBossAI : MonoBehaviour
             Debug.Log($"=== Boss状态 ===");
             Debug.Log($"生命值: {enemyAttributes.CurrentHealth}/{enemyAttributes.MaxHealth}");
             Debug.Log($"连续受击: {consecutiveHits}/{consecutiveHitsToTriggerAttack4}");
-            Debug.Log($"攻击1范围: {attack1Range}");
-            Debug.Log($"攻击2范围: {attack2Range}");
-            Debug.Log($"攻击3范围: {attack3Range}");
-            Debug.Log($"攻击4范围: {attack4Range}");
+            Debug.Log($"攻击1范围: {attack1Range}，矩形框: {attack1BoxSize}，偏移: {attack1BoxOffset}");
+            Debug.Log($"攻击2范围: {attack2Range}，矩形框: {attack2BoxSize}，偏移: {attack2BoxOffset}");
+            Debug.Log($"攻击3范围: {attack3Range}，矩形框: {attack3BoxSize}，偏移: {attack3BoxOffset}");
+            Debug.Log($"攻击4范围: {attack4Range}，矩形框: {attack4BoxSize}，偏移: {attack4BoxOffset}");
             Debug.Log($"当前动画: {currentAnimationState}");
             Debug.Log($"comboStage: {comboStage}, isAttack2Enabled: {isAttack2Enabled}, isAttack3Enabled: {isAttack3Enabled}");
             Debug.Log($"isChasing: {isChasing}, facingRight: {facingRight}");
@@ -1683,6 +1729,8 @@ public class EnemyBossAI : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        if (!showAttackBoxInScene) return;
+
         // 绘制 detection 区域（矩形），以及所有 attack range（以偏移中心为中心）
         Vector2 origin = (attackPoint != null) ? (Vector2)attackPoint.position : (Vector2)transform.position;
 
@@ -1698,9 +1746,22 @@ public class EnemyBossAI : MonoBehaviour
         Gizmos.DrawSphere(origin, 0.06f);
 
         // 计算基于 transform.position 的偏移中心（attackOffset）
-        Vector3 offsetCenter = transform.position + (facingRight ? Vector3.right : Vector3.left) * attackOffset;
+        // 在编辑模式下，我们需要根据transform.localScale来判断朝向
+        bool editorFacingRight = true;
+        if (Application.isPlaying)
+        {
+            editorFacingRight = facingRight;
+        }
+        else
+        {
+            // 在编辑模式下，根据transform的localScale判断朝向
+            Transform targetTransform = animationChild != null ? animationChild.transform : transform;
+            editorFacingRight = targetTransform.localScale.x >= 0;
+        }
 
-        // 绘制偏移后的攻击范围（Attack1 ~ Attack4）以 offsetCenter 为中心
+        Vector3 offsetCenter = transform.position + (editorFacingRight ? Vector3.right : Vector3.left) * attackOffset;
+
+        // 绘制偏移后的攻击范围（Attack1 ~ Attack4）以 offsetCenter 为中心 - 保持圆形用于距离判定
         Gizmos.color = new Color(1f, 0.2f, 0.2f, 0.35f); // attack1
         Gizmos.DrawWireSphere(offsetCenter, attack1Range);
 
@@ -1716,6 +1777,72 @@ public class EnemyBossAI : MonoBehaviour
         // 在 offsetCenter 处画一个小球指出偏移中心
         Gizmos.color = new Color(0f, 1f, 0f, 0.9f);
         Gizmos.DrawSphere(offsetCenter, 0.04f);
+
+        // 绘制所有攻击的矩形攻击框（跟随敌人朝向）
+        if (showAllAttackBoxes || showOnlyActiveAttackBox)
+        {
+            // 如果只显示激活的攻击框，根据当前状态判断
+            bool shouldShowAttack1 = showAllAttackBoxes || (showOnlyActiveAttackBox && currentAnimationState == "Attack1");
+            bool shouldShowAttack2 = showAllAttackBoxes || (showOnlyActiveAttackBox && currentAnimationState == "Attack2");
+            bool shouldShowAttack3 = showAllAttackBoxes || (showOnlyActiveAttackBox && currentAnimationState == "Attack3");
+            bool shouldShowAttack4 = showAllAttackBoxes || (showOnlyActiveAttackBox && currentAnimationState == "Attack4");
+
+            // 绘制攻击1矩形框
+            if (shouldShowAttack1)
+            {
+                float xOffset1 = editorFacingRight ? attack1BoxOffset.x : -attack1BoxOffset.x;
+                Vector2 boxCenter1 = (Vector2)offsetCenter + new Vector2(xOffset1, attack1BoxOffset.y);
+
+                Gizmos.color = new Color(1f, 0f, 0f, 0.5f); // 红色
+                Gizmos.DrawWireCube(boxCenter1, new Vector3(attack1BoxSize.x, attack1BoxSize.y, 0.1f));
+                Gizmos.color = new Color(1f, 0f, 0f, 0.2f);
+                Gizmos.DrawCube(boxCenter1, new Vector3(attack1BoxSize.x, attack1BoxSize.y, 0.1f));
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(boxCenter1, 0.02f);
+            }
+
+            // 绘制攻击2矩形框
+            if (shouldShowAttack2)
+            {
+                float xOffset2 = editorFacingRight ? attack2BoxOffset.x : -attack2BoxOffset.x;
+                Vector2 boxCenter2 = (Vector2)offsetCenter + new Vector2(xOffset2, attack2BoxOffset.y);
+
+                Gizmos.color = new Color(0f, 1f, 0f, 0.5f); // 绿色
+                Gizmos.DrawWireCube(boxCenter2, new Vector3(attack2BoxSize.x, attack2BoxSize.y, 0.1f));
+                Gizmos.color = new Color(0f, 1f, 0f, 0.2f);
+                Gizmos.DrawCube(boxCenter2, new Vector3(attack2BoxSize.x, attack2BoxSize.y, 0.1f));
+                Gizmos.color = Color.green;
+                Gizmos.DrawSphere(boxCenter2, 0.02f);
+            }
+
+            // 绘制攻击3矩形框
+            if (shouldShowAttack3)
+            {
+                float xOffset3 = editorFacingRight ? attack3BoxOffset.x : -attack3BoxOffset.x;
+                Vector2 boxCenter3 = (Vector2)offsetCenter + new Vector2(xOffset3, attack3BoxOffset.y);
+
+                Gizmos.color = new Color(0f, 0f, 1f, 0.5f); // 蓝色
+                Gizmos.DrawWireCube(boxCenter3, new Vector3(attack3BoxSize.x, attack3BoxSize.y, 0.1f));
+                Gizmos.color = new Color(0f, 0f, 1f, 0.2f);
+                Gizmos.DrawCube(boxCenter3, new Vector3(attack3BoxSize.x, attack3BoxSize.y, 0.1f));
+                Gizmos.color = Color.blue;
+                Gizmos.DrawSphere(boxCenter3, 0.02f);
+            }
+
+            // 绘制攻击4矩形框
+            if (shouldShowAttack4)
+            {
+                float xOffset4 = editorFacingRight ? attack4BoxOffset.x : -attack4BoxOffset.x;
+                Vector2 boxCenter4 = (Vector2)offsetCenter + new Vector2(xOffset4, attack4BoxOffset.y);
+
+                Gizmos.color = new Color(1f, 0f, 1f, 0.5f); // 紫色
+                Gizmos.DrawWireCube(boxCenter4, new Vector3(attack4BoxSize.x, attack4BoxSize.y, 0.1f));
+                Gizmos.color = new Color(1f, 0f, 1f, 0.2f);
+                Gizmos.DrawCube(boxCenter4, new Vector3(attack4BoxSize.x, attack4BoxSize.y, 0.1f));
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawSphere(boxCenter4, 0.02f);
+            }
+        }
 
         // 墙体检测点显示
         if (wallCheckLeft != null)
@@ -1740,8 +1867,8 @@ public class EnemyBossAI : MonoBehaviour
         if (wallCheckLeft != null && wallCheckRight != null)
         {
             // 绘制垂直多点检测
-            Transform currentCheck = facingRight ? wallCheckRight : wallCheckLeft;
-            Vector2 dir = facingRight ? Vector2.right : Vector2.left;
+            Transform currentCheck = editorFacingRight ? wallCheckRight : wallCheckLeft;
+            Vector2 dir = editorFacingRight ? Vector2.right : Vector2.left;
 
             Gizmos.color = Color.magenta;
             for (int i = 0; i < verticalChecks; i++)
@@ -1753,8 +1880,8 @@ public class EnemyBossAI : MonoBehaviour
         }
 
         // 朝向指示
-        Gizmos.color = facingRight ? Color.green : Color.red;
-        Vector3 directionIndicator = transform.position + (facingRight ? Vector3.right : Vector3.left) * 0.8f;
+        Gizmos.color = editorFacingRight ? Color.green : Color.red;
+        Vector3 directionIndicator = transform.position + (editorFacingRight ? Vector3.right : Vector3.left) * 0.8f;
         Gizmos.DrawWireSphere(directionIndicator, 0.2f);
 
         // 运行时显示玩家位置与连线
