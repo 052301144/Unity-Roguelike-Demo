@@ -58,7 +58,7 @@ Transform:
   m_GameObject: {fileID: 2176564681193953356}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.8, y: 6, z: 19.213835}
+  m_LocalPosition: {x: -1, y: 6, z: 19.213835}
   m_LocalScale: {x: 325, y: 452, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 8974396918213740545}
   - component: {fileID: 4282593773204766650}
   m_Layer: 7
-  m_Name: Enemy Module
+  m_Name: Enemy 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -197,8 +197,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5528563922902670059}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1862.9, y: -448.7, z: -19.213835}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 44.50305, y: -113.70648, z: -8.847186}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -229,6 +229,8 @@ MonoBehaviour:
   invincibilityDuration: 0.3
   deathProtected: 0
   protectedHealthThreshold: 0
+  maxMana: 0
+  currentMana: 0
 --- !u!50 &7682792071752029254
 Rigidbody2D:
   serializedVersion: 4
@@ -320,8 +322,14 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   attackRange: 45.68
-  attackDelay: 0.1
+  attackDelay: 1.5
   attackDamage: 10
+  attackMode: 0
+  boxOffset: {x: 1, y: 0}
+  boxSize: {x: 1.2, y: 0.8}
+  boxAngle: 0
+  flipBoxWithEnemy: 1
+  circleOffset: {x: 0, y: 0}
   detectionPoint: {fileID: 6934370966685327541}
   attackPoint: {fileID: 6934370966685327541}
   wallCheckLeft: {fileID: 6296048334117041974}
@@ -332,15 +340,28 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
+  sightCheckDistance: 10
+  sightBlockingLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  sightCheckPoint: {fileID: 6934370966685327541}
+  useAdvancedSightCheck: 1
+  drawSightGizmos: 1
   windKnockbackDuration: 0.1
   windKnockbackForce: 100000
   attackAnimationName: Attack
   walkParamName: isWalk
-  attackParamName: Attack
+  attackParamName: isAttack
   hurtParamName: isHurt
   deadParamName: isDead
   animationChild: {fileID: 6934370966685327541}
   hurtAnimationDuration: 0.3
+  useABPatrol: 0
+  patrolPointA: {fileID: 0}
+  patrolPointB: {fileID: 0}
+  reachThreshold: 0.5
+  waitTimeAtPoint: 1
+  slowingDistance: 2
   isKnockedBack: 0
 --- !u!114 &4282593773204766650
 MonoBehaviour:
