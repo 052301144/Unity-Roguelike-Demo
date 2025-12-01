@@ -1844,6 +1844,7 @@ GameObject:
   - component: {fileID: 206719895}
   - component: {fileID: 206719894}
   - component: {fileID: 206719897}
+  - component: {fileID: 206719899}
   - component: {fileID: 206719898}
   m_Layer: 5
   m_Name: UIsetting
@@ -1888,21 +1889,25 @@ MonoBehaviour:
   mainMenuButton: {fileID: 805948879}
   backFromSettingsButton: {fileID: 1403575632}
   mainMenuScene: StartMenuScene
---- !u!4 &206719896
-Transform:
+--- !u!224 &206719896
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 206719893}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 657.75, y: 331, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -115.3125}
+  m_LocalScale: {x: 1.28125, y: 1.28125, z: 1.28125}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1094881571}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 1432.6058, y: 531.17365}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &206719897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1942,6 +1947,20 @@ MonoBehaviour:
   skillO_Cooldown: {fileID: 0}
   skillL_Cooldown: {fileID: 0}
   skillSystem: {fileID: 574374879}
+--- !u!114 &206719899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 206719893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cc0a85333bbf844abd1bfbea7df20e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damagePopupPrefab: {fileID: -3258615917098675167, guid: 29a248ac920571d47b3279b18020420d, type: 3}
+  poolSize: 10
 --- !u!1 &207737961
 GameObject:
   m_ObjectHideFlags: 0
@@ -51600,6 +51619,7 @@ RectTransform:
   - {fileID: 1712380181}
   - {fileID: 1149448496}
   - {fileID: 1783063848}
+  - {fileID: 206719896}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -59238,7 +59258,6 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 1094881571}
   - {fileID: 2040601323}
-  - {fileID: 206719896}
   - {fileID: 574374876}
   - {fileID: 1885097853}
   - {fileID: 226995528}

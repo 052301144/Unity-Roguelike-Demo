@@ -16,8 +16,17 @@ EditorBuildSettings:
     path: Assets/Scenes/map_2.unity
     guid: c1f001df0230af6418520219a82e307c
   - enabled: 1
+    path: Assets/Scenes/map_3.unity
+    guid: 293fb31f893430c40b1ef561ff09f5c3
+  - enabled: 1
     path: Assets/Scenes/map_4.unity
     guid: bc624b669db9a5844b9c50598021f4f0
+  - enabled: 1
+    path: Assets/Scenes/map_5.unity
+    guid: 39ab45269afd85c4f9fc54494b1ecff0
+  - enabled: 1
+    path: Assets/Scenes/map_6.unity
+    guid: 7f03c7872e9ed2a48b999d33967a50a1
   - enabled: 1
     path: Assets/Scenes/StartMenuScene.unity
     guid: 8ab2462161c542141a6bfff63757943d

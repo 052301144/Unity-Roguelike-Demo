@@ -577,6 +577,16 @@ public class Attack : MonoBehaviour
                     Debug.Log($"元素攻击经过防御减伤，造成 {damage} 点伤害");
                 }
             }
+            // ==============================================
+            // 新增：显示伤害数字（核心代码）
+            // ==============================================
+            Vector3 popupPos = target.transform.position + new Vector3(0, 0.5f, 0); // 向上偏移，避免遮挡
+            bool isCritical = damage >= targetAttribute.MaxHealth * 0.3f; // 30%最大生命值判定暴击
+            if (DamagePopupManager.Instance != null)
+            {
+                DamagePopupManager.Instance.ShowDamagePopup(damage, popupPos, isCritical);
+            }
+            // ==============================================
         }
     }
 
