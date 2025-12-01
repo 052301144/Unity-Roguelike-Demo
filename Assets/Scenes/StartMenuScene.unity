@@ -216,7 +216,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: map_1
+          m_StringArgument: Save Scene
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &13681894
@@ -269,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dca38dce05ae574bbf2093fd2b27239, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultSceneName: map_1
+  defaultSceneName: Save Scene
 --- !u!114 &13681898
 MonoBehaviour:
   m_ObjectHideFlags: 0
