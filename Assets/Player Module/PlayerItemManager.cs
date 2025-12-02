@@ -14,6 +14,7 @@ public class PlayerItemManager : MonoBehaviour
     [SerializeField] private bool logItemEvents = true;
     [Header("Defaults")]
     [SerializeField] private WeaponItem defaultWeapon; // 开局自动装备的默认武器
+    [SerializeField] private EquipmentItem defaultEquipment; // 开局自动装备的默认装备（Armor 槽）
     [Header("Item Lookup")]
     [Tooltip("可选：在此填入所有可用 ItemBase 资产，便于存档/读档按 itemId 解析。")]
     [SerializeField] private List<ItemBase> itemDatabase = new List<ItemBase>();
@@ -82,6 +83,9 @@ public class PlayerItemManager : MonoBehaviour
         {
             AddStarterItems();
         }
+
+        // 自动装备默认装备（Armor 槽）
+        TryEquipDefaultEquipment();
     }
 
     void OnDestroy()
@@ -236,15 +240,16 @@ public class PlayerItemManager : MonoBehaviour
             return true;
         }
 
+        // 先从背包移除当前要装备的堆（如果存在）
+        RemoveItem(weapon, weapon.stackCount);
+
+        // 处理旧武器放回背包
         if (currentWeapon != null)
         {
             AddItem(currentWeapon);
         }
 
         currentWeapon = weapon;
-
-        // 从背包移除当前要装备的堆（如果存在）
-        RemoveItem(weapon, weapon.stackCount);
         OnItemsUpdated();
 
         OnWeaponEquipped?.Invoke(weapon);
@@ -268,15 +273,16 @@ public class PlayerItemManager : MonoBehaviour
             return true;
         }
 
+        // 先从背包移除当前要装备的堆（如果存在）
+        RemoveItem(equipment, equipment.stackCount);
+
+        // 处理旧装备放回背包
         if (equippedItems.ContainsKey(slot) && equippedItems[slot] != null)
         {
             AddItem(equippedItems[slot]);
         }
 
         equippedItems[slot] = equipment;
-
-        // 从背包移除当前要装备的堆（如果存在）
-        RemoveItem(equipment, equipment.stackCount);
         OnItemsUpdated();
 
         OnEquipmentEquipped?.Invoke(equipment);
@@ -320,6 +326,16 @@ public class PlayerItemManager : MonoBehaviour
 
         var itemData = new ItemData(defaultWeapon);
         EquipWeapon(itemData);
+    }
+
+    private void TryEquipDefaultEquipment()
+    {
+        if (defaultEquipment == null) return;
+        // 仅当目标槽位为空时装备
+        if (GetEquippedItem(EquipmentSlot.Armor) != null) return;
+
+        var itemData = new ItemData(defaultEquipment);
+        EquipItem(itemData, EquipmentSlot.Armor);
     }
 
     /// <summary>

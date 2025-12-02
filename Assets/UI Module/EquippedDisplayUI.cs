@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 /// <summary>
 /// 显示当前装备的武器和装备图标（从 PlayerItemManager 读取）。
@@ -10,17 +11,25 @@ public class EquippedDisplayUI : MonoBehaviour
     [SerializeField] private Image weaponImage;
     [SerializeField] private Image equipmentImage;
     [SerializeField] private EquipmentSlot equipmentSlot = EquipmentSlot.Armor; // 选择显示哪个装备槽
+    [SerializeField] private bool autoFallbackEquipment = true; // 如果指定槽为空，自动找其他槽位的装备
+
+    // 缓存委托，避免 OnDisable 时无法正确移除
+    private System.Action<IReadOnlyList<ItemData>> inventoryChangedHandler;
 
     private void OnEnable()
     {
         if (playerItemManager == null)
             playerItemManager = FindObjectOfType<PlayerItemManager>();
 
+        AutoFindImagesIfMissing();
+
+        // 绑定事件
+        inventoryChangedHandler = _ => RefreshAll();
         if (playerItemManager != null)
         {
             playerItemManager.OnWeaponEquipped += OnWeaponChanged;
             playerItemManager.OnEquipmentEquipped += OnEquipmentChanged;
-            playerItemManager.OnInventoryChanged += _ => RefreshAll();
+            playerItemManager.OnInventoryChanged += inventoryChangedHandler;
         }
 
         RefreshAll();
@@ -32,7 +41,8 @@ public class EquippedDisplayUI : MonoBehaviour
         {
             playerItemManager.OnWeaponEquipped -= OnWeaponChanged;
             playerItemManager.OnEquipmentEquipped -= OnEquipmentChanged;
-            playerItemManager.OnInventoryChanged -= _ => RefreshAll();
+            if (inventoryChangedHandler != null)
+                playerItemManager.OnInventoryChanged -= inventoryChangedHandler;
         }
     }
 
@@ -56,6 +66,18 @@ public class EquippedDisplayUI : MonoBehaviour
     {
         if (equipmentImage == null || playerItemManager == null) return;
         var equip = playerItemManager.GetEquippedItem(equipmentSlot);
+
+        // 如果指定槽为空且允许兜底，尝试找其他槽位
+        if (equip == null && autoFallbackEquipment)
+        {
+            foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
+            {
+                if (slot == equipmentSlot) continue;
+                equip = playerItemManager.GetEquippedItem(slot);
+                if (equip != null) break;
+            }
+        }
+
         SetImage(equipmentImage, equip);
     }
 
@@ -71,6 +93,24 @@ public class EquippedDisplayUI : MonoBehaviour
         {
             img.sprite = null;
             img.enabled = false;
+        }
+    }
+
+    private void AutoFindImagesIfMissing()
+    {
+        if (weaponImage == null)
+        {
+            var t = transform.Find("weapon") ?? transform.Find("Weapon");
+            if (t == null && transform.root != null)
+                t = transform.root.Find("Canvas/RoleMenu/Left/weapon") ?? transform.root.Find("Canvas/RoleMenu/Left/Weapon");
+            if (t != null) weaponImage = t.GetComponent<Image>();
+        }
+        if (equipmentImage == null)
+        {
+            var t = transform.Find("equipment") ?? transform.Find("Equipment");
+            if (t == null && transform.root != null)
+                t = transform.root.Find("Canvas/RoleMenu/Left/equipment") ?? transform.root.Find("Canvas/RoleMenu/Left/Equipment");
+            if (t != null) equipmentImage = t.GetComponent<Image>();
         }
     }
 }
