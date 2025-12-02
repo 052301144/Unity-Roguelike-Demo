@@ -1998,6 +1998,7 @@ GameObject:
   - component: {fileID: 186196474}
   - component: {fileID: 186196476}
   - component: {fileID: 186196475}
+  - component: {fileID: 186196477}
   m_Layer: 5
   m_Name: Left
   m_TagString: Untagged
@@ -2067,6 +2068,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 186196473}
   m_CullTransparentMesh: 1
+--- !u!114 &186196477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186196473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2aee3864f1a03fc42b8fa89b508ec47e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerItemManager: {fileID: 574374882}
+  weaponImage: {fileID: 2144810931}
+  equipmentImage: {fileID: 781154478}
+  equipmentSlot: 1
 --- !u!1 &198586676
 GameObject:
   m_ObjectHideFlags: 0
