@@ -66,7 +66,8 @@ public class InventorySlotButton : MonoBehaviour
         {
             // 先扣 1，再用新的实例装备，避免移除整堆
             pim.RemoveItem(item, 1);
-            pim.EquipWeapon(new ItemData(item.itemAsset));
+            var newItem = new ItemData(item.itemAsset) { enhancementLevel = item.enhancementLevel };
+            pim.EquipWeapon(newItem);
         }
         else
         {
@@ -79,7 +80,8 @@ public class InventorySlotButton : MonoBehaviour
         if (item.stackCount > 1)
         {
             pim.RemoveItem(item, 1);
-            pim.EquipItem(new ItemData(item.itemAsset), equipSlotForArmor);
+            var newItem = new ItemData(item.itemAsset) { enhancementLevel = item.enhancementLevel };
+            pim.EquipItem(newItem, equipSlotForArmor);
         }
         else
         {

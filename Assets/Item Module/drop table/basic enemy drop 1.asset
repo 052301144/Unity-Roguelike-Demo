@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e22dd1a36dcb79499524605eb1068fc, type: 3}
+  m_Name: basic enemy drop 1
+  m_EditorClassIdentifier: 
+  enemyName: 
+  minTotalDrops: 1
+  maxTotalDrops: 3
+  possibleDrops:
+  - itemName: icon sword
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: ee379373041b2de45af81740f822d878, type: 2}
+    dropChance: 0.2
+    minQuantity: 1
+    maxQuantity: 1
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 3
+  - itemName: steel sword
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: c0b5a074a56922f49923b4c2f628414c, type: 2}
+    dropChance: 0.15
+    minQuantity: 1
+    maxQuantity: 1
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 3
+  - itemName: elven short sword
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: db3b8e73a5506aa43b08c5f04a574d1f, type: 2}
+    dropChance: 0.12
+    minQuantity: 1
+    maxQuantity: 1
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 3
+  - itemName: Equipment_basic
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: e04946e7ad8804a49a9fa0c7c9befd19, type: 2}
+    dropChance: 0.18
+    minQuantity: 1
+    maxQuantity: 1
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 4
+  - itemName: Equipment_1
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: b6e6d5ad6c0d1e545bbb9cfe382fc558, type: 2}
+    dropChance: 0.12
+    minQuantity: 1
+    maxQuantity: 1
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 4
+  - itemName: weapon material
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: 56708b50027ca6841bdb988f1b0d0dc9, type: 2}
+    dropChance: 0.6
+    minQuantity: 1
+    maxQuantity: 3
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 5
+  - itemName: equipment material
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: 4930b9d1e1e54a1469eeadc571726e28, type: 2}
+    dropChance: 0.5
+    minQuantity: 1
+    maxQuantity: 2
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 5
+  alwaysDropCoin: 0
+  minCoins: 1
+  maxCoins: 2
+  coinDropChance: 0.5
