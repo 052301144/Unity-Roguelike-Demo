@@ -17,6 +17,9 @@ public class PlayerItemManager : MonoBehaviour
     [Header("Item Lookup")]
     [Tooltip("可选：在此填入所有可用 ItemBase 资产，便于存档/读档按 itemId 解析。")]
     [SerializeField] private List<ItemBase> itemDatabase = new List<ItemBase>();
+    [Header("Debug/Starter Items")]
+    [SerializeField] private bool addStarterItemsOnStart = false;
+    [SerializeField] private List<StarterItem> starterItems = new List<StarterItem>();
 
     // Storage
     private List<ItemData> inventory = new List<ItemData>(); // 按堆栈存储
@@ -73,6 +76,12 @@ public class PlayerItemManager : MonoBehaviour
 
         // 自动装备默认武器（如果有配置）
         TryEquipDefaultWeapon();
+
+        // 可选：添加起始物品用于测试背包
+        if (addStarterItemsOnStart)
+        {
+            AddStarterItems();
+        }
     }
 
     void OnDestroy()
@@ -221,6 +230,12 @@ public class PlayerItemManager : MonoBehaviour
             return false;
         }
 
+        // 已经装备同一实例则直接返回
+        if (currentWeapon == weapon)
+        {
+            return true;
+        }
+
         if (currentWeapon != null)
         {
             AddItem(currentWeapon);
@@ -228,10 +243,9 @@ public class PlayerItemManager : MonoBehaviour
 
         currentWeapon = weapon;
 
-        if (inventory.Contains(weapon))
-        {
-            inventory.Remove(weapon);
-        }
+        // 从背包移除当前要装备的堆（如果存在）
+        RemoveItem(weapon, weapon.stackCount);
+        OnItemsUpdated();
 
         OnWeaponEquipped?.Invoke(weapon);
         if (logItemEvents) Debug.Log($"[PlayerItemManager] 装备武器: {weapon.itemName}");
@@ -248,6 +262,12 @@ public class PlayerItemManager : MonoBehaviour
             return false;
         }
 
+        // 已经装备同一实例则直接返回
+        if (equippedItems.ContainsKey(slot) && equippedItems[slot] == equipment)
+        {
+            return true;
+        }
+
         if (equippedItems.ContainsKey(slot) && equippedItems[slot] != null)
         {
             AddItem(equippedItems[slot]);
@@ -255,10 +275,9 @@ public class PlayerItemManager : MonoBehaviour
 
         equippedItems[slot] = equipment;
 
-        if (inventory.Contains(equipment))
-        {
-            inventory.Remove(equipment);
-        }
+        // 从背包移除当前要装备的堆（如果存在）
+        RemoveItem(equipment, equipment.stackCount);
+        OnItemsUpdated();
 
         OnEquipmentEquipped?.Invoke(equipment);
         if (logItemEvents) Debug.Log($"[PlayerItemManager] 装备: {equipment.itemName} 到 {slot}");
@@ -444,6 +463,24 @@ public class PlayerItemManager : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// 直接用 ItemBase 添加物品（便于测试/起始物品）。
+    /// </summary>
+    public bool AddItem(ItemBase itemBase, int amount = 1)
+    {
+        if (itemBase == null || amount <= 0) return false;
+        return AddItem(new ItemData(itemBase), amount);
+    }
+
+    private void AddStarterItems()
+    {
+        foreach (var s in starterItems)
+        {
+            if (s.item == null || s.count <= 0) continue;
+            AddItem(s.item, s.count);
+        }
+    }
+
     private void BuildLookup()
     {
         itemLookup.Clear();
@@ -564,4 +601,11 @@ public enum EquipmentSlot
     Weapon,
     Armor,
     Accessory
+}
+
+[System.Serializable]
+public struct StarterItem
+{
+    public ItemBase item;
+    public int count;
 }
