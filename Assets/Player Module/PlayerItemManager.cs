@@ -3,44 +3,58 @@ using System.Collections.ObjectModel;
 using UnityEngine;
 
 /// <summary>
-/// 玩家物品管理器 - 管理玩家的装备、武器、消耗品等物品
-/// 负责接收物品拾取事件并管理玩家的物品库存
+/// Player item manager: handles inventory, equip/unequip, stacking, and item events.
 /// </summary>
 public class PlayerItemManager : MonoBehaviour
 {
-    [Header("物品管理设置")]
-    [SerializeField] private int maxInventorySlots = 30; // 最大背包格子数
+    [Header("Inventory Settings")]
+    [SerializeField] private int maxInventorySlots = 30;
     
-    [Header("调试设置")]
-    [SerializeField] private bool logItemEvents = true; // 是否在控制台输出物品事件
+    [Header("Debug")]
+    [SerializeField] private bool logItemEvents = true;
+    [Header("Defaults")]
+    [SerializeField] private WeaponItem defaultWeapon; // 开局自动装备的默认武器
+    [Header("Item Lookup")]
+    [Tooltip("可选：在此填入所有可用 ItemBase 资产，便于存档/读档按 itemId 解析。")]
+    [SerializeField] private List<ItemBase> itemDatabase = new List<ItemBase>();
 
-    // 物品存储
-    private List<ItemData> inventory = new List<ItemData>(); // 背包物品列表
-    private ItemData currentWeapon; // 当前装备的武器
-    private Dictionary<EquipmentSlot, ItemData> equippedItems = new Dictionary<EquipmentSlot, ItemData>(); // 已装备的物品
+    // Storage
+    private List<ItemData> inventory = new List<ItemData>(); // 按堆栈存储
+    private ItemData currentWeapon;
+    private Dictionary<EquipmentSlot, ItemData> equippedItems = new Dictionary<EquipmentSlot, ItemData>();
+    private Attribute playerAttribute;
+    private int baseMaxHealth;
+    private int baseDefense;
+    private Dictionary<string, ItemBase> itemLookup = new Dictionary<string, ItemBase>();
 
-    // 公共属性
-    public int InventoryCount => inventory.Count;
+    // Accessors
+    public int InventoryCount => inventory.Count; // 当前占用的格子数（堆栈数量）
     public int MaxInventorySlots => maxInventorySlots;
     public bool IsInventoryFull => inventory.Count >= maxInventorySlots;
     public ItemData CurrentWeapon => currentWeapon;
     
-    // 事件系统
-    public System.Action<ItemData> OnItemAdded;           // 物品添加事件
-    public System.Action<ItemData> OnItemRemoved;        // 物品移除事件
-    public System.Action<ItemData> OnWeaponEquipped;      // 武器装备事件
-    public System.Action<ItemData> OnEquipmentEquipped;  // 装备穿戴事件
-    public System.Action<ItemData> OnItemUsed;           // 物品使用事件
+    // Events
+    public System.Action<ItemData> OnItemAdded;
+    public System.Action<ItemData> OnItemRemoved;
+    public System.Action<ItemData> OnWeaponEquipped;
+    public System.Action<ItemData> OnEquipmentEquipped;
+    public System.Action<ItemData> OnItemUsed;
+    public System.Action<IReadOnlyList<ItemData>> OnInventoryChanged;
 
     void Awake()
     {
-        // 初始化装备槽位
+        playerAttribute = GetComponent<Attribute>();
+        if (playerAttribute != null)
+        {
+            baseMaxHealth = playerAttribute.MaxHealth;
+            baseDefense = playerAttribute.Defense;
+        }
+        BuildLookup();
         InitializeEquipmentSlots();
     }
 
     void Start()
     {
-        // 订阅掉落系统的事件
         if (DropManager.Instance != null)
         {
             DropManager.Instance.OnWeaponPickedUp += HandleWeaponPickedUp;
@@ -49,18 +63,20 @@ public class PlayerItemManager : MonoBehaviour
             
             if (logItemEvents)
             {
-                Debug.Log("[PlayerItemManager] 已订阅掉落系统的物品拾取事件");
+                Debug.Log("[PlayerItemManager] 已订阅拾取事件");
             }
         }
         else
         {
-            Debug.LogWarning("[PlayerItemManager] DropManager未找到，无法订阅物品拾取事件");
+            Debug.LogWarning("[PlayerItemManager] DropManager未找到，无法订阅拾取事件");
         }
+
+        // 自动装备默认武器（如果有配置）
+        TryEquipDefaultWeapon();
     }
 
     void OnDestroy()
     {
-        // 取消订阅事件
         if (DropManager.Instance != null)
         {
             DropManager.Instance.OnWeaponPickedUp -= HandleWeaponPickedUp;
@@ -69,46 +85,21 @@ public class PlayerItemManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 处理武器拾取
-    /// </summary>
     private void HandleWeaponPickedUp(ItemData weapon)
     {
-        if (AddItem(weapon))
-        {
-            // 可以选择自动装备新武器，或提示玩家
-            // EquipWeapon(weapon); // 自动装备
-            Debug.Log($"[PlayerItemManager] 武器已添加到背包: {weapon.itemName}");
-        }
+        AddItem(weapon);
     }
 
-    /// <summary>
-    /// 处理装备拾取
-    /// </summary>
     private void HandleEquipmentPickedUp(ItemData equipment)
     {
-        if (AddItem(equipment))
-        {
-            Debug.Log($"[PlayerItemManager] 装备已添加到背包: {equipment.itemName}");
-        }
+        AddItem(equipment);
     }
 
-    /// <summary>
-    /// 处理消耗品拾取
-    /// </summary>
     private void HandleConsumablePickedUp(ItemData consumable)
     {
-        // 消耗品可以选择立即使用或添加到背包
-        // 这里默认添加到背包，玩家可以选择何时使用
-        if (AddItem(consumable))
-        {
-            Debug.Log($"[PlayerItemManager] 消耗品已添加到背包: {consumable.itemName}");
-        }
+        AddItem(consumable);
     }
 
-    /// <summary>
-    /// 初始化装备槽位
-    /// </summary>
     private void InitializeEquipmentSlots()
     {
         equippedItems.Clear();
@@ -118,201 +109,354 @@ public class PlayerItemManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 添加物品到背包
+    /// 添加物品，支持堆叠，不足上限时分堆新建。
     /// </summary>
-    /// <param name="item">要添加的物品数据</param>
-    /// <returns>是否成功添加</returns>
-    public bool AddItem(ItemData item)
+    public bool AddItem(ItemData item, int amount = 1)
     {
-        if (item == null)
+        if (item == null || amount <= 0)
         {
-            if (logItemEvents)
-            {
-                Debug.LogWarning("[PlayerItemManager] 尝试添加null物品");
-            }
+            if (logItemEvents) Debug.LogWarning("[PlayerItemManager] 试图添加空物品或数量<=0");
             return false;
         }
 
-        if (IsInventoryFull)
+        int remaining = amount;
+        int maxStack = GetMaxStackSize(item);
+
+        // 先堆叠到已有堆
+        if (maxStack > 1)
         {
-            if (logItemEvents)
+            foreach (var stack in inventory)
             {
-                Debug.LogWarning($"[PlayerItemManager] 背包已满，无法添加物品: {item.itemName}");
+                if (stack.itemId == item.itemId && stack.itemAsset == item.itemAsset)
+                {
+                    int space = maxStack - stack.stackCount;
+                    if (space <= 0) continue;
+                    int add = Mathf.Min(space, remaining);
+                    stack.stackCount += add;
+                    remaining -= add;
+                    if (remaining <= 0)
+                    {
+                        if (logItemEvents) Debug.Log($"[PlayerItemManager] 堆叠物品 {item.itemName} +{amount}");
+                        return true;
+                    }
+                }
             }
-            return false;
         }
 
-        inventory.Add(item);
-        OnItemAdded?.Invoke(item);
-        
-        if (logItemEvents)
+        // 需要新建堆
+        while (remaining > 0)
         {
-            Debug.Log($"[PlayerItemManager] 添加物品: {item.itemName}，当前背包: {inventory.Count}/{maxInventorySlots}");
+            if (IsInventoryFull)
+            {
+                if (logItemEvents) Debug.LogWarning($"[PlayerItemManager] 背包已满，剩余未添加: {remaining}");
+                return false;
+            }
+
+            int addCount = Mathf.Min(remaining, maxStack);
+            ItemData newStack = new ItemData(item)
+            {
+                stackCount = addCount
+            };
+            inventory.Add(newStack);
+            OnItemAdded?.Invoke(newStack);
+            if (logItemEvents) Debug.Log($"[PlayerItemManager] 新增堆: {item.itemName} x{addCount} (max {maxStack})");
+            remaining -= addCount;
         }
-        
+
+        OnItemsUpdated();
         return true;
     }
 
     /// <summary>
-    /// 移除物品
+    /// 移除指定堆栈数量，可能拆分多个堆。返回是否移除成功（数量足够）。
     /// </summary>
-    /// <param name="item">要移除的物品</param>
-    /// <returns>是否成功移除</returns>
-    public bool RemoveItem(ItemData item)
+    public bool RemoveItem(ItemData item, int amount = 1)
     {
-        if (item == null || !inventory.Contains(item))
+        if (item == null || amount <= 0) return false;
+        return RemoveItemById(item.itemId, item.itemAsset, amount);
+    }
+
+    public bool RemoveItem(string itemId, int amount = 1)
+    {
+        if (string.IsNullOrEmpty(itemId) || amount <= 0) return false;
+        return RemoveItemById(itemId, null, amount);
+    }
+
+    private bool RemoveItemById(string itemId, ItemBase asset, int amount)
+    {
+        int remaining = amount;
+        // 从后往前遍历，便于删除
+        for (int i = inventory.Count - 1; i >= 0 && remaining > 0; i--)
         {
+            var stack = inventory[i];
+            if (stack.itemId != itemId) continue;
+            if (asset != null && stack.itemAsset != asset) continue;
+
+            int take = Mathf.Min(stack.stackCount, remaining);
+            stack.stackCount -= take;
+            remaining -= take;
+
+            if (stack.stackCount <= 0)
+            {
+                inventory.RemoveAt(i);
+                OnItemRemoved?.Invoke(stack);
+            }
+        }
+
+        if (remaining > 0)
+        {
+            if (logItemEvents) Debug.LogWarning($"[PlayerItemManager] 物品不足，未能移除 {amount} 个 {itemId}");
             return false;
         }
 
-        inventory.Remove(item);
-        OnItemRemoved?.Invoke(item);
-        
-        if (logItemEvents)
-        {
-            Debug.Log($"[PlayerItemManager] 移除物品: {item.itemName}");
-        }
-        
+        OnItemsUpdated();
         return true;
     }
 
-    /// <summary>
-    /// 装备武器
-    /// </summary>
-    /// <param name="weapon">要装备的武器</param>
-    /// <returns>是否成功装备</returns>
     public bool EquipWeapon(ItemData weapon)
     {
         if (weapon == null || weapon.itemType != DropItemType.Weapon)
         {
-            if (logItemEvents)
-            {
-                Debug.LogWarning("[PlayerItemManager] 尝试装备非武器物品或null物品");
-            }
+            if (logItemEvents) Debug.LogWarning("[PlayerItemManager] 装备失败：物品为空或不是武器");
             return false;
         }
 
-        // 如果已有武器，先卸下
         if (currentWeapon != null)
         {
-            AddItem(currentWeapon); // 将旧武器放回背包
+            AddItem(currentWeapon);
         }
 
         currentWeapon = weapon;
-        
-        // 如果武器在背包中，从背包移除
+
         if (inventory.Contains(weapon))
         {
             inventory.Remove(weapon);
         }
 
         OnWeaponEquipped?.Invoke(weapon);
-        
-        if (logItemEvents)
-        {
-            Debug.Log($"[PlayerItemManager] 装备武器: {weapon.itemName}");
-        }
-        
+        if (logItemEvents) Debug.Log($"[PlayerItemManager] 装备武器: {weapon.itemName}");
+
+        ApplyWeaponAttack(weapon);
         return true;
     }
 
-    /// <summary>
-    /// 装备防具或饰品
-    /// </summary>
-    /// <param name="equipment">要装备的物品</param>
-    /// <param name="slot">装备槽位</param>
-    /// <returns>是否成功装备</returns>
     public bool EquipItem(ItemData equipment, EquipmentSlot slot)
     {
         if (equipment == null || equipment.itemType != DropItemType.Equipment)
         {
-            if (logItemEvents)
-            {
-                Debug.LogWarning("[PlayerItemManager] 尝试装备非装备物品或null物品");
-            }
+            if (logItemEvents) Debug.LogWarning("[PlayerItemManager] 装备失败：物品为空或不是装备");
             return false;
         }
 
-        // 如果该槽位已有装备，先卸下
         if (equippedItems.ContainsKey(slot) && equippedItems[slot] != null)
         {
-            AddItem(equippedItems[slot]); // 将旧装备放回背包
+            AddItem(equippedItems[slot]);
         }
 
         equippedItems[slot] = equipment;
-        
-        // 如果装备在背包中，从背包移除
+
         if (inventory.Contains(equipment))
         {
             inventory.Remove(equipment);
         }
 
         OnEquipmentEquipped?.Invoke(equipment);
-        
-        if (logItemEvents)
-        {
-            Debug.Log($"[PlayerItemManager] 装备物品: {equipment.itemName} 到 {slot}");
-        }
-        
+        if (logItemEvents) Debug.Log($"[PlayerItemManager] 装备: {equipment.itemName} 到 {slot}");
+
+        RecalculateEquipmentStats();
         return true;
     }
 
-    /// <summary>
-    /// 使用消耗品
-    /// </summary>
-    /// <param name="consumable">要使用的消耗品</param>
-    /// <returns>是否成功使用</returns>
     public bool UseConsumable(ItemData consumable)
     {
-        if (consumable == null)
-        {
-            return false;
-        }
+        if (consumable == null) return false;
 
-        // 检查是否是消耗品类型
-        if (consumable.itemType != DropItemType.Health && 
-            consumable.itemType != DropItemType.Mana && 
+        if (consumable.itemType != DropItemType.Health &&
+            consumable.itemType != DropItemType.Mana &&
             consumable.itemType != DropItemType.Consumable)
         {
-            if (logItemEvents)
-            {
-                Debug.LogWarning($"[PlayerItemManager] 尝试使用非消耗品: {consumable.itemName}");
-            }
+            if (logItemEvents) Debug.LogWarning($"[PlayerItemManager] 不能使用此类物品: {consumable.itemName}");
             return false;
         }
 
-        // 应用消耗品效果（这里应该调用具体的物品效果逻辑）
         ApplyConsumableEffect(consumable);
-        
-        // 从背包移除（消耗品使用后消失）
-        if (inventory.Contains(consumable))
-        {
-            inventory.Remove(consumable);
-        }
+
+        // 消耗一个单位
+        RemoveItem(consumable, 1);
 
         OnItemUsed?.Invoke(consumable);
-        
-        if (logItemEvents)
-        {
-            Debug.Log($"[PlayerItemManager] 使用消耗品: {consumable.itemName}");
-        }
-        
+        if (logItemEvents) Debug.Log($"[PlayerItemManager] 使用物品: {consumable.itemName}");
         return true;
     }
 
-    /// <summary>
-    /// 应用消耗品效果
-    /// </summary>
     private void ApplyConsumableEffect(ItemData consumable)
     {
-        // 这里应该根据消耗品类型应用不同的效果
-        // 例如恢复生命值、魔法值等
-        // 可以通过事件系统通知其他系统（如 Attribute 组件）
+        // TODO: apply effects per item definition
+    }
+
+    private void TryEquipDefaultWeapon()
+    {
+        if (currentWeapon != null) return;
+        if (defaultWeapon == null) return;
+
+        var itemData = new ItemData(defaultWeapon);
+        EquipWeapon(itemData);
     }
 
     /// <summary>
-    /// 获取指定槽位的装备
+    /// 清空背包（不影响已装备的物品）。
     /// </summary>
+    public void ResetInventory()
+    {
+        inventory.Clear();
+        OnItemsUpdated();
+    }
+
+    /// <summary>
+    /// 获取用于存档的堆栈数据列表。
+    /// </summary>
+    public List<ItemStackData> GetInventoryStacksForSave()
+    {
+        var list = new List<ItemStackData>();
+        foreach (var stack in inventory)
+        {
+            if (stack == null || string.IsNullOrEmpty(stack.itemId) || stack.stackCount <= 0) continue;
+            list.Add(new ItemStackData
+            {
+                itemId = stack.itemId,
+                count = stack.stackCount,
+                enhancementLevel = 0,
+                durability = 0
+            });
+        }
+        return list;
+    }
+
+    /// <summary>
+    /// 按存档数据恢复背包（不自动装备）。
+    /// </summary>
+    public void LoadInventoryFromSave(List<ItemStackData> stacks)
+    {
+        ResetInventory();
+        if (stacks == null) return;
+        foreach (var s in stacks)
+        {
+            if (string.IsNullOrEmpty(s.itemId) || s.count <= 0) continue;
+            AddItemById(s.itemId, s.count);
+        }
+    }
+
+    private void ApplyWeaponAttack(ItemData weapon)
+    {
+        if (playerAttribute == null)
+        {
+            if (logItemEvents) Debug.LogWarning("[PlayerItemManager] 未找到 Attribute，无法更新攻击力");
+            return;
+        }
+
+        if (weapon == null || weapon.itemAsset == null)
+        {
+            if (logItemEvents) Debug.LogWarning("[PlayerItemManager] 武器或其资产为空，无法更新攻击力");
+            return;
+        }
+
+        if (weapon.itemAsset is WeaponItem weaponAsset)
+        {
+            int attackValue = weaponAsset.GetFinalAttack();
+            playerAttribute.SetAttack(attackValue);
+            if (logItemEvents) Debug.Log($"[PlayerItemManager] 攻击力已设为武器 baseAttack: {attackValue}");
+        }
+        else if (logItemEvents)
+        {
+            Debug.LogWarning("[PlayerItemManager] itemAsset 不是 WeaponItem，无法更新攻击力");
+        }
+    }
+
+    /// <summary>
+    /// 按已装备的装备重算防御和最大生命（生命加成作用于最大生命值）。
+    /// </summary>
+    private void RecalculateEquipmentStats()
+    {
+        if (playerAttribute == null) return;
+
+        int defenseBonus = 0;
+        int maxHealthBonus = 0;
+
+        foreach (var kv in equippedItems)
+        {
+            var item = kv.Value;
+            if (item == null || item.itemAsset == null) continue;
+
+            if (item.itemAsset is EquipmentItem equipAsset)
+            {
+                defenseBonus += equipAsset.GetFinalDefense();
+                maxHealthBonus += equipAsset.GetFinalMaxHealthBonus();
+            }
+        }
+
+        playerAttribute.SetDefense(baseDefense + defenseBonus);
+        playerAttribute.SetMaxHealth(baseMaxHealth + maxHealthBonus, fillHealth: false);
+
+        if (logItemEvents)
+        {
+            Debug.Log($"[PlayerItemManager] 重算装备属性 -> 防御: {baseDefense}+{defenseBonus}, 最大生命: {baseMaxHealth}+{maxHealthBonus}");
+        }
+    }
+
+    private int GetMaxStackSize(ItemData item)
+    {
+        if (item != null && item.itemAsset != null)
+        {
+            return item.itemAsset.MaxStackSize;
+        }
+        return 1;
+    }
+
+    /// <summary>
+    /// 通过 itemId 添加物品，使用 itemLookup 解析资产；若未找到资产，将以纯 id 方式添加。
+    /// </summary>
+    public bool AddItemById(string itemId, int amount)
+    {
+        if (string.IsNullOrEmpty(itemId) || amount <= 0) return false;
+        ItemBase asset = ResolveItem(itemId);
+        ItemData temp = asset != null ? new ItemData(asset) : new ItemData
+        {
+            itemId = itemId,
+            itemName = itemId,
+            itemType = DropItemType.Consumable,
+            itemIcon = null,
+            description = "",
+            itemAsset = null,
+            value = 0,
+            customProperties = new Dictionary<string, float>(),
+            stackCount = 1
+        };
+        return AddItem(temp, amount);
+    }
+
+    private ItemBase ResolveItem(string itemId)
+    {
+        if (string.IsNullOrEmpty(itemId)) return null;
+        if (itemLookup != null && itemLookup.TryGetValue(itemId, out var found))
+        {
+            return found;
+        }
+        return null;
+    }
+
+    private void BuildLookup()
+    {
+        itemLookup.Clear();
+        foreach (var item in itemDatabase)
+        {
+            if (item == null || string.IsNullOrEmpty(item.ItemId)) continue;
+            if (!itemLookup.ContainsKey(item.ItemId))
+            {
+                itemLookup.Add(item.ItemId, item);
+            }
+        }
+    }
+
     public ItemData GetEquippedItem(EquipmentSlot slot)
     {
         if (equippedItems.ContainsKey(slot))
@@ -322,38 +466,43 @@ public class PlayerItemManager : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// 检查背包中是否有指定物品
-    /// </summary>
     public bool HasItem(ItemData item)
     {
         return inventory.Contains(item);
     }
 
-    /// <summary>
-    /// 获取所有背包物品（只读）
-    /// </summary>
     public IReadOnlyList<ItemData> GetInventoryItems()
     {
         return new ReadOnlyCollection<ItemData>(inventory);
     }
+
+    private void OnItemsUpdated()
+    {
+        OnInventoryChanged?.Invoke(new ReadOnlyCollection<ItemData>(inventory));
+    }
 }
 
 /// <summary>
-/// 物品数据类 - 用于在库存中存储物品信息
+/// 物品数据（存储在背包中的实例，支持堆叠）。
 /// </summary>
 [System.Serializable]
 public class ItemData
 {
     public string itemId;
-    public string itemName;           // 物品名称
-    public DropItemType itemType;     // 物品类型
-    public Sprite itemIcon;            // 物品图标
-    public string description;         // 物品描述
+    public string itemName;
+    public DropItemType itemType;
+    public Sprite itemIcon;
+    public string description;
+    public ItemBase itemAsset;
     
-    // 物品属性（根据类型不同，这些字段的含义也不同）
-    public int value;                 // 物品数值（武器：攻击力，防具：防御力等）
-    public Dictionary<string, float> customProperties; // 自定义属性
+    public int value;
+    public Dictionary<string, float> customProperties;
+    public int stackCount = 1;
+
+    public ItemData()
+    {
+        customProperties = new Dictionary<string, float>();
+    }
     
     public ItemData(DropItem dropItem)
     {
@@ -366,6 +515,8 @@ public class ItemData
             description = "";
             value = 0;
             customProperties = new Dictionary<string, float>();
+            itemAsset = dropItem.itemAsset;
+            stackCount = 1;
         }
     }
 
@@ -386,16 +537,31 @@ public class ItemData
             description = itemBase.Description;
             value = 0;
             customProperties = new Dictionary<string, float>();
+            itemAsset = itemBase;
+            stackCount = 1;
+        }
+    }
+
+    public ItemData(ItemData other)
+    {
+        if (other != null)
+        {
+            itemId = other.itemId;
+            itemName = other.itemName;
+            itemType = other.itemType;
+            itemIcon = other.itemIcon;
+            description = other.description;
+            itemAsset = other.itemAsset;
+            value = other.value;
+            customProperties = new Dictionary<string, float>(other.customProperties ?? new Dictionary<string, float>());
+            stackCount = other.stackCount;
         }
     }
 }
 
-/// <summary>
-/// 装备槽位枚举
-/// </summary>
 public enum EquipmentSlot
 {
-    Weapon,      // 武器槽
-    Armor,       // 防具槽
-    Accessory    // 饰品槽
+    Weapon,
+    Armor,
+    Accessory
 }

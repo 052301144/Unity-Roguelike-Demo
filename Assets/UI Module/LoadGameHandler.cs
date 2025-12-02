@@ -11,6 +11,7 @@ public class LoadGameHandler : MonoBehaviour
     [SerializeField] private PlayerController player;
     [SerializeField] private Attribute playerAttribute;
     [SerializeField] private InventoryManager inventory;
+    [SerializeField] private PlayerItemManager playerItemManager;
 
     [Header("Options")]
     [SerializeField] private bool loadOnStart = false;
@@ -111,6 +112,11 @@ public class LoadGameHandler : MonoBehaviour
         {
             inventory = InventoryManager.Instance ?? FindObjectOfType<InventoryManager>();
         }
+
+        if (playerItemManager == null)
+        {
+            playerItemManager = FindObjectOfType<PlayerItemManager>();
+        }
     }
 
     private bool HasEssentialReferences()
@@ -196,25 +202,31 @@ public class LoadGameHandler : MonoBehaviour
 
     private void ApplyInventory(InventoryData inventoryData, PlayerStateData playerData)
     {
-        if (inventory == null)
+        // 优先应用到 PlayerItemManager，如果不存在则退回 InventoryManager
+        if (playerItemManager != null)
         {
-            Debug.LogWarning("[LoadGameHandler] InventoryManager missing; skip applying coins/items.");
-            return;
+            playerItemManager.LoadInventoryFromSave(inventoryData != null ? inventoryData.items : null);
         }
-
-        inventory.ResetInventory();
-
-        int coins = playerData != null ? playerData.coins : 0;
-        if (coins > 0)
+        else if (inventory != null)
         {
-            inventory.AddCoins(coins);
+            inventory.ResetInventory();
+
+            int coins = playerData != null ? playerData.coins : 0;
+            if (coins > 0)
+            {
+                inventory.AddCoins(coins);
+            }
+
+            if (inventoryData == null || inventoryData.items == null) return;
+            foreach (var item in inventoryData.items)
+            {
+                if (string.IsNullOrEmpty(item.itemId) || item.count <= 0) continue;
+                inventory.AddItem(item.itemId, item.count);
+            }
         }
-
-        if (inventoryData == null || inventoryData.items == null) return;
-        foreach (var item in inventoryData.items)
+        else
         {
-            if (string.IsNullOrEmpty(item.itemId) || item.count <= 0) continue;
-            inventory.AddItem(item.itemId, item.count);
+            Debug.LogWarning("[LoadGameHandler] No inventory component found; skip applying items/coins.");
         }
     }
 }

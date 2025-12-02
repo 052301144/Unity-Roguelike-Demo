@@ -40,6 +40,16 @@ public class WeaponItem : ItemBase
     public IReadOnlyList<WeaponAttribute> ExtraAttributes => extraAttributes;
 
     /// <summary>
+    /// Calculate attack value with enhancement (each level +15% of base, ceil).
+    /// </summary>
+    public int GetFinalAttack()
+    {
+        int clampedLevel = Mathf.Clamp(EnhancementLevel, 0, MaxEnhancementLevel);
+        float factor = 1f + 0.15f * clampedLevel;
+        return Mathf.CeilToInt(baseAttack * factor);
+    }
+
+    /// <summary>
     /// Get the material costs to reach the specified target level.
     /// If no exact entry is found, returns the last defined step.
     /// </summary>

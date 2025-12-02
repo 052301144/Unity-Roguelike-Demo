@@ -10,39 +10,41 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4477f5b7ba29fb04eb8da4fd57e6d139, type: 3}
-  m_Name: icon sword
+  m_Name: sabre
   m_EditorClassIdentifier: 
-  itemId: 1
-  itemName: "\u94C1\u5251"
+  itemId: 9
+  itemName: "\u519B\u5200"
   quality: 0
   description: 
-  icon: {fileID: 21300000, guid: 0b0124d487231b3498d53a37335a1b26, type: 3}
+  icon: {fileID: 21300000, guid: dc69d5894b472194bb8e5a5eeee22010, type: 3}
   maxStackSize: 1
-  baseAttack: 10
+  baseAttack: 50
   enhancementLevel: 0
-  maxEnhancementLevel: 5
+  maxEnhancementLevel: 10
   enhancementCosts:
   - targetLevel: 1
     materials:
     - itemId: 99
-      amount: 2
+      amount: 5
   - targetLevel: 2
     materials:
     - itemId: 99
-      amount: 3
+      amount: 9
   - targetLevel: 3
     materials:
     - itemId: 99
-      amount: 5
+      amount: 12
   - targetLevel: 4
     materials:
     - itemId: 99
-      amount: 6
+      amount: 15
   - targetLevel: 5
     materials:
     - itemId: 99
-      amount: 8
+      amount: 15
+    - itemId: 101
+      amount: 1
   elementalAttack: 0
-  criticalChance: 0.05
-  defenseIgnore: 0
+  criticalChance: 0.1
+  defenseIgnore: 0.4
   extraAttributes: []

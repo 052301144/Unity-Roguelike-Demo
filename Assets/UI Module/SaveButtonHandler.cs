@@ -11,6 +11,7 @@ public class SaveButtonHandler : MonoBehaviour
     [SerializeField] private PlayerController player;
     [SerializeField] private Attribute playerAttribute;
     [SerializeField] private InventoryManager inventory;
+    [SerializeField] private PlayerItemManager playerItemManager;
 
     /// <summary>
     /// Called by UI Button OnClick.
@@ -30,6 +31,11 @@ public class SaveButtonHandler : MonoBehaviour
         if (inventory == null)
         {
             inventory = InventoryManager.Instance ?? FindObjectOfType<InventoryManager>();
+        }
+
+        if (playerItemManager == null)
+        {
+            playerItemManager = FindObjectOfType<PlayerItemManager>();
         }
 
         var data = new SaveData
@@ -53,6 +59,16 @@ public class SaveButtonHandler : MonoBehaviour
 
     private List<ItemStackData> BuildInventoryItems()
     {
+        // 优先使用 PlayerItemManager（堆叠+物品类型）
+        if (playerItemManager == null)
+        {
+            playerItemManager = FindObjectOfType<PlayerItemManager>();
+        }
+        if (playerItemManager != null)
+        {
+            return playerItemManager.GetInventoryStacksForSave();
+        }
+
         var list = new List<ItemStackData>();
         if (inventory == null)
         {

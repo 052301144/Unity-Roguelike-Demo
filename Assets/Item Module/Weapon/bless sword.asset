@@ -10,39 +10,47 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4477f5b7ba29fb04eb8da4fd57e6d139, type: 3}
-  m_Name: icon sword
+  m_Name: bless sword
   m_EditorClassIdentifier: 
-  itemId: 1
-  itemName: "\u94C1\u5251"
+  itemId: 6
+  itemName: "\u795D\u798F\u4E4B\u5251"
   quality: 0
   description: 
-  icon: {fileID: 21300000, guid: 0b0124d487231b3498d53a37335a1b26, type: 3}
+  icon: {fileID: 21300000, guid: e738e340b2f3c714e860126234cd5887, type: 3}
   maxStackSize: 1
-  baseAttack: 10
+  baseAttack: 120
   enhancementLevel: 0
   maxEnhancementLevel: 5
   enhancementCosts:
   - targetLevel: 1
     materials:
     - itemId: 99
-      amount: 2
+      amount: 9
   - targetLevel: 2
     materials:
     - itemId: 99
-      amount: 3
+      amount: 12
+    - itemId: 101
+      amount: 1
   - targetLevel: 3
     materials:
     - itemId: 99
-      amount: 5
+      amount: 16
+    - itemId: 101
+      amount: 2
   - targetLevel: 4
     materials:
     - itemId: 99
-      amount: 6
+      amount: 16
+    - itemId: 101
+      amount: 3
   - targetLevel: 5
     materials:
     - itemId: 99
-      amount: 8
+      amount: 24
+    - itemId: 101
+      amount: 4
   elementalAttack: 0
-  criticalChance: 0.05
-  defenseIgnore: 0
+  criticalChance: 0.25
+  defenseIgnore: 0.6
   extraAttributes: []

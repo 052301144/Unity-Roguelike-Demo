@@ -13,6 +13,8 @@ public class EquipmentItem : ItemBase
     [SerializeField] private int defense = 0;
     [Min(0)]
     [SerializeField] private int maxHealthBonus = 0;
+    [Min(0)]
+    [SerializeField] private int enhancementLevel = 0;
 
     [Header("Enhancement")]
     [Min(0)]
@@ -31,10 +33,31 @@ public class EquipmentItem : ItemBase
 
     public int Defense => defense;
     public int MaxHealthBonus => maxHealthBonus;
+    public int EnhancementLevel => enhancementLevel;
     public int MaxEnhancementLevel => Mathf.Max(0, maxEnhancementLevel);
     public float ElementalResistance => elementalResistance;
     public float DamageReduction => Mathf.Clamp01(damageReduction);
     public IReadOnlyList<EquipmentAttribute> ExtraAttributes => extraAttributes;
+
+    /// <summary>
+    /// Calculate defense with enhancement (each level +5% base, ceil).
+    /// </summary>
+    public int GetFinalDefense()
+    {
+        int clampedLevel = Mathf.Clamp(EnhancementLevel, 0, MaxEnhancementLevel);
+        float factor = 1f + 0.05f * clampedLevel;
+        return Mathf.CeilToInt(defense * factor);
+    }
+
+    /// <summary>
+    /// Calculate max health bonus with enhancement (each level +10% base, ceil).
+    /// </summary>
+    public int GetFinalMaxHealthBonus()
+    {
+        int clampedLevel = Mathf.Clamp(EnhancementLevel, 0, MaxEnhancementLevel);
+        float factor = 1f + 0.10f * clampedLevel;
+        return Mathf.CeilToInt(maxHealthBonus * factor);
+    }
 
     /// <summary>
     /// Get the material costs to reach the specified target level.

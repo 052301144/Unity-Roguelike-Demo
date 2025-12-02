@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86e2f8da89f388e4096aea342113dfa4, type: 3}
+  m_Name: Equipment_ 4
+  m_EditorClassIdentifier: 
+  itemId: 24
+  itemName: "\u9ED1\u9668\u7532"
+  quality: 0
+  description: 
+  icon: {fileID: 21300000, guid: bd6e2e8acd20c1c4d8a78518f69be8b1, type: 3}
+  maxStackSize: 1
+  defense: 30
+  maxHealthBonus: 400
+  enhancementLevel: 0
+  maxEnhancementLevel: 5
+  enhancementCosts:
+  - targetLevel: 1
+    materials:
+    - itemId: 100
+      amount: 9
+  - targetLevel: 2
+    materials:
+    - itemId: 100
+      amount: 12
+    - itemId: 101
+      amount: 1
+  - targetLevel: 3
+    materials:
+    - itemId: 100
+      amount: 18
+    - itemId: 101
+      amount: 2
+  - targetLevel: 4
+    materials:
+    - itemId: 100
+      amount: 21
+    - itemId: 101
+      amount: 3
+  - targetLevel: 5
+    materials:
+    - itemId: 100
+      amount: 27
+    - itemId: 101
+      amount: 3
+  elementalResistance: 0
+  damageReduction: 0.25
+  extraAttributes: []
