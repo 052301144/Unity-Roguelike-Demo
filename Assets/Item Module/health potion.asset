@@ -16,7 +16,7 @@ MonoBehaviour:
   itemName: Health Potion
   quality: 0
   description: Heals HP.
-  icon: {fileID: 0}
-  maxStackSize: 10
+  icon: {fileID: 21300000, guid: bfc63b9c7434fbb4a9eed7716ba5799e, type: 3}
+  maxStackSize: 16
   healAmount: 50
   manaAmount: 0
