@@ -219,10 +219,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71e0c740e19aee344ae062e71d0238c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100000
+  maxHealth: 500
   currentHealth: 0
-  attack: 10
-  defense: 0
+  attack: 18
+  defense: 5
   showHealthBar: 1
   logDamageEvents: 1
   useInvincibilityFrames: 0
@@ -315,7 +315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 517679a4976387e4290c16fdb1174914, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dropTable: {fileID: 11400000, guid: b125279229ce0d849aa47a18d7a430cf, type: 2}
+  dropTable: {fileID: 11400000, guid: 3b7d0dbe5b45a934dacaf5d9fbdd7abc, type: 2}
   enableDrops: 1
   dropOffset: {x: 0, y: 0.5, z: 0}
   healthCheckInterval: 0.5

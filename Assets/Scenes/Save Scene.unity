@@ -6491,6 +6491,12 @@ MonoBehaviour:
     count: 1
   - item: {fileID: 11400000, guid: 56def3d1c3a94ef47a491be6b595338d, type: 2}
     count: 1
+  - item: {fileID: 11400000, guid: 43d0439793f20eb46b5888ac05643b2a, type: 2}
+    count: 1
+  - item: {fileID: 11400000, guid: d2b491e29a051384c8cb8535acf85c68, type: 2}
+    count: 1
+  - item: {fileID: 11400000, guid: aa26a92be9b301c4f8e01476d5458a05, type: 2}
+    count: 1
 --- !u!1 &591871455
 GameObject:
   m_ObjectHideFlags: 0

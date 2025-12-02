@@ -10,26 +10,26 @@ EditorBuildSettings:
       and Background.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
+    path: Assets/Scenes/StartMenuScene.unity
+    guid: 8ab2462161c542141a6bfff63757943d
+  - enabled: 1
     path: Assets/Scenes/map_1.unity
     guid: 4c46d86d0faf16348affa521e2aee436
   - enabled: 1
     path: Assets/Scenes/map_2.unity
-    guid: c1f001df0230af6418520219a82e307c
+    guid: d31c85cf4e3f05b4990cea66530ce890
   - enabled: 1
     path: Assets/Scenes/map_3.unity
-    guid: 293fb31f893430c40b1ef561ff09f5c3
+    guid: d4c7215d08b504549a493ee17a388cab
   - enabled: 1
     path: Assets/Scenes/map_4.unity
-    guid: bc624b669db9a5844b9c50598021f4f0
+    guid: 98886fe7fa6acee4b9c09fa18bab2839
   - enabled: 1
     path: Assets/Scenes/map_5.unity
-    guid: 39ab45269afd85c4f9fc54494b1ecff0
+    guid: 461f78d2172cad44ba8b13e57e51d918
   - enabled: 1
     path: Assets/Scenes/map_6.unity
-    guid: 7f03c7872e9ed2a48b999d33967a50a1
-  - enabled: 1
-    path: Assets/Scenes/StartMenuScene.unity
-    guid: 8ab2462161c542141a6bfff63757943d
+    guid: c11c8f71c859d5e449913eabaa145d6f
   - enabled: 0
     path: Assets/Scenes/SaveScenes.unity
     guid: da8978fa83b42544791b42cb46d135aa

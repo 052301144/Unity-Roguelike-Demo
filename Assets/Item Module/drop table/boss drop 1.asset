@@ -18,7 +18,7 @@ MonoBehaviour:
   possibleDrops:
   - itemName: gold sword
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: aaacc657feca6ef41a64b2cd130f0898, type: 3}
     itemAsset: {fileID: 11400000, guid: d2b491e29a051384c8cb8535acf85c68, type: 2}
     dropChance: 0.25
     minQuantity: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
     itemType: 3
   - itemName: purple pepper sword
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: 41b36cea77f774945b8293f1c09af8e1, type: 3}
     itemAsset: {fileID: 11400000, guid: 384cbb00145069d4ba0aa60e2abf5ad8, type: 2}
     dropChance: 0.22
     minQuantity: 1
@@ -38,7 +38,7 @@ MonoBehaviour:
     itemType: 3
   - itemName: Equipment_4
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: bd6e2e8acd20c1c4d8a78518f69be8b1, type: 3}
     itemAsset: {fileID: 11400000, guid: 43d0439793f20eb46b5888ac05643b2a, type: 2}
     dropChance: 0.22
     minQuantity: 1
@@ -48,7 +48,7 @@ MonoBehaviour:
     itemType: 4
   - itemName: weapon material
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: 26a8f9b2e4646d8408611d939829af44, type: 3}
     itemAsset: {fileID: 11400000, guid: 56708b50027ca6841bdb988f1b0d0dc9, type: 2}
     dropChance: 0.65
     minQuantity: 3
@@ -58,7 +58,7 @@ MonoBehaviour:
     itemType: 5
   - itemName: equipment material
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: 31bf1ba3610922f439d2ace8a1ce7c41, type: 3}
     itemAsset: {fileID: 11400000, guid: 4930b9d1e1e54a1469eeadc571726e28, type: 2}
     dropChance: 0.55
     minQuantity: 2
@@ -68,7 +68,7 @@ MonoBehaviour:
     itemType: 5
   - itemName: rare material
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: 1895bf5014dad1042bd8d6672ce95133, type: 3}
     itemAsset: {fileID: 11400000, guid: 430553b227341924ea4164aca84b2d73, type: 2}
     dropChance: 0.15
     minQuantity: 1

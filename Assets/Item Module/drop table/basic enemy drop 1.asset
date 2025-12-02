@@ -18,7 +18,7 @@ MonoBehaviour:
   possibleDrops:
   - itemName: icon sword
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: 0b0124d487231b3498d53a37335a1b26, type: 3}
     itemAsset: {fileID: 11400000, guid: ee379373041b2de45af81740f822d878, type: 2}
     dropChance: 0.2
     minQuantity: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
     itemType: 3
   - itemName: steel sword
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: 4a3f70219e328c7489a52737e1040016, type: 3}
     itemAsset: {fileID: 11400000, guid: c0b5a074a56922f49923b4c2f628414c, type: 2}
     dropChance: 0.15
     minQuantity: 1
@@ -38,7 +38,7 @@ MonoBehaviour:
     itemType: 3
   - itemName: elven short sword
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: fd51967c9e572c844b8da0a2d76c03ba, type: 3}
     itemAsset: {fileID: 11400000, guid: db3b8e73a5506aa43b08c5f04a574d1f, type: 2}
     dropChance: 0.12
     minQuantity: 1
@@ -48,7 +48,7 @@ MonoBehaviour:
     itemType: 3
   - itemName: Equipment_basic
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: a2620ccdb33d41d43a8fe0ab78dc0f6e, type: 3}
     itemAsset: {fileID: 11400000, guid: e04946e7ad8804a49a9fa0c7c9befd19, type: 2}
     dropChance: 0.18
     minQuantity: 1
@@ -58,7 +58,7 @@ MonoBehaviour:
     itemType: 4
   - itemName: Equipment_1
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: f13a0ac09e06e2542ace3df74f1f8ab1, type: 3}
     itemAsset: {fileID: 11400000, guid: b6e6d5ad6c0d1e545bbb9cfe382fc558, type: 2}
     dropChance: 0.12
     minQuantity: 1
@@ -68,7 +68,7 @@ MonoBehaviour:
     itemType: 4
   - itemName: weapon material
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: 26a8f9b2e4646d8408611d939829af44, type: 3}
     itemAsset: {fileID: 11400000, guid: 56708b50027ca6841bdb988f1b0d0dc9, type: 2}
     dropChance: 0.6
     minQuantity: 1
@@ -78,7 +78,7 @@ MonoBehaviour:
     itemType: 5
   - itemName: equipment material
     itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
-    itemIcon: {fileID: 0}
+    itemIcon: {fileID: 21300000, guid: 31bf1ba3610922f439d2ace8a1ce7c41, type: 3}
     itemAsset: {fileID: 11400000, guid: 4930b9d1e1e54a1469eeadc571726e28, type: 2}
     dropChance: 0.5
     minQuantity: 1
