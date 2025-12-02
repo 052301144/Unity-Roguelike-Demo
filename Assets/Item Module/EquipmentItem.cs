@@ -42,22 +42,7 @@ public class EquipmentItem : ItemBase
     /// <summary>
     /// Calculate defense with enhancement (each level +5% base, ceil).
     /// </summary>
-    public int GetFinalDefense()
-    {
-        int clampedLevel = Mathf.Clamp(EnhancementLevel, 0, MaxEnhancementLevel);
-        float factor = 1f + 0.05f * clampedLevel;
-        return Mathf.CeilToInt(defense * factor);
-    }
-
-    /// <summary>
-    /// Calculate max health bonus with enhancement (each level +10% base, ceil).
-    /// </summary>
-    public int GetFinalMaxHealthBonus()
-    {
-        int clampedLevel = Mathf.Clamp(EnhancementLevel, 0, MaxEnhancementLevel);
-        float factor = 1f + 0.10f * clampedLevel;
-        return Mathf.CeilToInt(maxHealthBonus * factor);
-    }
+    public int GetFinalDefense()\n    {\n        return GetFinalDefense(EnhancementLevel);\n    }\n\n    /// <summary>\n    /// Calculate defense with runtime enhancement (each level +5% base, ceil).\n    /// </summary>\n    public int GetFinalDefense(int runtimeLevel)\n    {\n        int clampedLevel = Mathf.Clamp(runtimeLevel, 0, MaxEnhancementLevel);\n        float factor = 1f + 0.05f * clampedLevel;\n        return Mathf.CeilToInt(defense * factor);\n    }\n\n    /// <summary>\n    /// Calculate max health bonus with enhancement (each level +10% base, ceil).\n    /// </summary>\n    public int GetFinalMaxHealthBonus()\n    {\n        return GetFinalMaxHealthBonus(EnhancementLevel);\n    }\n\n    public int GetFinalMaxHealthBonus(int runtimeLevel)\n    {\n        int clampedLevel = Mathf.Clamp(runtimeLevel, 0, MaxEnhancementLevel);\n        float factor = 1f + 0.10f * clampedLevel;\n        return Mathf.CeilToInt(maxHealthBonus * factor);\n    }
 
     /// <summary>
     /// Get the material costs to reach the specified target level.
@@ -87,3 +72,4 @@ public struct EquipmentAttribute
     public string name;
     public float value;
 }
+

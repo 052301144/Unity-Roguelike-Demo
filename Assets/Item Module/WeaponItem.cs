@@ -42,12 +42,7 @@ public class WeaponItem : ItemBase
     /// <summary>
     /// Calculate attack value with enhancement (each level +15% of base, ceil).
     /// </summary>
-    public int GetFinalAttack()
-    {
-        int clampedLevel = Mathf.Clamp(EnhancementLevel, 0, MaxEnhancementLevel);
-        float factor = 1f + 0.15f * clampedLevel;
-        return Mathf.CeilToInt(baseAttack * factor);
-    }
+    public int GetFinalAttack()\n    {\n        return GetFinalAttack(EnhancementLevel);\n    }\n\n    /// <summary>\n    /// Calculate attack value with runtime enhancement level (each level +15% of base, ceil).\n    /// </summary>\n    public int GetFinalAttack(int runtimeLevel)\n    {\n        int clampedLevel = Mathf.Clamp(runtimeLevel, 0, MaxEnhancementLevel);\n        float factor = 1f + 0.15f * clampedLevel;\n        return Mathf.CeilToInt(baseAttack * factor);\n    }
 
     /// <summary>
     /// Get the material costs to reach the specified target level.
@@ -77,3 +72,4 @@ public struct WeaponAttribute
     public string name;
     public float value;
 }
+

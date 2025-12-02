@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e22dd1a36dcb79499524605eb1068fc, type: 3}
+  m_Name: boss drop 1
+  m_EditorClassIdentifier: 
+  enemyName: 
+  minTotalDrops: 2
+  maxTotalDrops: 4
+  possibleDrops:
+  - itemName: gold sword
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: d2b491e29a051384c8cb8535acf85c68, type: 2}
+    dropChance: 0.25
+    minQuantity: 1
+    maxQuantity: 1
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 3
+  - itemName: purple pepper sword
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: 384cbb00145069d4ba0aa60e2abf5ad8, type: 2}
+    dropChance: 0.22
+    minQuantity: 1
+    maxQuantity: 1
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 3
+  - itemName: Equipment_4
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: 43d0439793f20eb46b5888ac05643b2a, type: 2}
+    dropChance: 0.22
+    minQuantity: 1
+    maxQuantity: 1
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 4
+  - itemName: weapon material
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: 56708b50027ca6841bdb988f1b0d0dc9, type: 2}
+    dropChance: 0.65
+    minQuantity: 3
+    maxQuantity: 6
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 5
+  - itemName: equipment material
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: 4930b9d1e1e54a1469eeadc571726e28, type: 2}
+    dropChance: 0.55
+    minQuantity: 2
+    maxQuantity: 4
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 5
+  - itemName: rare material
+    itemPrefab: {fileID: 7035282859292924956, guid: 7f8d5ee19c185fb4b85d20fad53c038c, type: 3}
+    itemIcon: {fileID: 0}
+    itemAsset: {fileID: 11400000, guid: 430553b227341924ea4164aca84b2d73, type: 2}
+    dropChance: 0.15
+    minQuantity: 1
+    maxQuantity: 2
+    applyForce: 0
+    forceMultiplier: 0
+    itemType: 5
+  alwaysDropCoin: 0
+  minCoins: 5
+  maxCoins: 10
+  coinDropChance: 0.7

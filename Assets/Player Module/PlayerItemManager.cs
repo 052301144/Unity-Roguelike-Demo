@@ -136,7 +136,7 @@ public class PlayerItemManager : MonoBehaviour
         {
             foreach (var stack in inventory)
             {
-                if (stack.itemId == item.itemId && stack.itemAsset == item.itemAsset)
+                if (stack.itemId == item.itemId && stack.itemAsset == item.itemAsset && stack.enhancementLevel == item.enhancementLevel)
                 {
                     int space = maxStack - stack.stackCount;
                     if (space <= 0) continue;
@@ -344,7 +344,7 @@ public class PlayerItemManager : MonoBehaviour
             {
                 itemId = stack.itemId,
                 count = stack.stackCount,
-                enhancementLevel = 0,
+                enhancementLevel = stack.enhancementLevel,
                 durability = 0
             });
         }
@@ -361,7 +361,7 @@ public class PlayerItemManager : MonoBehaviour
         foreach (var s in stacks)
         {
             if (string.IsNullOrEmpty(s.itemId) || s.count <= 0) continue;
-            AddItemById(s.itemId, s.count);
+            AddItemById(s.itemId, s.count, s.enhancementLevel);
         }
     }
 
@@ -381,7 +381,8 @@ public class PlayerItemManager : MonoBehaviour
 
         if (weapon.itemAsset is WeaponItem weaponAsset)
         {
-            int attackValue = weaponAsset.GetFinalAttack();
+            int runtimeLevel = weapon.enhancementLevel;
+            int attackValue = weaponAsset.GetFinalAttack(runtimeLevel);
             playerAttribute.SetAttack(attackValue);
             if (logItemEvents) Debug.Log($"[PlayerItemManager] 攻击力已设为武器 baseAttack: {attackValue}");
         }
@@ -408,8 +409,9 @@ public class PlayerItemManager : MonoBehaviour
 
             if (item.itemAsset is EquipmentItem equipAsset)
             {
-                defenseBonus += equipAsset.GetFinalDefense();
-                maxHealthBonus += equipAsset.GetFinalMaxHealthBonus();
+                int level = item.enhancementLevel;
+                defenseBonus += equipAsset.GetFinalDefense(level);
+                maxHealthBonus += equipAsset.GetFinalMaxHealthBonus(level);
             }
         }
 
@@ -434,7 +436,7 @@ public class PlayerItemManager : MonoBehaviour
     /// <summary>
     /// 通过 itemId 添加物品，使用 itemLookup 解析资产；若未找到资产，将以纯 id 方式添加。
     /// </summary>
-    public bool AddItemById(string itemId, int amount)
+    public bool AddItemById(string itemId, int amount, int enhancementLevel = 0)
     {
         if (string.IsNullOrEmpty(itemId) || amount <= 0) return false;
         ItemBase asset = ResolveItem(itemId);
@@ -450,6 +452,7 @@ public class PlayerItemManager : MonoBehaviour
             customProperties = new Dictionary<string, float>(),
             stackCount = 1
         };
+        temp.enhancementLevel = enhancementLevel;
         return AddItem(temp, amount);
     }
 
@@ -513,6 +516,42 @@ public class PlayerItemManager : MonoBehaviour
         return new ReadOnlyCollection<ItemData>(inventory);
     }
 
+    /// <summary>
+    /// 获取指定 itemId 的总数量（跨堆叠）。
+    /// </summary>
+    public int GetItemCount(string itemId)
+    {
+        if (string.IsNullOrEmpty(itemId)) return 0;
+        int total = 0;
+        foreach (var stack in inventory)
+        {
+            if (stack != null && stack.itemId == itemId)
+            {
+                total += stack.stackCount;
+            }
+        }
+        return total;
+    }
+
+    /// <summary>
+    /// 重新应用当前装备的武器攻击力。
+    /// </summary>
+    public void ReapplyWeaponAttack()
+    {
+        if (currentWeapon != null)
+        {
+            ApplyWeaponAttack(currentWeapon);
+        }
+    }
+
+    /// <summary>
+    /// 重新计算装备提供的防御/生命。
+    /// </summary>
+    public void RecalculateEquippedStats()
+    {
+        RecalculateEquipmentStats();
+    }
+
     private void OnItemsUpdated()
     {
         OnInventoryChanged?.Invoke(new ReadOnlyCollection<ItemData>(inventory));
@@ -535,6 +574,7 @@ public class ItemData
     public int value;
     public Dictionary<string, float> customProperties;
     public int stackCount = 1;
+    public int enhancementLevel = 0;
 
     public ItemData()
     {
@@ -554,6 +594,7 @@ public class ItemData
             customProperties = new Dictionary<string, float>();
             itemAsset = dropItem.itemAsset;
             stackCount = 1;
+            enhancementLevel = 0;
         }
     }
 
@@ -576,6 +617,7 @@ public class ItemData
             customProperties = new Dictionary<string, float>();
             itemAsset = itemBase;
             stackCount = 1;
+            enhancementLevel = 0;
         }
     }
 
@@ -592,6 +634,7 @@ public class ItemData
             value = other.value;
             customProperties = new Dictionary<string, float>(other.customProperties ?? new Dictionary<string, float>());
             stackCount = other.stackCount;
+            enhancementLevel = other.enhancementLevel;
         }
     }
 }
