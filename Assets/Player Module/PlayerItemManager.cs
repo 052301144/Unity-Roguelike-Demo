@@ -316,7 +316,34 @@ public class PlayerItemManager : MonoBehaviour
 
     private void ApplyConsumableEffect(ItemData consumable)
     {
-        // TODO: apply effects per item definition
+        if (consumable == null) return;
+
+        // 目前仅实现基础的回血/回蓝药剂（ConsumableItem）
+        if (consumable.itemAsset is ConsumableItem consumableAsset)
+        {
+            if (playerAttribute == null)
+            {
+                playerAttribute = GetComponent<Attribute>();
+            }
+
+            if (playerAttribute != null)
+            {
+                int heal = consumableAsset.HealAmount;
+                int mana = consumableAsset.ManaAmount;
+
+                if (heal > 0)
+                {
+                    playerAttribute.Heal(heal);
+                    if (logItemEvents) Debug.Log($"[PlayerItemManager] 使用 {consumable.itemName} 恢复生命 {heal}");
+                }
+
+                if (mana > 0)
+                {
+                    playerAttribute.AddMana(mana);
+                    if (logItemEvents) Debug.Log($"[PlayerItemManager] 使用 {consumable.itemName} 恢复法力 {mana}");
+                }
+            }
+        }
     }
 
     private void TryEquipDefaultWeapon()
